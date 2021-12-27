@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.bogoManager</groupId>
+  <artifactId>BogoManagerServer</artifactId>
+  <name>BogoManagerServer</name>
+  <packaging>war</packaging>
+  <version>1.0.0-SNAPSHOT</version>
+  <properties>
+    <java-version>1.8</java-version>
+    <org.springframework-version>4.1.6.RELEASE</org.springframework-version>
+    <org.aspectj-version>1.6.10</org.aspectj-version>
+    <org.slf4j-version>1.6.6</org.slf4j-version>
+    <org.apache.tiles-version>2.2.2</org.apache.tiles-version>
+        <resources.encoding>UTF-8</resources.encoding>
+        <resources.dir>src/main/resources</resources.dir>
+  </properties>
+
+  <repositories>
+	<repository>
+		<id>mvn2</id>
+		<url>http://repo1.maven.org/maven2/</url>
+		<releases>
+			<enabled>true</enabled>
+		</releases>
+		<snapshots>
+			<enabled>true</enabled>
+		</snapshots>
+	</repository>
+	<repository>
+		<id>mesir-repo</id>
+		<url>http://mesir.googlecode.com/svn/trunk/mavenrepo</url>
+	</repository>
+  </repositories>
+
+  <dependencies>
+    <!-- Spring -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <version>${org.springframework-version}</version>
+      <exclusions>
+        <!-- Exclude Commons Logging in favor of SLF4j -->
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+         </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${org.springframework-version}</version>
+    </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${org.springframework-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${org.springframework-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${org.springframework-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${org.springframework-version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>jsr250-api</artifactId>
+            <version>1.0</version>
+        </dependency>
+	<dependency>
+		<groupId>org.hibernate</groupId>
+		<artifactId>hibernate-validator</artifactId>
+		<version>5.2.4.Final</version>
+    </dependency>
+    <dependency>
+    <groupId>javax.validation</groupId>
+    <artifactId>validation-api</artifactId>
+    <version>1.1.0.Final</version>
+    </dependency>
+
+    <dependency>
+        <groupId>javax.xml</groupId>
+        <artifactId>jaxb-api</artifactId>
+        <version>2.1</version>
+        <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.6.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>2.6.0</version>
+    </dependency>
+
+    <!-- AspectJ -->
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjrt</artifactId>
+      <version>${org.aspectj-version}</version>
+    </dependency>
+
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${org.aspectj-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib-nodep</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+
+    <!-- Logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>${org.slf4j-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
+      <version>${org.slf4j-version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${org.slf4j-version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.15</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.mail</groupId>
+          <artifactId>mail</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>javax.jms</groupId>
+          <artifactId>jms</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.sun.jdmk</groupId>
+          <artifactId>jmxtools</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>com.sun.jmx</groupId>
+          <artifactId>jmxri</artifactId>
+        </exclusion>
+      </exclusions>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- @Inject -->
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>1</version>
+    </dependency>
+
+    <!-- Servlet -->
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>2.4</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet.jsp</groupId>
+      <artifactId>jsp-api</artifactId>
+      <version>2.0</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.2</version>
+    </dependency>
+
+    <!-- Test -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.7</version>
+      <scope>test</scope>
+    </dependency>
+
+        <!-- mybatis -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <version>1.3</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-pool</groupId>
+            <artifactId>commons-pool</artifactId>
+            <version>1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.1</version>
+        </dependency>
+
+
+		<!--  mysql Connector  -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>5.1.18</version>
+		</dependency>
+
+		<dependency>
+			<groupId>log4sql</groupId>
+			<artifactId>log4sql</artifactId>
+			<version>7.0.7</version>
+			<scope>system</scope>
+			<systemPath>${basedir}/src/main/webapp/WEB-INF/lib/log4sql.jar</systemPath>
+		</dependency>
+    <!-- Tiles -->
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-jsp</artifactId>
+      <version>${org.apache.tiles-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-el</artifactId>
+      <version>${org.apache.tiles-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-extras</artifactId>
+      <version>${org.apache.tiles-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tiles</groupId>
+      <artifactId>tiles-core</artifactId>
+      <version>${org.apache.tiles-version}</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>3.2</version>
+    </dependency>
+    <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>1.3.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.httpcomponents</groupId>
+        <artifactId>httpclient</artifactId>
+        <version>4.3.2</version>
+    </dependency>
+    <dependency>
+        <groupId>com.google.code.gson</groupId>
+        <artifactId>gson</artifactId>
+        <version>2.2.4</version>
+    </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache</artifactId>
+            <version>2.8.1</version>
+        </dependency>
+
+    <dependency>
+        <groupId>org.apache.jcs</groupId>
+        <artifactId>jcs</artifactId>
+        <version>1.3</version>
+    </dependency>
+       <!--
+       <dependency>
+            <groupId>kr.co.bitek</groupId>
+            <artifactId>bitek-commons-web</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        -->
+    <!-- JSON start -->
+	<dependency>
+		<groupId>org.codehaus.jackson</groupId>
+		<artifactId>jackson-mapper-asl</artifactId>
+		<version>1.9.12</version>
+	</dependency>
+
+	<dependency>
+		<groupId>net.sf.json-lib</groupId>
+		<artifactId>json-lib</artifactId>
+		<version>2.4</version>
+		<type>jar</type>
+		<classifier>jdk15</classifier>
+		<scope>compile</scope>
+	</dependency>
+	<!-- JSON -->
+	<dependency>
+		<groupId>org.json</groupId>
+		<artifactId>json</artifactId>
+		<version>20090211</version>
+	</dependency>
+
+	<!-- POI -->
+	<dependency>
+		<groupId>org.apache.poi</groupId>
+		<artifactId>poi-ooxml</artifactId>
+		<version>3.16</version>
+	</dependency>
+  </dependencies>
+
+  <build>
+		<defaultGoal>install</defaultGoal>
+		<directory>${basedir}/target</directory>
+		<finalName>bogo</finalName>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>1.7</source>
+                        <target>1.7</target>
+                        <encoding>UTF-8</encoding>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>hibernate3-maven-plugin</artifactId>
+					<version>2.1</version>
+					<configuration>
+						<components>
+							<component>
+								<name>hbm2ddl</name>
+								<implementation>annotationconfiguration</implementation>
+							</component>
+						</components>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>hsqldb</groupId>
+							<artifactId>hsqldb</artifactId>
+							<version>1.8.0.7</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+				<!-- EMMA   -->
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>emma-maven-plugin</artifactId>
+					<version>1.0-alpha-1</version>
+				</plugin>
+				<!-- PMD manven plugin -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-pmd-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+</project>

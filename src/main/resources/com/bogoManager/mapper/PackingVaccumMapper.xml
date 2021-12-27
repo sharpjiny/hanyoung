@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bogoManager.mapper.PackingVaccumMapper">
+
+  <select id="selectPackingVaccum" parameterType="PackingVaccum" resultType="PackingVaccum">
+    SELECT e.e_id,
+        e.vaccum_date,
+        e.work_type,
+        (select code_name from common_code where code = e.work_type AND code_group='work_type') as work_type_name,
+        e.vaccum,
+        (select code_name from common_code where code = e.vaccum AND code_group='vaccum') as vaccum_name,
+        DATE_FORMAT(e.start_time, "%Y-%m-%d %H:%i") start_time,
+        DATE_FORMAT(e.end_time, "%Y-%m-%d %H:%i") end_time,
+        e.vaccum_group,
+        (select code_name from common_code where code = e.vaccum_group AND code_group='jab_class') as vaccum_group_name,
+        e.weight1,
+        e.weight2,
+        e.weight3,
+        e.total_production,
+        e.cycle_time,
+        e.is_check,
+        e.check_user,
+        e.check_date,
+        e.created,
+        e.last_modified,
+        e.tunc_used
+    FROM packing_vaccum e
+    WHERE e.e_id = #{eId}
+  </select>
+
+  <select id="selectPackingVaccumProduce" parameterType="PackingVaccum" resultType="PackingVaccumProduce">
+    SELECT
+        ep.ep_id,
+        ep.vehicle_id,
+        ep.production,
+      (ep.production - 0) as complete,
+        vm.kind,
+        vm.product_name,
+        vm.model_car,
+        vm.lh_rh,
+        vm.product_id,
+        vm.client,
+        e.tunc_used
+    FROM packing_vaccum e
+    LEFT JOIN packing_vaccum_produce ep ON (e.e_id=ep.e_id)
+    LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+    WHERE e.e_id = #{eId}
+  </select>
+
+  <sql id="wherePackingVaccumPaging">
+    <where>
+      <!-- 검사일 -->
+      <choose>
+	      <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.bogoManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+	        AND REPLACE(e.vaccum_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+	      </when>
+	      <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+	        AND REPLACE(e.vaccum_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+	      </when>
+	      <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+	        AND REPLACE(e.vaccum_date, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+	      </when>
+      </choose>
+      <!-- 주/야간 -->
+      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(workType)">AND e.work_type = #{workType}</if>
+      <!-- 구분 -->
+      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(kind)">AND vm.kind = #{kind} </if>
+      <!-- 차종 -->
+      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(modelCar)">AND vm.model_car = #{modelCar} </if>
+      <!-- LH/RH -->
+      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(lhRh)">AND vm.lh_rh = #{lhRh} </if>
+      <!-- 품명 -->
+      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(productName)">AND vm.product_name LIKE CONCAT('%',#{productName},'%') </if>
+      <!-- 반 -->
+      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(vaccumGroup)">AND e.vaccum_group LIKE CONCAT('%',#{vaccumGroup},'%') </if>
+      <!-- 사출호기 -->
+      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(vaccum)">AND e.vaccum LIKE CONCAT('%',#{vaccum},'%') </if>
+    </where>
+  </sql>
+
+  <select id="selectPackingVaccumList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    SELECT e.e_id,
+        DATE_FORMAT(e.vaccum_date, '%y-%m-%d') as vaccum_date,
+        e.work_type,
+        (select code_name from common_code where code = e.work_type AND code_group='work_type') as work_type_name,
+        e.vaccum,
+        (select code_name from common_code where code = e.vaccum AND code_group='vaccum') as vaccum_name,
+        DATE_FORMAT(e.start_time, "%m-%d %H:%i") start_time,
+        DATE_FORMAT(e.end_time, "%m-%d %H:%i") end_time,
+        TIME_FORMAT(SEC_TO_TIME(unix_timestamp(end_time)-unix_timestamp(start_time)), '%H:%i') as d_time,
+        ''+TIME_FORMAT(SEC_TO_TIME(unix_timestamp(end_time)-unix_timestamp(start_time)), '%H.%i') as unix_time,
+        e.vaccum_group,
+        (select code_name from common_code where code = e.vaccum_group AND code_group='jab_class') as vaccum_group_name,
+        e.total_production,
+        e.cycle_time,
+        e.is_check,
+        e.check_user,
+        e.check_date,
+        e.created,
+        e.last_modified,
+        ep.ep_id,
+        ep.vehicle_id,
+        IFNULL( ep.production, 0) production,
+        IFNULL((ep.production - 0), 0) complete,
+        IFNULL((1/ep.production*100), 0) defect_rate,
+        vm.kind,
+        vm.product_name,
+        vm.model_car,
+        vm.lh_rh,
+        vm.product_id,
+        vm.client,
+        c.cnt,
+        e.tunc_used,
+        d.avgTime
+    FROM packing_vaccum e
+    LEFT JOIN packing_vaccum_produce ep ON (e.e_id=ep.e_id)
+    LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+    LEFT JOIN
+       (SELECT b.e_id, count(b.e_id) cnt
+            FROM (SELECT e.e_id
+                  FROM packing_vaccum e
+                      LEFT JOIN packing_vaccum_produce ep ON (e.e_id=ep.e_id)
+                      LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+                      <include refid="wherePackingVaccumPaging"/>
+                      <choose>
+					      <when test="@com.bogoManager.web.util.CommonUtil@isEmpty(orderBy)">
+					        ORDER BY e.vaccum_date DESC, e.e_id, ep.ep_id
+					      </when>
+					        <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+					        ORDER BY ${orderBy}
+					      </when>
+					    </choose>
+                      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.bogoManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+            ) b GROUP BY b.e_id
+        ) c
+    ON e.e_id = c.e_id
+    JOIN
+       (SELECT TIME_FORMAT(SEC_TO_TIME(avg(T1)), '%H:%i') as avgTime 
+            FROM 
+	        (SELECT b.e_id, count(b.e_id) cnt, T1
+	            FROM (SELECT e.e_id, @time := (unix_timestamp(end_time)-unix_timestamp(start_time)) T1
+	                  FROM packing_vaccum e
+	                      LEFT JOIN packing_vaccum_produce ep ON (e.e_id=ep.e_id)
+	                      LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+	                      <include refid="wherePackingVaccumPaging"/>
+	                      <choose>
+	                          <when test="@com.bogoManager.web.util.CommonUtil@isEmpty(orderBy)">
+	                            ORDER BY e.vaccum_date DESC, e.e_id, ep.ep_id
+	                          </when>
+	                            <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+	                            ORDER BY ${orderBy}
+	                          </when>
+	                        </choose>
+	                      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.bogoManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+	            ) b GROUP BY b.e_id
+	            
+	        ) c 
+        ) d
+    <include refid="wherePackingVaccumPaging"/>
+    <choose>
+      <when test="@com.bogoManager.web.util.CommonUtil@isEmpty(orderBy)">
+		ORDER BY e.vaccum_date DESC, e.e_id, ep.ep_id
+      </when>
+        <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+        ORDER BY ${orderBy}
+      </when>
+    </choose>
+  </select>
+
+  <select id="selectPackingVaccumPagingCount" parameterType="java.util.HashMap" resultType="Integer">
+    SELECT count(*)
+    FROM packing_vaccum e
+    LEFT JOIN packing_vaccum_produce ep ON (e.e_id=ep.e_id)
+    LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+    <include refid="wherePackingVaccumPaging"/>
+  </select>
+
+  <select id="selectPackingVaccumPagingList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    SELECT e.e_id,
+        DATE_FORMAT(e.vaccum_date, '%y-%m-%d') as vaccum_date,
+        e.work_type,
+        (select code_name from common_code where code = e.work_type AND code_group='work_type') as work_type_name,
+        e.vaccum,
+        (select code_name from common_code where code = e.vaccum AND code_group='vaccum') as vaccum_name,
+        DATE_FORMAT(e.start_time, "%m-%d %H:%i") start_time,
+        DATE_FORMAT(e.end_time, "%m-%d %H:%i") end_time,
+        TIME_FORMAT(SEC_TO_TIME(unix_timestamp(end_time)-unix_timestamp(start_time)), '%H:%i') as d_time,
+        ''+TIME_FORMAT(SEC_TO_TIME(unix_timestamp(end_time)-unix_timestamp(start_time)), '%H.%i') as unix_time,
+        e.vaccum_group,
+        (select code_name from common_code where code = e.vaccum_group AND code_group='jab_class') as vaccum_group_name,
+        e.weight1,
+        e.weight2,
+        e.weight3,
+        e.total_production,
+        e.cycle_time,
+        e.is_check,
+        e.check_user,
+        e.check_date,
+        e.created,
+        e.last_modified,
+        ep.ep_id,
+        ep.vehicle_id,
+        IFNULL( ep.production, 0) production,
+        IFNULL((ep.production - 1), 0) complete,
+        IFNULL((1/ep.production*100), 0) defect_rate,
+        vm.kind,
+        vm.product_name,
+        vm.model_car,
+        vm.lh_rh,
+        vm.product_id,
+        vm.client,
+        c.cnt,
+        e.tunc_used
+    FROM packing_vaccum e
+    LEFT JOIN packing_vaccum_produce ep ON (e.e_id=ep.e_id)
+    LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+    LEFT JOIN
+       (SELECT b.e_id, count(b.e_id) cnt
+            FROM (SELECT e.e_id
+                  FROM packing_vaccum e
+                      LEFT JOIN packing_vaccum_produce ep ON (e.e_id=ep.e_id)
+                      LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+                      <choose>
+					      <when test="@com.bogoManager.web.util.CommonUtil@isEmpty(orderBy)">
+					        ORDER BY e.vaccum_date DESC, e.e_id, ep.ep_id
+					      </when>
+					        <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+					        ORDER BY ${orderBy}
+					      </when>
+					    </choose>
+                      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.bogoManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+            ) b GROUP BY b.e_id
+        ) c
+    ON e.e_id = c.e_id  
+    <include refid="wherePackingVaccumPaging"/>
+    <choose>
+      <when test="@com.bogoManager.web.util.CommonUtil@isEmpty(orderBy)">
+		ORDER BY e.vaccum_date DESC, e.e_id, ep.ep_id
+      </when>
+        <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+        ORDER BY ${orderBy}
+      </when>
+    </choose>
+    <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.bogoManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+  </select>
+
+  <select id="selectRawStocks" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    SELECT * FROM 
+	    (SELECT vm.kind,
+	        vm.model_car,
+	        vm.product_name,
+	        vm.lh_rh
+	    FROM packing_vaccum e
+	    LEFT JOIN packing_vaccum_produce ep ON (e.e_id=ep.e_id)
+	    LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+	    ) A
+    <where>
+		<!-- 구분 -->
+		<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(kind)">AND A.kind = #{kind}</if>
+		<!-- 차종 -->
+		<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(modelCar)">AND A.model_car = #{modelCar}</if>
+		<!-- 품명 -->
+		<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(productName)">AND A.product_name = #{productName}</if>
+		<!-- 품명 -->
+		<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(lhRh)">AND A.lh_rh = #{lhRh}</if>
+	</where>
+  </select>
+
+  <insert id="insertPackingVaccum" parameterType="PackingVaccum" useGeneratedKeys="true" keyProperty="eId">
+    INSERT INTO packing_vaccum
+    (vaccum_date, work_type, vaccum, start_time, end_time, vaccum_group, total_production, created, last_modified, tunc_used)
+    VALUES
+    (STR_TO_DATE(#{vaccumDate}, '%Y-%m-%d'), #{workType}, #{vaccum}, STR_TO_DATE(#{startTime}, '%Y-%m-%d %H:%i'), STR_TO_DATE(#{endTime}, '%Y-%m-%d %H:%i'), #{vaccumGroup}, #{totalProduction}, now(), now(), #{tuncUsed})
+  </insert>
+
+    <insert id="insertPackingVaccumProduce" parameterType="PackingVaccumProduce" useGeneratedKeys="true" keyProperty="epId">
+    INSERT INTO packing_vaccum_produce
+    (e_id, vehicle_id, production)
+    VALUES
+    (#{eId}, #{vehicleId}, #{production})
+  </insert>
+
+	<update id="updatePackingVaccum" parameterType="PackingVaccum">
+		UPDATE packing_vaccum
+	    SET last_modified = now()
+	    <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(vaccumDate)">, vaccum_date = STR_TO_DATE(#{vaccumDate}, '%Y-%m-%d')</if>
+	    <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(workType)">, work_type = #{workType}</if>
+	    <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(vaccum)">, vaccum = #{vaccum}</if>
+	    <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(startTime)">, start_time = STR_TO_DATE(#{startTime}, '%Y-%m-%d %H:%i')</if>
+	    <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(endTime)">, end_time = STR_TO_DATE(#{endTime}, '%Y-%m-%d %H:%i')</if>
+	    <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(vaccumGroup)">, vaccum_group = #{vaccumGroup}</if>
+	    <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(totalProduction)">, total_production = #{totalProduction}</if>
+	    <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(tuncUsed)">, tunc_used = #{tuncUsed}</if>
+	    WHERE e_id = #{eId}
+    </update>
+
+	<update id="updatePackingVaccumProduce" parameterType="PackingVaccumProduce">
+    	UPDATE packing_vaccum_produce
+	    SET last_modified = now()
+	    <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(production)">, production = #{production}</if>
+	    WHERE e_id = #{eId} AND ep_id = #{epId}
+    </update>
+
+    <update id="confirmPackingVaccum" parameterType="PackingVaccum">
+        UPDATE packing_vaccum
+	    SET is_check=#{isCheck}, check_user=#{checkUser}, check_date=now()
+	    WHERE e_id = #{eId}
+    </update>
+
+    <delete id="deletePackingVaccum" parameterType="java.util.HashMap">
+        DELETE FROM packing_vaccum
+	    <where>
+	      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(eId)">e_id = #{eId}</if>
+	    </where>
+    </delete>
+
+    <delete id="deletePackingVaccumProduce" parameterType="java.util.HashMap">
+        DELETE FROM packing_vaccum_produce
+	    <where>
+	      <if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(eId)">e_id = #{eId}</if>
+	    </where>
+    </delete>
+
+<!--   <select id="useVaccum" parameterType="Integer" resultType="Integer">
+    SELECT count(*)
+    FROM packing_vaccum
+    WHERE raw_id = #{rawId}
+  </select> -->
+
+</mapper>

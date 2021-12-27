@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bogoManager.mapper.GoodsMapper">
+
+	<select id="selectGoods" parameterType="Goods" resultType="Goods">
+		SELECT a.goods_id,
+		    a.sub_mat_id,
+		    a.goods_date,
+		    a.goods_gubun,
+            (select code_name from common_code where code = a.goods_gubun) as goods_gubun_name,
+		    a.quantity,
+		    a.created,
+		    a.last_modified,
+			a.is_check,
+			a.check_user,
+			a.check_date,
+			a.sub_type,
+		    b.kind,
+		    b.unit,
+		    b.product_name,
+		    b.product_id,
+		    b.use_place
+		FROM sub_materials_goods a
+		LEFT JOIN sub_materials_management b ON (a.sub_mat_id = b.sub_mat_id)
+		WHERE a.goods_id = #{goodsId}
+	</select>
+
+	<select id="selectGoodsStatistics" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT a.goods_id,
+		    a.sub_mat_id,
+		    a.goods_date,
+		    a.gubun,
+            (select code_name from common_code where code = a.goods_gubun) as goods_gubun_name,
+		    sum(a.quantity) total_quantity,
+		    a.created,
+		    a.last_modified,
+			a.is_check,
+			a.check_user,
+			a.check_date,
+		    b.kind,
+		    b.unit,
+		    b.product_name,
+		    b.product_id,
+		    b.use_place
+		FROM sub_materials_goods a
+		LEFT JOIN sub_materials_management b ON (a.sub_mat_id = b.sub_mat_id)
+		WHERE a.goods_gubun != 's005'
+		GROUP BY sub_mat_id
+		ORDER BY b.kind, b.use_place, b.unit, b.product_name
+		<!-- <choose>
+			<when test="@com.bogoManager.web.util.CommonUtil@isEmpty(orderBy)">
+			    ORDER BY b.client, b.kind, b.model_car, b.product_name, b.lh_rh
+			</when>
+		    <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+				ORDER BY ${orderBy}
+			</when>
+		</choose> -->
+	</select>
+
+	<sql id="whereGoodsPaging">
+		<where>
+			<!-- 구분 -->
+			<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(goodsGubun)">AND a.goods_gubun = #{goodsGubun}</if>
+			<!-- 검사일 -->
+			<choose>
+			    <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.bogoManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+					AND REPLACE(a.goods_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+			    </when>
+			    <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+			    	AND REPLACE(a.goods_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+			    </when>
+			    <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+			    	AND REPLACE(a.goods_date, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+			    </when>
+			</choose>
+			<!-- 구분 -->
+			<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(kind)">AND b.kind = #{kind} </if>
+			<!-- 차종 -->
+			<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(unit)">AND b.unit = #{unit} </if>
+			<!-- 품명 -->
+			<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(productName)">AND b.product_name LIKE CONCAT('%',#{productName},'%') </if>
+			<!-- 고객사 -->
+			<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(usePlace)">AND b.use_place = #{usePlace} </if>
+			<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(isCheck)">AND a.is_check = #{isCheck} </if>
+		</where>
+	</sql>
+
+	<select id="selectGoodsPagingCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT count(*)
+		FROM sub_materials_goods a
+		LEFT JOIN sub_mat_management b ON (a.sub_mat_id = b.sub_mat_id)
+		<include refid="whereGoodsPaging"/>
+	</select>
+
+	<select id="selectGoodsList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT a.goods_id,
+		    a.sub_mat_id,
+		    a.goods_date,
+		    a.goods_gubun,
+            (select code_name from common_code where code = a.goods_gubun) as goods_gubun_name,
+            (select code_key from common_code where code = a.goods_gubun) as goods_gubun_key,
+		    a.quantity,
+            if(goods_gubun='s005' || goods_gubun='s004' || goods_gubun='s007' || goods_gubun='s010' || goods_gubun='s011', (a.quantity * -1), a.quantity) as quantity2,
+		    a.created,
+		    a.last_modified,
+			a.is_check,
+			a.check_user,
+			a.check_date,
+		    b.kind,
+		    b.unit,
+		    b.product_name,
+		    b.photo,
+		    b.use_place
+		FROM sub_materials_goods a
+		LEFT JOIN sub_materials_management b ON (a.sub_mat_id = b.sub_mat_id)
+		<include refid="whereGoodsPaging"/>
+		<choose>
+			<when test="@com.bogoManager.web.util.CommonUtil@isEmpty(orderBy)">
+			    ORDER BY goods_date DESC, a.created DESC
+			</when>
+		    <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+				ORDER BY ${orderBy}
+			</when>
+		</choose>
+	</select>
+
+	<select id="selectGoodsPagingList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT a.goods_id,
+		    a.sub_mat_id,
+		    a.goods_date,
+		    a.goods_gubun,
+            (select code_name from common_code where code = a.goods_gubun) as goods_gubun_name,
+            (select code_key from common_code where code = a.goods_gubun) as goods_gubun_key,
+		    a.quantity,
+            if(goods_gubun='s005' || goods_gubun='s004' || goods_gubun='s007' || goods_gubun='s010' || goods_gubun='s011', (a.quantity * -1), a.quantity) as quantity2,
+		    a.created,
+		    a.last_modified,
+			a.is_check,
+			a.check_user,
+			a.check_date,
+		    b.kind,
+		    b.unit,
+		    b.product_name,
+		    b.photo,
+		    b.use_place
+		FROM sub_materials_goods a
+		LEFT JOIN sub_materials_management b ON (a.sub_mat_id = b.sub_mat_id)
+		<include refid="whereGoodsPaging"/>
+		<choose>
+			<when test="@com.bogoManager.web.util.CommonUtil@isEmpty(orderBy)">
+			    ORDER BY goods_date DESC, a.created DESC
+			</when>
+		    <when test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+				ORDER BY ${orderBy}
+			</when>
+		</choose>
+		<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.bogoManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+	</select>
+
+    <insert id="insertGoods" parameterType="Goods" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO sub_materials_goods 
+		(sub_mat_id, goods_date, goods_gubun, quantity, created, last_modified)
+		VALUES
+		(#{subMatId}, STR_TO_DATE(#{goodsDate}, '%Y-%m-%d'), #{goodsGubun}, #{quantity}, now(), now())
+	</insert>
+
+    <update id="updateGoods" parameterType="Goods">
+        UPDATE sub_materials_goods
+		SET last_modified = now()
+		<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(goodsDate)">, goods_date = STR_TO_DATE(#{goodsDate}, '%Y-%m-%d')</if>
+		<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(goodsGubun)">, goods_gubun = #{goodsGubun}</if>
+		<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(quantity)">, quantity = #{quantity}</if>
+		<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(subMatId)">, sub_mat_id = #{subMatId}</if>
+		WHERE goods_id = #{goodsId}
+    </update>
+
+    <update id="updateGoodsSub" parameterType="Goods">
+        UPDATE sub_materials_goods
+		SET last_modified = now(), quantity = #{quantity}, goods_date = STR_TO_DATE(#{goodsDate}, '%Y-%m-%d')
+    </update>
+
+    <delete id="deleteGoods" parameterType="Goods">
+        DELETE FROM sub_materials_goods
+		<where>
+			<if test="@com.bogoManager.web.util.CommonUtil@isNotEmpty(goodsId)">goods_id = #{goodsId}</if>
+		</where>
+    </delete>
+
+    <delete id="deleteGoodsSub" parameterType="Goods">
+        DELETE FROM sub_materials_goods
+		WHERE sub_type = #{subType} AND sub_id = #{subId}
+    </delete>
+
+    <delete id="deleteGoodsKey" parameterType="Goods">
+        DELETE FROM sub_materials_goods
+    </delete>
+
+    <update id="confirmGoods" parameterType="Goods">
+        UPDATE sub_materials_goods
+		SET is_check=#{isCheck}, check_user=#{checkUser}, check_date=now()
+		WHERE goods_id = #{goodsId}
+    </update>
+
+</mapper>
