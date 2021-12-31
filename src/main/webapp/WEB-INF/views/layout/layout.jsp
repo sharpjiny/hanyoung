@@ -17,6 +17,9 @@
 		<script src="<c:url value='/res/js/plugin/jquery-1.9.1.min.js'/>"></script>
 		<script src="<c:url value='/res/js/plugin/bootstrap.min.js'/>"></script>
 		<script src="<c:url value='/res/js/common.util.js'/>"></script>
+		<link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.css" />
+		<script src="https://uicdn.toast.com/tui.pagination/v3.4.0/tui-pagination.js"></script>
+		<script src="https://uicdn.toast.com/grid/latest/tui-grid.js"></script>
     </head>
     <body>
         <div class="navbar navbar-fixed-top">
@@ -31,7 +34,7 @@
             </div>
             <hr>
             <footer>
-                <p>&copy; BOGO 2018</p>
+                <p>&copy; HAN YOUNG 2022</p>
             </footer>
         </div>
         <!--/.fluid-container-->

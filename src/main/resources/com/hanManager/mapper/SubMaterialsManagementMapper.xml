@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.SubMaterialsManagementMapper">
+	<select id="selectUsePlace" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT use_place, sub_mat_id
+		FROM sub_materials_management
+		GROUP BY use_place
+		ORDER BY use_place
+	</select>
+
+	<select id="selectKinds" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT kind
+		FROM sub_materials_management
+		GROUP BY kind
+		ORDER BY kind
+	</select>
+
+	<select id="selectUnit" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT unit
+		FROM sub_materials_management
+		<where>
+			<!-- 구분 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">AND kind = #{kind}</if>
+		</where>
+		GROUP BY unit
+		ORDER BY unit
+	</select>
+
+	<select id="selectProductNames" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT product_name,
+			sub_mat_id,
+			kind,
+			unit,
+		    use_place,
+			photo
+		FROM sub_materials_management
+		<where>
+			<!-- 구분 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">AND kind = #{kind}</if>
+			<!-- 차종 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(unit)">AND unit = #{unit}</if>
+		</where>
+		GROUP BY product_name
+		ORDER BY product_name
+	</select>
+
+	<select id="selectSubMat" parameterType="SubMaterialsManagement" resultType="SubMaterialsManagement">
+		SELECT sub_mat_id,
+		    kind,
+		    unit,
+		    product_name,
+		    use_place,
+		    photo,
+		    price,
+		    created,
+		    last_modified
+		FROM sub_materials_management
+		WHERE sub_mat_id = #{subMatId}
+	</select>
+
+	<sql id="whereSubMatPaging">
+		<where>
+			<!-- 차종 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(unit)">AND unit LIKE CONCAT('%',#{unit},'%') </if>
+			<!-- 품명 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(productName)">AND product_name LIKE CONCAT('%',#{productName},'%') </if>
+		</where>
+	</sql>
+
+	<select id="selectSubMatPagingCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT count(*)
+		FROM sub_materials_management A
+		<include refid="whereSubMatPaging"/>
+	</select>
+
+	<select id="selectSubMatPagingList" parameterType="java.util.HashMap" resultType="SubMaterialsManagement">
+		SELECT sub_mat_id,
+		    kind,
+		    unit,
+		    product_name,
+		    use_place,
+		    photo,
+		    price,
+		    created,
+		    last_modified
+		FROM sub_materials_management AS A
+		<include refid="whereSubMatPaging"/>
+		<choose>
+			<when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+			    ORDER BY A.created DESC
+			</when>
+		    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+				ORDER BY ${orderBy}
+			</when>
+		</choose>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.hanManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+	</select>
+
+	<select id="selectSubMatList" parameterType="java.util.HashMap" resultType="SubMaterialsManagement">
+		SELECT sub_mat_id,
+		    kind,
+		    product_name,
+		    unit,
+		    use_place,
+		    price,
+		    photo,
+		    created,
+		    last_modified
+		FROM sub_materials_management AS A
+		<include refid="whereSubMatPaging"/>
+		<choose>
+			<when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+			    ORDER BY A.created DESC
+			</when>
+		    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+				ORDER BY ${orderBy}
+			</when>
+		</choose>
+	</select>
+
+    <insert id="insertSubMat" parameterType="SubMaterialsManagement" >
+	    INSERT INTO sub_materials_management
+		(kind, unit, product_name, use_place, photo, price, created, last_modified)
+		VALUES
+		(#{kind}, #{unit}, #{productName}, #{usePlace}, #{photo}, #{price}, now(), now())
+	</insert>
+
+    <update id="updateSubMat" parameterType="SubMaterialsManagement">
+        UPDATE sub_materials_management
+		SET last_modified = now()
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">, kind = #{kind}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(unit)">, unit = #{unit}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(productName)">, product_name = #{productName}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(usePlace)">, use_place = #{usePlace}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(photo)">, photo = #{photo}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(price)">, price = #{price}</if>
+		WHERE sub_mat_id = #{subMatId}
+    </update>
+
+    <delete id="deleteSubMat" parameterType="SubMaterialsManagement">
+        DELETE FROM sub_materials_management
+		<where>
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(subMatId)">sub_mat_id = #{subMatId}</if>
+		</where>
+    </delete>
+
+</mapper>

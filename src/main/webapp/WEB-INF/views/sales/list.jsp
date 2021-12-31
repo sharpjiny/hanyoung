@@ -3,7 +3,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page import="java.util.HashMap" %>
-<%@ page import="com.bogoManager.web.util.CommonUtil" %>
+<%@ page import="com.hanManager.web.util.CommonUtil" %>
  <div class="row-fluid">
     <!-- block -->
     <div class="block">

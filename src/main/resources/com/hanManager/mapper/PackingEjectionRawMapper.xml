@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.PackingEjectionRawMapper">
+
+  <select id="selectPackingEjectionRaw" parameterType="PackingEjectionRaw" resultType="PackingEjectionRaw">
+    SELECT e.e_id,
+        e.raw_id,
+        e.ejection_date,
+        e.work_type,
+        (select code_name from common_code where code = e.work_type AND code_group='work_type') as work_type_name,
+        e.ejection,
+        (select code_name from common_code where code = e.ejection AND code_group='ejection') as ejection_name,
+        DATE_FORMAT(e.start_time, "%Y-%m-%d %H:%i") start_time,
+        DATE_FORMAT(e.end_time, "%Y-%m-%d %H:%i") end_time,
+        e.ejection_group,
+        (select code_name from common_code where code = e.ejection_group AND code_group='jab_class') as ejection_group_name,
+        e.weight1,
+        e.weight2,
+        e.weight3,
+        e.total_production,
+        e.cycle_time,
+        e.is_check,
+        e.check_user,
+        e.check_date,
+        e.created,
+        e.last_modified,
+        rsm.kind AS raw_kind,
+        rsm.product_name AS raw_product_name,
+        rsm.product_id AS raw_product_id
+    FROM packing_ejection e
+    LEFT JOIN raw_stock_management rsm ON (e.raw_id = rsm.raw_id)
+    WHERE e.e_id = #{eId}
+  </select>
+
+  <sql id="wherePackingEjectionRawPaging">
+    <where>
+      <!-- 검사일 -->
+      <choose>
+	      <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+	        AND REPLACE(e.ejection_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+	      </when>
+	      <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+	        AND REPLACE(e.ejection_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+	      </when>
+	      <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+	        AND REPLACE(e.ejection_date, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+	      </when>
+      </choose>
+      <!-- 주/야간 -->
+      <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(workType)">AND e.work_type = #{workType}</if>
+      <!-- 구분 -->
+      <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">AND vm.kind = #{kind} </if>
+      <!-- 차종 -->
+      <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(modelCar)">AND vm.model_car = #{modelCar} </if>
+      <!-- LH/RH -->
+      <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(lhRh)">AND vm.lh_rh = #{lhRh} </if>
+      <!-- 품명 -->
+      <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(productName)">AND vm.product_name LIKE CONCAT('%',#{productName},'%') </if>
+      <!-- 반 -->
+      <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(ejectionGroup)">AND e.ejection_group LIKE CONCAT('%',#{ejectionGroup},'%') </if>
+      <!-- 사출호기 -->
+      <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(ejection)">AND e.ejection LIKE CONCAT('%',#{ejection},'%') </if>
+      <!-- 원재료	-->
+      <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(rawId)">AND e.raw_id LIKE CONCAT('%',#{rawId},'%') </if>
+      <!-- 원재료종류-->
+      <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(rawKind)">AND rsm.kind LIKE CONCAT('%',#{rawKind},'%') </if>
+      <!-- 원재료품명	-->
+      <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(rawProductName)">AND rsm.product_name LIKE CONCAT('%',#{rawProductName},'%') </if>
+    </where>
+  </sql>
+
+  <select id="selectPackingEjectionRawList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    SELECT e.e_id,
+        e.raw_id,
+        DATE_FORMAT(e.ejection_date, '%y-%m-%d') as ejection_date,
+        e.work_type,
+        (select code_name from common_code where code = e.work_type AND code_group='work_type') as work_type_name,
+        e.ejection,
+        (select code_name from common_code where code = e.ejection AND code_group='ejection') as ejection_name,
+        DATE_FORMAT(e.start_time, "%m-%d %H:%i") start_time,
+        DATE_FORMAT(e.end_time, "%m-%d %H:%i") end_time,
+        TIME_FORMAT(SEC_TO_TIME(unix_timestamp(end_time)-unix_timestamp(start_time)), '%H:%i') as d_time,
+        ''+TIME_FORMAT(SEC_TO_TIME(unix_timestamp(end_time)-unix_timestamp(start_time)), '%H.%i') as unix_time,
+        e.ejection_group,
+        (select code_name from common_code where code = e.ejection_group AND code_group='jab_class') as ejection_group_name,
+        e.weight1,
+        e.weight2,
+        e.weight3,
+        e.total_production,
+        e.cycle_time,
+        e.is_check,
+        e.check_user,
+        e.check_date,
+        e.created,
+        e.last_modified,
+        ep.ep_id,
+        ep.vehicle_id,
+        vm.product_id,
+        IFNULL( ep.production, 0) production,
+        IFNULL( ep.faulty, 0) faulty,
+        IFNULL((ep.production - ep.faulty), 0) complete,
+        IFNULL((ep.faulty/ep.production*100), 0) defect_rate,
+        vm.kind,
+        vm.product_name,
+        vm.model_car,
+        vm.lh_rh,
+        vm.product_id,
+        vm.client,
+        rsm.kind AS raw_kind,
+        rsm.product_name AS raw_product_name,
+        rsm.product_id AS raw_product_id,
+        c.cnt,
+        d.avgTime,
+        ep.weight,
+        e.gate_weight,
+        vm.kind,
+        vm.product_name,
+        (ep.weight*IFNULL( ep.production, 0)+e.gate_weight/c.sumCnt*IFNULL( ep.production, 0))/1000 as production_use_weight,
+        (ep.weight*IFNULL((ep.production - ep.faulty), 0)+ e.gate_weight/c.sumCnt*IFNULL((ep.production - ep.faulty), 0))/1000 as complete_use_weight,
+        (ep.weight*IFNULL( ep.faulty, 0)+ e.gate_weight/c.sumCnt*IFNULL( ep.faulty, 0))/1000 as faulty_use_weight
+        <!-- ep.weight*IFNULL( ep.production, 0)+case when ep.weight is not null then e.gate_weight/c.cnt*IFNULL( ep.production, 0) else ep.weight end as production_use_weight,
+        ep.weight*IFNULL((ep.production - ep.faulty), 0)++case when ep.weight is not null then e.gate_weight/c.cnt*IFNULL((ep.production - ep.faulty), 0) else ep.weight end as complete_use_weight,
+        ep.weight*IFNULL( ep.faulty, 0)+case when ep.weight is not null then e.gate_weight/c.cnt*IFNULL( ep.faulty, 0) else ep.weight end as faulty_use_weight -->
+        <!-- ep.weight*IFNULL( ep.production, 0)+e.gate_weight*IFNULL( ep.production, 0) production_use_weight,
+        ep.weight*IFNULL((ep.production - ep.faulty), 0)+e.gate_weight*IFNULL((ep.production - ep.faulty), 0) complete_use_weight,
+        ep.weight*IFNULL( ep.faulty, 0)+ e.gate_weight*IFNULL( ep.faulty, 0) faulty_use_weight -->
+    FROM packing_ejection e
+    LEFT JOIN raw_stock_management rsm ON (e.raw_id = rsm.raw_id)
+    LEFT JOIN packing_ejection_produce ep ON (e.e_id=ep.e_id)
+    LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+    LEFT JOIN
+      (SELECT b.e_id, count(b.e_id) cnt, sum(eachCnt) sumCnt
+        FROM (SELECT e.e_id, case when ep.weight is not null and ep.weight != 0 then 1 else 0 end eachCnt
+	          FROM packing_ejection e
+	          LEFT JOIN raw_stock_management rsm ON (e.raw_id = rsm.raw_id)
+	          LEFT JOIN packing_ejection_produce ep ON (e.e_id=ep.e_id)
+	          LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+	          <include refid="wherePackingEjectionRawPaging"/>
+	          <choose>
+			      <when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+			        ORDER BY e.ejection_date DESC, e.e_id, ep.ep_id
+			      </when>
+			        <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+			        ORDER BY ${orderBy}
+			      </when>
+			  </choose>
+			  <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.hanManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+            ) b GROUP BY b.e_id
+      ) c
+    ON e.e_id = c.e_id
+    JOIN
+      (SELECT TIME_FORMAT(SEC_TO_TIME(avg(T1)), '%H:%i') as avgTime
+         FROM (SELECT b.e_id, count(b.e_id) cnt, T1
+                 FROM (SELECT e.e_id, @time := (unix_timestamp(end_time)-unix_timestamp(start_time)) T1
+                  FROM packing_ejection e
+                  LEFT JOIN raw_stock_management rsm ON (e.raw_id = rsm.raw_id)
+                  LEFT JOIN packing_ejection_produce ep ON (e.e_id=ep.e_id)
+                  LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+                  INNER JOIN (SELECT @TIME :=0 FROM DUAL) DU
+                  <include refid="wherePackingEjectionRawPaging"/>
+                  <choose>
+                  <when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+                    ORDER BY e.ejection_date DESC, e.e_id, ep.ep_id
+                  </when>
+                    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+                    ORDER BY ${orderBy}
+                  </when>
+              </choose>
+              <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.hanManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+               
+               ) b GROUP BY b.e_id
+            ) c
+            
+       ) d 
+    <include refid="wherePackingEjectionRawPaging"/>
+    <choose>
+      <when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+		ORDER BY e.ejection_date DESC, e.e_id, ep.ep_id
+      </when>
+        <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+        ORDER BY ${orderBy}
+      </when>
+    </choose>
+  </select>
+
+  <select id="selectPackingEjectionRawPagingCount" parameterType="java.util.HashMap" resultType="Integer">
+    SELECT count(*)
+    FROM packing_ejection e
+    LEFT JOIN raw_stock_management rsm ON (e.raw_id = rsm.raw_id)
+    LEFT JOIN packing_ejection_produce ep ON (e.e_id=ep.e_id)
+    LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+    <include refid="wherePackingEjectionRawPaging"/>
+  </select>
+
+  <select id="selectPackingEjectionRawPagingList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    SELECT e.e_id,
+        e.raw_id,
+        DATE_FORMAT(e.ejection_date, '%y-%m-%d') as ejection_date,
+        e.work_type,
+        (select code_name from common_code where code = e.work_type AND code_group='work_type') as work_type_name,
+        e.ejection,
+        (select code_name from common_code where code = e.ejection AND code_group='ejection') as ejection_name,
+        DATE_FORMAT(e.start_time, "%m-%d %H:%i") start_time,
+        DATE_FORMAT(e.end_time, "%m-%d %H:%i") end_time,
+        TIME_FORMAT(SEC_TO_TIME(unix_timestamp(end_time)-unix_timestamp(start_time)), '%H:%i') as d_time,
+        ''+TIME_FORMAT(SEC_TO_TIME(unix_timestamp(end_time)-unix_timestamp(start_time)), '%H.%i') as unix_time,
+        e.ejection_group,
+        (select code_name from common_code where code = e.ejection_group AND code_group='jab_class') as ejection_group_name,
+        e.weight1,
+        e.weight2,
+        e.weight3,
+        e.total_production,
+        e.cycle_time,
+        e.is_check,
+        e.check_user,
+        e.check_date,
+        e.created,
+        e.last_modified,
+        ep.ep_id,
+        ep.vehicle_id,
+        vm.product_id,
+        IFNULL( ep.production, 0) production,
+        IFNULL( ep.faulty, 0) faulty,
+        IFNULL((ep.production - ep.faulty), 0) complete,
+        IFNULL((ep.faulty/ep.production*100), 0) defect_rate,
+        vm.kind,
+        vm.product_name,
+        vm.model_car,
+        vm.lh_rh,
+        vm.product_id,
+        vm.client,
+        rsm.kind AS raw_kind,
+        rsm.product_name AS raw_product_name,
+        rsm.product_id AS raw_product_id,
+        c.cnt,
+        ep.weight,
+        e.gate_weight,
+        vm.kind,
+        vm.product_name,
+        (ep.weight*IFNULL( ep.production, 0)+e.gate_weight/c.sumCnt*IFNULL( ep.production, 0))/1000 as production_use_weight,
+        (ep.weight*IFNULL((ep.production - ep.faulty), 0)+ e.gate_weight/c.sumCnt*IFNULL((ep.production - ep.faulty), 0))/1000 as complete_use_weight,
+        (ep.weight*IFNULL( ep.faulty, 0)+ e.gate_weight/c.sumCnt*IFNULL( ep.faulty, 0))/1000 as faulty_use_weight
+        <!-- ep.weight*IFNULL( ep.production, 0)+case when ep.weight is not null or then e.gate_weight/c.cnt*IFNULL( ep.production, 0) else ep.weight end as production_use_weight,
+        ep.weight*IFNULL((ep.production - ep.faulty), 0)++case when ep.weight is not null then e.gate_weight/c.cnt*IFNULL((ep.production - ep.faulty), 0) else ep.weight end as complete_use_weight,
+        ep.weight*IFNULL( ep.faulty, 0)+case when ep.weight is not null then e.gate_weight/c.cnt*IFNULL( ep.faulty, 0) else ep.weight end as faulty_use_weight -->
+        <!-- ep.weight*IFNULL( ep.production, 0)+e.gate_weight*IFNULL( ep.production, 0) production_use_weight,
+        ep.weight*IFNULL((ep.production - ep.faulty), 0)+e.gate_weight*IFNULL((ep.production - ep.faulty), 0) complete_use_weight,
+        ep.weight*IFNULL( ep.faulty, 0)+ e.gate_weight*IFNULL( ep.faulty, 0) faulty_use_weight -->
+    FROM packing_ejection e
+    LEFT JOIN raw_stock_management rsm ON (e.raw_id = rsm.raw_id)
+    LEFT JOIN packing_ejection_produce ep ON (e.e_id=ep.e_id)
+    LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+    LEFT JOIN
+       (SELECT b.e_id, count(b.e_id) cnt, sum(eachCnt) sumCnt
+            FROM (SELECT e.e_id, case when ep.weight is not null and ep.weight != 0 then 1 else 0 end eachCnt
+		          FROM packing_ejection e
+		          LEFT JOIN raw_stock_management rsm ON (e.raw_id = rsm.raw_id)
+		          LEFT JOIN packing_ejection_produce ep ON (e.e_id=ep.e_id)
+		          LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+		          <include refid="wherePackingEjectionRawPaging"/>
+		          <choose>
+				      <when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+				        ORDER BY e.ejection_date DESC, e.e_id, ep.ep_id
+				      </when>
+				        <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+				        ORDER BY ${orderBy}
+				      </when>
+				 </choose>
+                 <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.hanManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+                ) b  GROUP BY b.e_id
+        ) c
+    ON e.e_id = c.e_id
+    <include refid="wherePackingEjectionRawPaging"/>
+    <choose>
+      <when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+		ORDER BY e.ejection_date DESC, e.e_id, ep.ep_id
+      </when>
+        <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+        ORDER BY ${orderBy}
+      </when>
+    </choose>
+    <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.hanManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+  </select>
+
+  <select id="selectRawStocks" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+    SELECT * FROM 
+	    (SELECT rsm.product_name AS raw_product_name,
+	        rsm.raw_id AS raw_id,
+	        vm.kind,
+	        vm.model_car,
+	        vm.product_name,
+	        vm.lh_rh
+	    FROM packing_ejection e
+	    LEFT JOIN raw_stock_management rsm ON (e.raw_id = rsm.raw_id)
+	    LEFT JOIN packing_ejection_produce ep ON (e.e_id=ep.e_id)
+	    LEFT JOIN vehicle_management vm ON (ep.vehicle_id = vm.vehicle_id)
+	    ) A
+    <where>
+		<!-- 구분 -->
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">AND A.kind = #{kind}</if>
+		<!-- 차종 -->
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(modelCar)">AND A.model_car = #{modelCar}</if>
+		<!-- 품명 -->
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(productName)">AND A.product_name = #{productName}</if>
+		<!-- 품명 -->
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(lhRh)">AND A.lh_rh = #{lhRh}</if>
+	</where>
+	GROUP BY raw_id
+	ORDER BY raw_product_name
+  </select>
+
+</mapper>

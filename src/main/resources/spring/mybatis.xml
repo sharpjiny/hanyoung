@@ -14,11 +14,11 @@
     <!-- 생략가능-->
 
     <typeAliases>
-        <package name="com.bogoManager.domain"/>
+        <package name="com.hanManager.domain"/>
     </typeAliases>
 
     <mappers>
-        <package name="com.bogoManager.mapper"/>
+        <package name="com.hanManager.mapper"/>
     </mappers>
 
 

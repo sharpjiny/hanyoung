@@ -158,11 +158,11 @@
 										<td>${item.productName}</td>
 										<td class="center">${item.loftNumber}</td>
 										<td class="center"><fmt:formatNumber
-                                                value="${item.pWeight}" pattern="#,###" /></td>
+                                                value="${item.pWeight}" pattern="#,###.00" /></td>
 										<td class="center"><fmt:formatNumber
 												value="${item.pNumber}" pattern="#,###" /></td>
 												<td class="center"><fmt:formatNumber
-												value="${item.weight}" pattern="#,###" /></td>
+												value="${item.weight}" pattern="#,###.00" /></td>
 										<c:choose>
 										  <c:when test="${item.price == 0}"><td class="center"><fmt:formatNumber value="${item.price}" pattern="0" /></td></c:when>
 										  <c:otherwise><td class="center">${item.price}</td></c:otherwise>
@@ -309,7 +309,7 @@
 							<label class="control-label" for="inputError">포대당중량</label>
 							<div class="controls">
 								<input class="input-xlarge focused" id="pWeightPop"
-									name="pWeight" type="number" title="중량" placeholder="중량">
+									name="pWeight" type="number" step="0.01" title="중량" placeholder="중량">
 							</div>
 						</div>
 						<div class="control-group">
@@ -371,7 +371,8 @@
 				function(e) {
 
 					if ($("#pNumberPop").val() && $("#pWeightPop").val()) {
-						var sum = parseInt($("#pWeightPop").val())
+						
+						var sum = parseFloat($("#pWeightPop").val())
 								* parseInt($("#pNumberPop").val())
 						$("#weightPop").val(sum);
 					}
@@ -381,7 +382,8 @@
 				'#pNumberPop',
 				function(e) {
 					if ($("#pNumberPop").val() && $("#pWeightPop").val()) {
-						var sum = parseInt($("#pWeightPop").val())
+						
+						var sum = parseFloat($("#pWeightPop").val())
 								* parseInt($("#pNumberPop").val())
 						$("#weightPop").val(sum);
 					}

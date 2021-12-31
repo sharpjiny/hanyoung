@@ -39,7 +39,7 @@
     <!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
     <resources mapping="/res/**" location="/res/" />
 
-    <beans:bean id="loginInterceptor" class="com.bogoManager.web.util.LoginHandlerInterceptor">
+    <beans:bean id="loginInterceptor" class="com.hanManager.web.util.LoginHandlerInterceptor">
         <beans:property name="excludeList">
             <beans:list>
                 <beans:value>/index.*</beans:value>
@@ -60,7 +60,7 @@
             <beans:ref bean="loginInterceptor"/>
         </mvc:interceptor>
 
-        <beans:bean id="com.bogoManager.controller.webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
+        <beans:bean id="com.hanManager.controller.webContentInterceptor" class="org.springframework.web.servlet.mvc.WebContentInterceptor">
             <beans:property name="cacheSeconds" value="0"/>
             <beans:property name="useExpiresHeader" value="true"/>
             <beans:property name="useCacheControlHeader" value="true"/>
@@ -76,8 +76,8 @@
         </beans:bean>
     </mvc:interceptors>
 
-    <context:component-scan base-package="com.bogoManager.controller" />
-    <context:component-scan base-package="com.bogoManager.service" />
+    <context:component-scan base-package="com.hanManager.controller" />
+    <context:component-scan base-package="com.hanManager.service" />
 
 <!--     <beans:bean id="handlerMapping" -->
 <!--         class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" /> -->
@@ -107,7 +107,7 @@
 		<beans:property name="order" value="1"></beans:property>
 	</beans:bean>
 
-    <beans:bean class="com.bogoManager.web.util.DefaultExeptionResolver">
+    <beans:bean class="com.hanManager.web.util.DefaultExeptionResolver">
         <beans:property name="defaultErrorView" value="error/error"/>
 <!--
         <beans:property name="exceptionMappings">
@@ -152,7 +152,7 @@
 <!-- 		</beans:property> -->
 <!-- 	</beans:bean> -->
 
-	<beans:bean name="excelView" class="com.bogoManager.web.excel.ExcelView"/>
+	<beans:bean name="excelView" class="com.hanManager.web.excel.ExcelView"/>
 <!-- 	<beans:bean id="jsonView" class="org.springframework.web.servlet.view.json.MappingJacksonJsonView"></beans:bean> -->
     <beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
         <!-- one of the properties available; the maximum file size in bytes 2MB -->

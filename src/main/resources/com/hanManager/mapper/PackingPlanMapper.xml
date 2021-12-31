@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.PackingPlanMapper">
+
+  <select id="selectPackingPlanList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+  /** PackingPlanMapper.selectPackingPlanList **/
+   SELECT a.product_id
+   	  , DATE_FORMAT(a.plan_date, "%Y-%m-%d") plan_date
+	  , round(a.quantity, 0) as quantity
+	  , (select code_name from common_code where code = a.work_type AND code_group='work_type') as work_type_name
+	  , a.created
+	  , abs(round(b.price, 2)) as price
+	  , b.client
+	  , b.lh_rh
+	  , b.product_name
+	  , b.model_car
+	  , abs(round((a.quantity * b.price), 2)) as tot
+     FROM packing_plan a
+     JOIN vehicle_management b
+     on (a.product_id = b.product_id)
+     and a.product_id != ""
+     WHERE 1=1
+       <choose>
+	      <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+	        AND REPLACE(plan_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+	      </when>
+	      <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+	        AND REPLACE(plan_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+	      </when>
+	      <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+	        AND REPLACE(plan_date, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+	      </when>
+      </choose>
+	   <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(workType)">AND work_type = #{workType}</if> 
+	   <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(clients)">AND client = #{clients}</if> 
+	   <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">AND kind= #{kind}</if> 
+	   <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(modelCar)">AND model_car = #{modelCar}</if> 
+	   <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(productName)">AND product_name = #{productName}</if> 
+	   <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(lhRh)">AND lh_rh = #{lhRh}</if>
+	   ORDER BY plan_date, product_id
+  </select>
+  
+  <insert id="mergeDB" parameterType="java.util.Map">
+  /** PackingPlanMapper.mergeDB **/
+	  INSERT INTO packing_plan(
+	  	product_id
+	  	, plan_date
+	  	, work_type
+	  	, quantity
+	  	, created)
+	  VALUES
+	  <if test="excelUploadList != null and excelUploadList.size > 0">
+		  <foreach separator="," item="item" collection="excelUploadList">
+		  (#{item.product_id}
+		  , #{item.plan_date}
+		  , #{item.work_type}
+		  , #{item.quantity}
+		  , now())
+		  </foreach>
+		  ON DUPLICATE KEY UPDATE
+       	product_id = values(product_id)
+	  	, plan_date = values(plan_date)
+	  	, work_type = values(work_type)
+	  	, quantity = values(quantity)
+	  	, updated = values(created)
+	  	</if>
+  </insert>
+  
+  <delete id="deleteAll" >
+  /** PackingPlanMapper.deleteAll **/
+  DELETE FROM packing_plan WHERE 1=1
+  </delete>
+  
+</mapper>

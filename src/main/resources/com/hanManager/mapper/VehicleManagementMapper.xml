@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.VehicleManagementMapper">
+	<select id="selectClients" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT client, vehicle_id
+		FROM vehicle_management
+		GROUP BY client
+		ORDER BY client
+	</select>
+
+	<select id="selectKinds" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT kind
+		FROM vehicle_management
+		GROUP BY kind
+		ORDER BY kind
+	</select>
+
+	<select id="selectModelCars" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT model_car
+		FROM vehicle_management
+		<where>
+			<!-- 구분 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">AND kind = #{kind}</if>
+		</where>
+		GROUP BY model_car
+		ORDER BY model_car
+	</select>
+
+	<select id="selectProductNames" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT product_name,
+			vehicle_id,
+			kind,
+			model_car,
+		    client,
+			product_id,
+			lh_rh
+		FROM vehicle_management
+		<where>
+			<!-- 구분 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">AND kind = #{kind}</if>
+			<!-- 차종 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(modelCar)">AND model_car = #{modelCar}</if>
+		</where>
+		GROUP BY product_name
+		ORDER BY product_name
+	</select>
+
+	<select id="selectlhRhs" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT lh_rh,
+			vehicle_id,
+			kind,
+			model_car,
+		    client,
+			product_id,
+			product_name
+		FROM vehicle_management
+		<where>
+			<!-- 구분 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">AND kind = #{kind}</if>
+			<!-- 차종 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(modelCar)">AND model_car = #{modelCar}</if>
+			<!-- 품명 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(productName)">AND product_name = #{productName}</if>
+		</where>
+		GROUP BY lh_rh
+		ORDER BY lh_rh
+	</select>
+
+	<select id="selectVehicle" parameterType="VehicleManagement" resultType="VehicleManagement">
+		SELECT a.vehicle_id,
+            a.kind,
+            a.model_car,
+            a.product_name,
+            a.lh_rh,
+            a.product_id,
+            a.client,
+            a.price,
+            a.created,
+            a.last_modified,
+            a.weight,
+            a.gate_weight,
+            a.bom,
+            a.product_no,
+            b.kind as rawKind,
+            b.product_name as rawProductName,
+            b.raw_id,
+            a.status 
+		FROM vehicle_management AS a
+        LEFT JOIN raw_stock_management b ON (a.raw_id = b.raw_id)
+		WHERE vehicle_id = #{vehicleId}
+	</select>
+
+	<sql id="whereVehiclePaging">
+		<where>
+			<!-- 차종 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(modelCar)">AND model_car LIKE CONCAT('%',#{modelCar},'%') </if>
+			<!-- LH/RH -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(lhRh)">AND lh_rh = #{lhRh} </if>
+			<!-- 품명 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(productName)">AND product_name LIKE CONCAT('%',#{productName},'%') </if>
+		</where>
+	</sql>
+
+	<select id="selectVehiclePagingCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT count(*)
+		FROM vehicle_management A
+		<include refid="whereVehiclePaging"/>
+	</select>
+
+	<select id="selectVehiclePagingList" parameterType="java.util.HashMap" resultType="VehicleManagement">
+	/* selectVehiclePagingList  */
+		SELECT a.vehicle_id,
+		    a.kind,
+		    a.model_car,
+		    a.product_name,
+		    a.lh_rh,
+		    a.product_id,
+		    a.client,
+		    a.price,
+		    a.created,
+		    a.last_modified,
+		    a.weight,
+            a.gate_weight,
+            a.bom,
+            a.product_no,
+            b.kind as rawKind,
+            b.product_name as rawProductName,
+            b.raw_id
+		FROM vehicle_management AS a
+		LEFT JOIN raw_stock_management b ON (a.raw_id = b.raw_id)
+		<include refid="whereVehiclePaging"/>
+		<choose>
+			<when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+			    ORDER BY a.kind desc, a.client, a.model_car, a.product_name, a.lh_rh
+			</when>
+		    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+				ORDER BY ${orderBy}
+			</when>
+		</choose>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.hanManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+	</select>
+
+	<select id="selectVehicleList" parameterType="java.util.HashMap" resultType="VehicleManagement">
+	/* selectVehicleList */
+		SELECT a.vehicle_id,
+		    a.kind,
+		    a.model_car,
+		    a.status,
+		    a.product_name,
+		    a.lh_rh,
+		    a.product_id,
+		    a.client,
+		    a.price,
+		    a.created,
+		    a.last_modified,
+		    a.weight,
+		    a.gate_weight,
+		    a.bom,
+		    a.product_no,
+		    b.kind as rawKind,
+		    b.product_name as rawProductName,
+		    b.raw_id
+		FROM vehicle_management AS a
+		LEFT JOIN raw_stock_management b ON (a.raw_id = b.raw_id) 
+		<include refid="whereVehiclePaging"/>
+		<choose>
+			<when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+			    ORDER BY a.kind desc, a.client, a.model_car, a.product_name, a.lh_rh
+			</when>
+		    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+				ORDER BY ${orderBy}
+			</when>
+		</choose>
+	</select>
+
+    <insert id="insertVehicle" parameterType="VehicleManagement" >
+	    INSERT INTO vehicle_management
+		(vehicle_id, kind, model_car, product_name, product_no, product_id, lh_rh, client, price, created, last_modified, weight, gate_weight, bom, raw_id, status)
+		VALUES
+		(trim(#{vehicleId}), #{kind}, #{modelCar}, #{productName}, #{productNo}, trim(#{productId}), #{lhRh}, #{client}, #{price}, now(), now(), #{weight}, #{gateWeight}, #{bom}, #{rawId}, #{status})
+	</insert>
+
+    <update id="updateVehicle" parameterType="VehicleManagement">
+        UPDATE vehicle_management
+		SET last_modified = now()
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">, kind = #{kind}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(modelCar)">, model_car = #{modelCar}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(productName)">, product_name = #{productName}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(lhRh)">, lh_rh = #{lhRh}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(client)">, client = #{client}</if>
+		/*원재료, 중량, BOM등 빈값 수정 가능 */
+		<!--
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(productId)">, product_id = #{productId}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(weight)">, weight = #{weight}</if>
+        <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(gateWeight)">, gate_weight = #{gateWeight}</if>
+        <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(bom)">, bom = #{bom}</if>
+        <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(rawId)">, raw_id = #{rawId}</if>
+         -->
+        , product_id = #{productId}
+        , product_no = #{productNo}
+        , weight = #{weight}
+        , gate_weight = #{gateWeight}
+        , bom = #{bom}
+        , raw_id = #{rawId}
+		, price = #{price}
+		, status = #{status}
+		WHERE vehicle_id = #{vehicleId}
+    </update>
+
+    <delete id="deleteVehicle" parameterType="VehicleManagement">
+        DELETE FROM vehicle_management
+		<where>
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(vehicleId)">vehicle_id = #{vehicleId}</if>
+		</where>
+    </delete>
+
+</mapper>

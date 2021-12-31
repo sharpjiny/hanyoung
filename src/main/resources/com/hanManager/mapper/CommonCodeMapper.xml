@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.CommonCodeMapper">
+
+	<select id="selectCodeList" parameterType="java.util.HashMap" resultType="Codes">
+		SELECT A.code,
+			   A.code_name AS name,
+			   A.code_sort AS sort
+		FROM common_code A
+		<where>
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(group)">AND A.code_group = #{group}</if>
+		</where>
+		<choose>
+		<when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(sort)">ORDER BY #{sort}</when>
+		<otherwise>ORDER BY code_sort, code_name</otherwise>
+		</choose>
+	</select>
+</mapper>

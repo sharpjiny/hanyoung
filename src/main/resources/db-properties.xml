@@ -3,9 +3,9 @@
 <properties>
 	<comment>db.properties</comment>
 
-	<entry key="db.url">jdbc:mysql://115.68.116.118:3306/bogoAuto?zeroDateTimeBehavior=convertToNull</entry>
-	<entry key="db.username">bogoadmin</entry>
-	<entry key="db.password">bogoadmin</entry>
+	<entry key="db.url">jdbc:oracle:thin:@115.68.116.118:1521:XE</entry>
+	<entry key="db.username">hanadmin</entry>
+	<entry key="db.password">hanadmin</entry>
 
 </properties>
 

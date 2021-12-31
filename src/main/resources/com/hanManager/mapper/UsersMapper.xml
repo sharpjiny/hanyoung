@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.UsersMapper">
+
+	<select id="selectUser" parameterType="Users" resultType="Users">
+	/* UsersMapper.selectUser */
+		SELECT A.user_id,
+			A.user_pwd,
+			A.user_role,
+			A.user_name,
+			A.user_state,
+			A.created,
+			A.last_modified
+		FROM HANADMIN.users A
+		<where>
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(userId)">AND A.user_id = #{userId}</if>
+		</where>
+	</select>
+
+</mapper>

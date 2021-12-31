@@ -4,5 +4,5 @@
         xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
                 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-<!--     <bean id="packingInspectionService" class="com.bogoManager.service.PackingInspectionService" /> -->
+<!--     <bean id="packingInspectionService" class="com.hanManager.service.PackingInspectionService" /> -->
 </beans>

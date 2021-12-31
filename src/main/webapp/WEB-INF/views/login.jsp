@@ -42,7 +42,7 @@
 			var id = $('#id').val();
 			var pwd = $('#pwd').val();
 			if(!id){
-				alert('아이디를 입력하세요!');
+				alert('아이디를 입력하세요.');
 				return false;
 			}
 			if(!pwd){

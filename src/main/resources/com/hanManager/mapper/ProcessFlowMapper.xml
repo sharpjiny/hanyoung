@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.ProcessFlowMapper">
+
+  <select id="selectProcessFlowList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+  /* production/flow/search/selectProcessFlowList */
+    select a2.vehicle_id,
+           a1.kind,
+           a1.client,
+           a1.model_car,
+           a1.product_name,
+           lh_rh,
+           weight,
+           gate_weight,
+           p1,
+           a1,
+           f1,
+           p2, 
+           p3,
+           f2,
+           a2,
+           p4,
+           (p5*-1) p5,
+           (p4 - a1) d1,
+           product_no,
+           cnt
+      from (
+            select kind, model_car, product_name, client, count(*) cnt 
+              from (
+                    select kind, model_car, product_name, client 
+                      from (
+                            select 1 as gubun, ep.vehicle_id, ep.production, ep.faulty from packing_ejection_produce ep
+                             inner join packing_ejection e on (e.e_id = ep.e_id)
+                             where 1=1
+                             <choose>
+	                            <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+	                            AND REPLACE(e.ejection_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+	                            </when>
+	                         </choose>
+                            union all
+                            select 2 as gubun, vp.vehicle_id, vp.production, null from packing_vaccum_produce vp
+                             inner join packing_vaccum v on (v.e_id = vp.e_id)
+                             where 1=1
+                             <choose>
+                                <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+                                AND REPLACE(v.vaccum_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+                                </when>
+                             </choose>   
+                            union all
+                            select 3 as gubun, i.vehicle_id, i.production, i.faulty from packing_inspection i
+                             where 1=1
+                             <choose>
+                                <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+                                AND REPLACE(i.inspection_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+                                </when>
+                             </choose>
+                            ) a
+                     inner join vehicle_management vm on (vm.vehicle_id = a.vehicle_id)
+                     group by vm.vehicle_id
+                   ) g1 group by  kind, model_car, product_name, client
+           ) a1 inner join (
+	          select kind,
+	                 client,
+	                 model_car,
+	                 product_name,
+	                 lh_rh,
+	                 vm.vehicle_id,
+	                 weight,
+	                 gate_weight,
+	                 product_no,
+	                 sum(case when gubun=1 then production end) as 'p1',
+	                 sum(case when gubun=1 then production end) - sum(case when gubun=1 then faulty end) as 'a1',
+	                 sum(case when gubun=1 then faulty end) as 'f1',
+	                 sum(case when gubun=2 then production end) as 'p2', 
+	                 sum(case when gubun=3 then production end) as 'p3',
+	                 sum(case when gubun=3 then faulty end) as 'f2',
+	                 sum(case when gubun=3 then production end) - sum(case when gubun=3 then faulty end) as 'a2'
+	            from (
+		                select 1 as gubun, ep.vehicle_id, ep.production, ep.faulty from packing_ejection_produce ep
+		                 inner join packing_ejection e on (e.e_id = ep.e_id)
+		                 where 1=1
+		                 <choose>
+		                    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+		                    AND REPLACE(e.ejection_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+		                    </when>
+		                 </choose>
+		                union all
+		                select 2 as gubun, vp.vehicle_id, vp.production, null from packing_vaccum_produce vp
+		                 inner join packing_vaccum v on (v.e_id = vp.e_id)
+		                 where 1=1
+		                 <choose>
+		                    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+		                    AND REPLACE(v.vaccum_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+		                    </when>
+		                 </choose>
+		                union all
+		                select 3 as gubun, i.vehicle_id, i.production, i.faulty from packing_inspection i
+		                 where 1=1
+		                 <choose>
+		                    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+		                    AND REPLACE(i.inspection_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+		                    </when>
+		                 </choose>
+	                  ) a
+	           inner join vehicle_management vm on (vm.vehicle_id = a.vehicle_id)
+	           group by vm.vehicle_id
+	         ) a2 on a1.kind=a2.kind and a1.model_car=a2.model_car and a1.product_name=a2.product_name and a1.client=a2.client
+ left join 
+	         ( 
+		       select vehicle_id,
+		              sum(case when stock_gubun='s006' then quantity end) as 'p4', 
+		              sum(case when stock_gubun='s004' then quantity end) as 'p5'
+		         from stock 
+		        where 1=1
+		         <choose>
+		            <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+		            AND REPLACE(stock_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+		            </when>
+		         </choose>
+		        group by vehicle_id
+	         ) a3
+ on (a2.vehicle_id = a3.vehicle_id)
+ order by kind, client, model_car, product_name
+  </select>
+
+</mapper>

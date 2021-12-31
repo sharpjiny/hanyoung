@@ -16,7 +16,7 @@
         </property>
     </bean>
 
-    <context:component-scan base-package="com.bogoManager">
+    <context:component-scan base-package="com.hanManager">
        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"  />
     </context:component-scan>
 </beans>

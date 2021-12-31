@@ -7,13 +7,13 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
        </a>
-       <a class="brand" href="/">BOGO EPR</a>
+       <a class="brand" href="/">HAN YOUNG EPR</a>
        <div class="nav-collapse collapse">
            <ul class="nav pull-right">
                <li class="dropdown">
                    <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="icon-user"></i> ${userSession.name} <i class="caret"></i></a>
                    <ul class="dropdown-menu">
-                       <li><a tabindex="-1" href="#">비밀번호 변경</a></li>
+                       <li><a tabindex="-1" href="#">비밀번호 변경1</a></li>
                        <li class="divider"></li>
                        <li><a tabindex="-1" href="<c:url value="/logout" />">Logout</a></li>
                    </ul>
@@ -48,7 +48,7 @@
                    </ul>
                </li>
                <li class="dropdown">
-                   <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">品 <i class="caret"></i></a>
+                   <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">品质<i class="caret"></i></a>
                    <ul class="dropdown-menu">
                        <li><a tabindex="-1" href="#">不良现状</a></li>
                    </ul>
@@ -76,9 +76,10 @@
                    </ul>
                </li>
                <li class="dropdown">
-                   <a href="/sales/search" role="button" class="dropdown-toggle" data-toggle="dropdown">买卖出 <i class="caret"></i></a>
+                   <a href="/sales/search" role="button" class="dropdown-toggle" data-toggle="dropdown">买卖 <i class="caret"></i></a>
                    <ul class="dropdown-menu">
-                       <li><a tabindex="-1" href="/sales/search">买卖出现状</a></li>
+                       <li><a tabindex="-1" href="/sales/search">买卖现状</a></li>
+                       <li><a tabindex="-1" href="/toastGrid/search">toast grid test</a></li>
                    </ul>
                </li>
                <!-- <li class="dropdown">

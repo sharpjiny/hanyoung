@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.StockMapper">
+
+	<select id="selectStock" parameterType="Stock" resultType="Stock">
+		SELECT a.stock_id,
+		    a.vehicle_id,
+		    a.stock_date,
+		    substring(a.settlement_month, 5) as settlement_month,
+		    a.stock_gubun,
+            (select code_name from common_code where code = a.stock_gubun) as stock_gubun_name,
+			a.work_type,
+            (select code_name from common_code where code = a.work_type) as work_type_name,
+		    a.quantity,
+		    a.created,
+		    a.last_modified,
+			a.is_check,
+			a.check_user,
+			a.check_date,
+			a.sub_type,
+		    b.kind,
+		    b.model_car,
+		    b.product_name,
+		    b.lh_rh,
+		    b.product_id,
+		    b.client,
+		    b.price,
+            a.car_num,
+            a.form,
+            a.per_box_num,
+            a.box_num,
+            a.in_out_man,
+            CASE WHEN a.stock_time ='0000-00-00 00:00:00' 
+       			THEN NULL
+       			ELSE DATE_FORMAT(a.stock_time, '%Y-%m-%d %H:%i')
+			END AS stock_time,
+            abs(round((b.price * a.quantity), 2)) as money,
+            a.stock_cnt
+		FROM stock a
+		LEFT JOIN vehicle_management b ON (a.vehicle_id = b.vehicle_id)
+		WHERE a.stock_id = #{stockId}
+	</select>
+	
+	<select id="selectStockkinds" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        SELECT kind
+        FROM stock a
+        LEFT JOIN vehicle_management b ON (a.vehicle_id = b.vehicle_id)
+        GROUP BY b.kind
+    </select>
+
+	<select id="selectStockStatistics" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT a.stock_id,
+		    a.vehicle_id,
+		    a.stock_date,
+		    a.stock_gubun,
+            (select code_name from common_code where code = a.stock_gubun) as stock_gubun_name,
+			a.work_type,
+            (select code_name from common_code where code = a.work_type) as work_type_name,
+		    sum(a.quantity) total_quantity,
+		    a.created,
+		    a.last_modified,
+			a.is_check,
+			a.check_user,
+			a.check_date,
+		    b.kind,
+		    b.model_car,
+		    b.product_name,
+		    b.lh_rh,
+		    b.product_id,
+		    b.client,
+		    b.price,
+            abs(round(b.price * sum(a.quantity), 2)) as money,
+            b.status
+		FROM stock a
+		LEFT JOIN vehicle_management b ON (a.vehicle_id = b.vehicle_id)
+		WHERE (a.stock_gubun != 's005' and a.stock_gubun != 's003' and a.stock_gubun != 's009')
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">AND b.kind = #{kind} </if>
+		GROUP BY vehicle_id
+		ORDER BY b.kind, b.client, b.model_car, b.product_name, b.lh_rh
+		<!-- <choose>
+			<when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+			    ORDER BY b.client, b.kind, b.model_car, b.product_name, b.lh_rh
+			</when>
+		    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+				ORDER BY ${orderBy}
+			</when>
+		</choose> -->
+	</select>
+
+	<sql id="whereStockPaging">
+		<where> 
+			<!-- 구분 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(stockGubun)">AND a.stock_gubun = #{stockGubun}</if>
+			<!-- 검사일 -->
+			<choose>
+			    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+					AND REPLACE(a.stock_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+					AND a.stock_date > '2018'
+			    </when>
+			    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+			    	AND REPLACE(a.stock_date, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+			    	AND a.stock_date > '2018'
+			    </when>
+			    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+			    	AND REPLACE(a.stock_date, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+			    	AND a.stock_date > '2018'
+			    </when>
+			</choose>
+			<!-- 주/야간 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(workType)">AND a.work_type = #{workType}</if>
+			<!-- 구분 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(kind)">AND b.kind = #{kind} </if>
+			<!-- 차종 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(modelCar)">AND b.model_car = #{modelCar} </if>
+			<!-- LH/RH -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(lhRh)">AND b.lh_rh = #{lhRh} </if>
+			<!-- 품명 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(productName)">AND b.product_name LIKE CONCAT('%',#{productName},'%') </if>
+			<!-- 고객사 -->
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(client)">AND b.client = #{client} </if>
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(isCheck)">AND a.is_check = #{isCheck} </if>
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(settlementMonth)">
+              AND settlement_month = concat(date_format(now(), '%Y'),#{settlementMonth})
+            </if>
+		</where>
+	</sql>
+
+	<select id="selectStockPagingCount" parameterType="java.util.HashMap" resultType="Integer">
+		SELECT count(*)
+		FROM stock a
+		LEFT JOIN vehicle_management b ON (a.vehicle_id = b.vehicle_id)
+		<include refid="whereStockPaging"/>
+	</select>
+
+	<select id="selectStockList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT a.stock_id,
+		    a.vehicle_id,
+		    DATE_FORMAT(STR_TO_DATE(a.settlement_month, '%Y%m'),'%Y-%m') as settlement_month,
+		    DATE_FORMAT(a.stock_date, '%y-%m-%d') as stock_date,
+		    a.stock_gubun,
+            (select code_name from common_code where code = a.stock_gubun) as stock_gubun_name,
+            (select code_key from common_code where code = a.stock_gubun) as stock_gubun_key,
+			a.work_type,
+            (select code_name from common_code where code = a.work_type) as work_type_name,
+		    a.quantity,
+            if(stock_gubun='s005' || stock_gubun='s004' || stock_gubun='s007' || stock_gubun='s010' || stock_gubun='s011' || stock_gubun='s012', (a.quantity * -1), a.quantity) as quantity2,
+		    a.created,
+		    a.last_modified,
+			a.is_check,
+			a.check_user,
+			a.check_date,
+		    b.kind,
+		    b.model_car,
+		    b.product_name,
+		    b.lh_rh,
+		    b.product_id,
+		    b.client,
+		    b.price,
+		    a.car_num,
+		    case 
+		        when a.form = 'n/a' then 'N/A'
+                when a.form = 'box' then '箱子'
+                when a.form = 'car' then '台车'
+                else '기타'
+            end as form,
+		    a.per_box_num,
+		    a.box_num,
+		    a.in_out_man,
+		    CASE WHEN a.stock_time ='0000-00-00 00:00:00' 
+       			THEN NULL
+       			ELSE  DATE_FORMAT(a.stock_time, '%m-%d %H:%i')
+			END AS stock_time,
+		    abs(round((b.price * a.quantity), 2)) as money,
+		    a.stock_cnt
+		FROM stock a
+		LEFT JOIN vehicle_management b ON (a.vehicle_id = b.vehicle_id)
+		<include refid="whereStockPaging"/>
+		<choose>
+			<when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+			    ORDER BY stock_date DESC, stock_time DESC, stock_cnt, car_num, work_type_name, a.created DESC
+			</when>
+		    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+				ORDER BY ${orderBy}
+			</when>
+		</choose>
+	</select>
+
+	<select id="selectStockPagingList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT a.stock_id,
+		    a.vehicle_id,
+		    DATE_FORMAT(STR_TO_DATE(a.settlement_month, '%Y%m'),'%Y-%m') as settlement_month,
+		    DATE_FORMAT(a.stock_date, '%y-%m-%d') as stock_date,
+		    a.stock_gubun,
+            (select code_name from common_code where code = a.stock_gubun) as stock_gubun_name,
+            (select code_key from common_code where code = a.stock_gubun) as stock_gubun_key,
+			a.work_type,
+            (select code_name from common_code where code = a.work_type) as work_type_name,
+		    a.quantity,
+            if(stock_gubun='s005' || stock_gubun='s004' || stock_gubun='s007' || stock_gubun='s010' || stock_gubun='s011' || stock_gubun='s012', (a.quantity * -1), a.quantity) as quantity2,
+		    a.created,
+		    a.last_modified,
+			a.is_check,
+			a.check_user,
+			a.check_date,
+		    b.kind,
+		    b.model_car,
+		    b.product_name,
+		    b.lh_rh,
+		    b.product_id,
+		    b.client,
+		    b.price,
+            a.car_num,
+            case 
+                when a.form = 'n/a' then 'N/A'
+                when a.form = 'box' then '箱子'
+                when a.form = 'car' then '台车'
+                else '기타'
+            end as form,
+            a.per_box_num,
+            a.box_num,
+            a.in_out_man,
+            CASE WHEN a.stock_time ='0000-00-00 00:00:00' 
+       			THEN NULL
+       			ELSE  DATE_FORMAT(a.stock_time, '%m-%d %H:%i')
+			END AS stock_time,
+            abs(round((b.price * a.quantity), 2)) as money,
+            a.stock_cnt
+		FROM stock a
+		LEFT JOIN vehicle_management b ON (a.vehicle_id = b.vehicle_id)
+		<include refid="whereStockPaging"/>
+		<choose>
+			<when test="@com.hanManager.web.util.CommonUtil@isEmpty(orderBy)">
+			    ORDER BY stock_date DESC, stock_time DESC, stock_cnt, car_num, work_type_name, a.created DESC
+			</when>
+		    <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(orderBy)">
+				ORDER BY ${orderBy}
+			</when>
+		</choose>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(startNum) and @com.hanManager.web.util.CommonUtil@isNotEmpty(pageCutNum)">LIMIT #{startNum}, #{pageCutNum}</if>
+	</select>
+
+    <insert id="insertStock" parameterType="Stock" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO stock 
+		(vehicle_id, settlement_month, stock_date, stock_gubun, quantity, sub_type, sub_key, sub_id, work_type, created, last_modified, car_num, form, in_out_man, stock_time, per_box_num, box_num, stock_cnt)
+		VALUES
+		(#{vehicleId}, concat(date_format(now(), '%Y'),#{settlementMonth}), STR_TO_DATE(#{stockDate}, '%Y-%m-%d'), #{stockGubun}, #{quantity}, #{subType}, #{subKey}, #{subId}, #{workType}, now(), now(), #{carNum}, #{form}, #{inOutMan}, STR_TO_DATE(#{stockTime}, '%Y-%m-%d %H:%i'), #{perBoxNum}, #{boxNum}, #{stockCnt})
+	</insert>
+
+    <update id="updateStock" parameterType="Stock">
+        UPDATE stock
+		SET last_modified = now()
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(stockDate)">, stock_date = STR_TO_DATE(#{stockDate}, '%Y-%m-%d')</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(stockGubun)">, stock_gubun = #{stockGubun}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(quantity)">, quantity = #{quantity}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(workType)">, work_type = #{workType}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(vehicleId)">, vehicle_id = #{vehicleId}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(boxNum)">, box_num = #{boxNum}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(perBoxNum)">, per_box_num = #{perBoxNum}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(form)">, form = #{form}</if>
+		<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(settlementMonth)">, settlement_month = concat(date_format(now(), '%Y'),#{settlementMonth})</if>
+		, in_out_man = #{inOutMan}
+		, stock_time = STR_TO_DATE(#{stockTime}, '%Y-%m-%d %H:%i')
+		, car_num = #{carNum}
+		, stock_cnt = #{stockCnt}
+		WHERE stock_id = #{stockId}
+    </update>
+
+    <update id="updateStockSub" parameterType="Stock">
+        UPDATE stock
+		SET last_modified = now(), quantity = #{quantity}, work_type = #{workType}, stock_date = STR_TO_DATE(#{stockDate}, '%Y-%m-%d')
+		WHERE sub_type = #{subType} AND sub_id = #{subId}
+    </update>
+
+    <delete id="deleteStock" parameterType="Stock">
+        DELETE FROM stock
+		<where>
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(stockId)">stock_id = #{stockId}</if>
+		</where>
+    </delete>
+
+    <delete id="deleteStockSub" parameterType="Stock">
+        DELETE FROM stock
+		WHERE sub_type = #{subType} AND sub_id = #{subId}
+    </delete>
+
+    <delete id="deleteStockKey" parameterType="Stock">
+        DELETE FROM stock
+		WHERE sub_type = #{subType} AND sub_key = #{subKey}
+    </delete>
+
+    <update id="confirmStock" parameterType="Stock">
+        UPDATE stock
+		SET is_check=#{isCheck}, check_user=#{checkUser}, check_date=now()
+		WHERE stock_id = #{stockId}
+    </update>
+
+</mapper>

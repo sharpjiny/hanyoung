@@ -155,11 +155,11 @@
 										<td>${item.productName}</td>
 										<td class="center">${item.loftNumber}</td>
 										<td class="center"><fmt:formatNumber
-                                                value="${item.pWeight}" pattern="#,###" /></td>
+                                                value="${item.pWeight}" pattern="#,###.00" /></td>
 										<td class="center"><fmt:formatNumber
 												value="${item.pNumber}" pattern="#,###" /></td>
 												<td class="center"><fmt:formatNumber
-												value="${item.weight}" pattern="#,###" /></td>
+												value="${item.weight}" pattern="#,###.00" /></td>
 										<c:choose>
                                           <c:when test="${item.price == 0}"><td class="center"><fmt:formatNumber value="${item.price}" pattern="0" /></td></c:when>
                                           <c:otherwise><td class="center">${item.price}</td></c:otherwise>
