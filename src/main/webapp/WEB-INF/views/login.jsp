@@ -7,7 +7,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Admin Login</title>
+<title>Login</title>
 <!-- Bootstrap -->
 <link rel="stylesheet" type="text/css" href="<c:url value='/res/css/bootstrap.min.css'/>" media="screen"/>
 <link rel="stylesheet" type="text/css" href="<c:url value='/res/css/bootstrap-responsive.min.css'/>" media="screen"/>

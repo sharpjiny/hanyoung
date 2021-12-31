@@ -6,6 +6,22 @@
 	<entry key="db.url">jdbc:oracle:thin:@115.68.116.118:1521:XE</entry>
 	<entry key="db.username">hanadmin</entry>
 	<entry key="db.password">hanadmin</entry>
+	
+     <!-- Software caused connection abort: recv failed 오류 관련 내용의 답이 될까? -->
+	 <!-- 동시 활성화 할 커넥션 수 -->  
+     <!-- 유휴상태의 커넥션 수 -->
+     <!-- 커넥션 요청 후 획득까지 기다리는 시간 -->
+     <!-- 커넥션 ping테스트 -->  
+     <!-- 커넥션이 살아 있는지 확인 할 쿼리 -->
+     <!-- 커넥션이 얼마동안 유휴상태면 닫히는지 판단하는 시간 -->
+     <!-- 사용불가능한 커넥션 기다리는 시간 -->
+     <!-- <property name="poolMaximumActiveConnections" value="20"/>      
+     <property name="poolMaximumIdleConnections" value="20"/>  
+     <property name="poolMaximumCheckoutTime" value="20000"/>
+     <property name="poolPingEnabled" value="true"/>
+     <property name="poolPingQuery" value="select 1 from dual"/>  
+     <property name="poolPingConnectionsNotUsedFor" value="43200"/>  
+     <property name="poolTimeToWait" value="30000"/> --> 
 
 </properties>
 

@@ -9,7 +9,7 @@ public class Constant {
     public static final String MESSAGE_OK = "OK";
     public static final String RETUN_URL = "url";
 	public static String TILES = ".tiles";
-	public static String HOME_URL = "redirect:/stock/search";
+	public static String HOME_URL = "redirect:/toastGrid/search";
 
     public static final String OK = "0000";
     public static final String FIELD_ERROR = "1000";
