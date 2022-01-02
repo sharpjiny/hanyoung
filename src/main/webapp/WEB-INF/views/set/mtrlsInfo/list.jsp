@@ -86,6 +86,7 @@ var mtrlsInfo = {
 		}).success(function(result) {
 			dataSet = result;
 			gridView.resetData(result);
+			mtrlsInfo.view();
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    })/* .error(function(ev){

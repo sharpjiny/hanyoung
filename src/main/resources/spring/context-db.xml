@@ -16,13 +16,13 @@
     <tx:annotation-driven />
 	<util:properties location="classpath:db-properties.xml" id="db"/>
     <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="driverClassName" value="core.log.jdbc.driver.OracleDriver" />
         <property name="url" value="#{db['db.url']}" />
         <property name="username" value="#{db['db.username']}" />
         <property name="password" value="#{db['db.password']}" />
         <property name="defaultAutoCommit" value="false"/>
     </bean>
-
+    
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource" />
     </bean>
