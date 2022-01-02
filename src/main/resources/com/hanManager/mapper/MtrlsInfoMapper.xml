@@ -5,17 +5,18 @@
 <mapper namespace="com.hanManager.mapper.MtrlsInfoMapper">
 
 	<select id="selectMtrlsInfoList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* MtrlsInfoMapper.selectMtrlsInfoList */
 		SELECT PROD_ID
 			, KIND
 			, PROD_NM
 			, COST
 			, PROD_WEIGHT
-			, CREATE_DATE
+			, to_char(CREATE_DATE, 'YYYY.MM.DD') CREATE_DATE
 			, CREATE_USER
-			, UPDATE_DATE
+			, to_char(UPDATE_DATE, 'YYYY.MM.DD') UPDATE_DATE
 			, UPDATE_USER
-		FROM hanadmin.mtrls_info AS a
-		WHERE prod_id = #{prod_id}
+		FROM hanadmin.mtrls_info
+		<!-- WHERE prod_id = #{prod_id} -->
 	</select>
 
 </mapper>

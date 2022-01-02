@@ -7,5 +7,6 @@ import java.util.List;
 public interface MtrlsInfoMapper {
 
 	List<HashMap<String, Object>> selectMtrlsInfoList(HashMap<String, Object> paramMap);
+	HashMap<String, Object> selectMtrlsInfoSave(HashMap<String, Object> paramMap);
 
 }

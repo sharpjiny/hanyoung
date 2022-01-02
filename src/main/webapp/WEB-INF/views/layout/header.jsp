@@ -20,10 +20,11 @@
                </li>
            </ul>
            <ul class="nav">
-           		<c:if test="${userSession.id == 'bogoadmin'}"> 
+           		<c:if test="${userSession.id == 'hanadmin'}"> 
                <li class="dropdown">
                    <a href="/set/vehicle/search" role="button" class="dropdown-toggle" data-toggle="dropdown">設定 <i class="caret"></i></a>
                    <ul class="dropdown-menu">
+                   	   <li><a tabindex="-1" href="/set/mtrlsInfo/page">원부자재 설정</a></li>
                        <li><a tabindex="-1" href="/set/vehicle/search">车型品名品号管理</a></li>
                        <li><a tabindex="-1" href="/set/rawStock/search">原材料管理</a></li>
                        <!-- <li><a tabindex="-1" href="/set/submat/search">주요부자재 관리</a></li> -->
@@ -64,7 +65,7 @@
                <li class="dropdown">
                    <a href="/stock/search" role="button" class="dropdown-toggle" data-toggle="dropdown">原材料<i class="caret"></i></a>
                    <ul class="dropdown-menu">
-                       <c:if test="${userSession.id != 'bogo00'}"> <li><a tabindex="-1" href="/stock/rawstock/search">原材料出入库现状</a></li></c:if>
+                       <c:if test="${userSession.id != 'han00'}"> <li><a tabindex="-1" href="/stock/rawstock/search">原材料出入库现状</a></li></c:if>
                        <li><a tabindex="-1" href="/stock/rawstock/statistics">原材料库存</a></li>
                    </ul>
                </li>
@@ -79,6 +80,7 @@
                    <a href="/sales/search" role="button" class="dropdown-toggle" data-toggle="dropdown">买卖 <i class="caret"></i></a>
                    <ul class="dropdown-menu">
                        <li><a tabindex="-1" href="/sales/search">买卖现状</a></li>
+                       
                        <li><a tabindex="-1" href="/toastGrid/search">toast grid test</a></li>
                    </ul>
                </li>
