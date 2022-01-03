@@ -6,7 +6,9 @@ import java.util.List;
 
 public interface MtrlsInfoMapper {
 
-	List<HashMap<String, Object>> selectMtrlsInfoList(HashMap<String, Object> paramMap);
-	HashMap<String, Object> selectMtrlsInfoSave(HashMap<String, Object> paramMap);
+	public List<HashMap<String, Object>> selectMtrlsInfoList(HashMap<String, Object> params) throws Exception;
+	public void insertMtrlsInfo(HashMap<String, Object> params) throws Exception;
+	public void updateMtrlsInfo(HashMap<String, Object> params) throws Exception;
+	public void deleteMtrlsInfo(HashMap<String, Object> params) throws Exception;
 
 }

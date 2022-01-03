@@ -275,7 +275,7 @@ table.choiceList tbody tr:not(.bin):hover {
     vertical-align: middle;
     text-align: center;
     padding: 5px;
-    border: 1px solid #ddd;
+    /* border: 1px solid #ddd; */
 }
 
 .table-toolbar {

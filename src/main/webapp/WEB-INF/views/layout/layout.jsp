@@ -20,6 +20,9 @@
 		<link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.css" />
 		<script src="https://uicdn.toast.com/tui.pagination/v3.4.0/tui-pagination.js"></script>
 		<script src="https://uicdn.toast.com/grid/latest/tui-grid.js"></script>
+		<link rel="stylesheet" type="text/css" href="<c:url value='/res/css/datepicker.css'/>" media="screen" />
+		<script src="<c:url value='/res/js/plugin/bootstrap-datepicker.js'/>"></script>
+		<script src="<c:url value='/res/js/plugin/bootstrap-datepicker.kr.js'/>"></script>
     </head>
     <body>
         <div class="navbar navbar-fixed-top">
