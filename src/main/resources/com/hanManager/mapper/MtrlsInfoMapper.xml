@@ -9,8 +9,7 @@
 		SELECT PROD_ID
 			, KIND
 			, PROD_NM
-			, COST
-			, PROD_WEIGHT
+			, PROD_DTL_NM
 			, to_char(CREATE_DATE, 'YYYY.MM.DD') CREATE_DATE
 			, CREATE_USER
 			, to_char(UPDATE_DATE, 'YYYY.MM.DD') UPDATE_DATE
@@ -19,6 +18,15 @@
 	   WHERE 1=1
 	   <if test='PROD_ID != null and !PROD_ID.equals("")'>
 	   	   AND PROD_ID = #{PROD_ID}
+	   </if>
+	   <if test='KIND != null and !KIND.equals("")'>
+	   	   AND KIND = #{KIND}
+	   </if>
+	   <if test='PROD_NM != null and !PROD_NM.equals("")'>
+	   	   AND PROD_NM = #{PROD_NM}
+	   </if>
+	   <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+	   	   AND PROD_DTL_NM = #{PROD_DTL_NM}
 	   </if>
 	   ORDER BY PROD_ID
 	</select>
@@ -30,8 +38,7 @@
 			PROD_ID
 			, KIND
 			, PROD_NM
-			, COST
-			, PROD_WEIGHT
+			, PROD_DTL_NM
 			, CREATE_DATE
 			, CREATE_USER
 			, UPDATE_DATE
@@ -42,8 +49,7 @@
 			#{PROD_ID}
 			, #{KIND}
 			, #{PROD_NM}
-			, #{COST}
-			, #{PROD_WEIGHT}
+			, #{PROD_DTL_NM}
 			, SYSDATE
 			, #{CREATE_USER}
 			, SYSDATE
@@ -57,8 +63,7 @@
 		UPDATE hanadmin.mtrls_info 
 		   SET KIND = #{KIND}
 			   , PROD_NM = #{PROD_NM}
-			   , COST = #{COST}
-			   , PROD_WEIGHT = #{PROD_WEIGHT}
+			   , PROD_DTL_NM = #{PROD_DTL_NM}
 			   , CREATE_DATE = SYSDATE
 			   , CREATE_USER = #{CREATE_USER}
 			   , UPDATE_DATE = SYSDATE

@@ -45,6 +45,26 @@ public class MtrlsInfoController extends DefaultController{
 	}
 	
 	/**
+	 * 조회 항목
+	 * @return 
+	 * @return
+	 * @throws Exception 
+	 */
+	@SuppressWarnings("null")
+	@RequestMapping(value={"comboList"})
+	public @ResponseBody HashMap<String, Object> comboList(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
+		
+		HashMap<String, Object> result = null;
+		
+		result.put("PROD_ID", codeMapper.selectCodeList(params));
+		result.put("KIND", codeMapper.selectCodeList(params));
+		result.put("PROD_NM", codeMapper.selectCodeList(params));
+		result.put("PROD_DTL_NM", codeMapper.selectCodeList(params));
+		
+		return result;
+	}
+	
+	/**
 	 * 리스트
 	 * @return 
 	 * @return
@@ -54,9 +74,9 @@ public class MtrlsInfoController extends DefaultController{
 	public @ResponseBody List<HashMap<String, Object>> list(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
 		
 		List<HashMap<String, Object>> result = null;
-
+		
 		result = mtrlsInfoMapper.selectMtrlsInfoList(params);
-
+		
 		return result;
 	}
 	

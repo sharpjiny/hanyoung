@@ -125,8 +125,7 @@ var gridView = new tui.Grid({
         {header: '품호',		    name: 'PROD_ID',          	   filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '종류',         	name: 'KIND',          		   filter:{type:'text'},         	sortable:true,            align:'center'        },
         {header: '품명',     		name: 'PROD_NM',          	   filter:{type:'text'},          	sortable:true,            align:'center'        },
-        {header: '단가',       		name: 'COST',          		   filter:{type:'text'},          	sortable:true,            align:'center'        },
-        {header: '중량',            name: 'PROD_WEIGHT',           filter:{type:'text'},            sortable:true,            align:'center'        },
+        {header: '상세품명',       	name: 'PROD_DTL_NM',           filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '생성일자',        name: 'CREATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
         {header: '생성자',          name: 'CREATE_USER',           filter:{type:'text'},            sortable:true,            align:'center'        },
         {header: '수정일자',        name: 'UPDATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
@@ -145,8 +144,7 @@ var gridEdit = new tui.Grid({
 		{header: '품호',		    name: 'PROD_ID',          	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '종류',         	name: 'KIND',          		   filter:{type:'text'},         	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '품명',     		name: 'PROD_NM',          	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
-		{header: '단가',       		name: 'COST',          		   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
-		{header: '중량',            name: 'PROD_WEIGHT',           filter:{type:'text'},            sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
+		{header: '상세품명',       	name: 'PROD_DTL_NM',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '생성일자',        name: 'CREATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
 		{header: '생성자',          name: 'CREATE_USER',           filter:{type:'text'},            sortable:true,            align:'center'        },
 		{header: '수정일자',        name: 'UPDATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
@@ -157,7 +155,22 @@ var gridEdit = new tui.Grid({
 var dataSet;
 var mtrlsInfo = {
 	init:function(){
-		this.search();
+		console.log("[DEBUG] 콤보박스 초기화(세팅)");
+		//this.comboList();
+	},
+	comboList:function(){
+		var params = {};
+		$.ajax({
+		    url : "/set/mtrlsInfo/comboList",
+		    method :"POST",
+		    data:params
+		}).success(function(result) {
+			dataSet = result;
+			gridView.resetData(result);
+			mtrlsInfo.view();
+		}).fail(function(ev) {
+	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
+	    });
 	},
 	search:function(){
 		//var params = {'PROD_ID':'PROD_01'};
@@ -200,7 +213,14 @@ var mtrlsInfo = {
 	},
 	save:function(){
 		let saveData = gridEdit.getModifiedRows();
+		
+		// 빈값 제거..
+		saveData.createdRows = saveData.createdRows.filter(function(v){
+	        return v['PROD_ID'] != null && v['PROD_ID'] != '';
+	    });
+		
 		let chkLen = saveData.createdRows.length + saveData.updatedRows.length + saveData.deletedRows.length;
+		
 		if(chkLen > 0){
 			$.ajax({
 			    url : "/set/mtrlsInfo/save",
@@ -209,7 +229,7 @@ var mtrlsInfo = {
 			    data:JSON.stringify(saveData)
 			}).success(function(result) {
 				alert(" ㅇ 추가 : " + result["insert"] + "건\n" + " ㅇ 수정 : " + result["update"] + "건\n" + " ㅇ 삭제 : " + result["delete"] + "건");
-				mtrlsInfo.init();
+				mtrlsInfo.search();
 			}).fail(function(ev) {
 		    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 		    });
@@ -233,7 +253,7 @@ var mtrlsInfo = {
 }
 
 $(function(){
-	dateUtil.init();
+	
 	$('#searchBtn').click(mtrlsInfo.search);
 	$('#viewBtn').click(mtrlsInfo.view);
 	$('#editBtn').click(mtrlsInfo.edit);
@@ -241,7 +261,9 @@ $(function(){
 	$('#addBtn').click(mtrlsInfo.add);
 	$('#delBtn').click(mtrlsInfo.del);
 	
+	dateUtil.init();
 	mtrlsInfo.init();
+	mtrlsInfo.search();
 	
 });
 </script>
