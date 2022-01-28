@@ -13,51 +13,46 @@
                <li class="dropdown">
                    <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown"> <i class="icon-user"></i> ${userSession.name} <i class="caret"></i></a>
                    <ul class="dropdown-menu">
-                       <li><a tabindex="-1" href="#">비밀번호 변경1</a></li>
+                       <li><a tabindex="-1" href="#">비밀번호 변경</a></li>
                        <li class="divider"></li>
                        <li><a tabindex="-1" href="<c:url value="/logout" />">Logout</a></li>
                    </ul>
                </li>
            </ul>
            <ul class="nav">
-           		<c:if test="${userSession.id == 'hanadmin'}"> 
+           	   <c:if test="${userSession.id == 'hanadmin'}"> 
                <li class="dropdown">
                    <a href="/set/vehicle/search" role="button" class="dropdown-toggle" data-toggle="dropdown">設定 <i class="caret"></i></a>
                    <ul class="dropdown-menu">
                    	   <li><a tabindex="-1" href="/set/mtrlsInfo/page">원부자재 설정</a></li>
-                   	   <li><a tabindex="-1" href="/toastGrid/search">toast grid test</a></li>
+                   	   <li><a tabindex="-1" href="/set/productInfo/page">제품 설정</a></li>
+                   	   <li><a tabindex="-1" href="/set/bomInfo/page">BOM 설정(조립매핑)</a></li>
+                   	   <li><a tabindex="-1" href="/set/codesInfo/page">Codes Info.</a></li>
+                   	   <li><a tabindex="-1" href="/toastGrid/search">Grid Sample</a></li>
                    </ul>
                </li>
                </c:if>
                <li class="dropdown">
-                   <a href="/production/inspection/search" role="button" class="dropdown-toggle" data-toggle="dropdown">生产 <i class="caret"></i></a>
+                   <a href="/production/inspection/search" role="button" class="dropdown-toggle" data-toggle="dropdown">구매관리<i class="caret"></i></a>
                    <ul class="dropdown-menu">
+                       <li><a tabindex="-1" href="/set/mtrlsInoutOut/page">원부자재 입출고(외주)</a></li>
+                       <li><a tabindex="-1" href="/set/mtrlsUsage/page">원부자재 사용량</a></li>
                    </ul>
                </li>
                <li class="dropdown">
-                   <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">品质<i class="caret"></i></a>
+                   <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">생산관리<i class="caret"></i></a>
                    <ul class="dropdown-menu">
+                       <li><a tabindex="-1" href="/set/productAll/page">용접/코팅/포장/수리</a></li>
+                       <li><a tabindex="-1" href="/set/hgoodsUsage/page">반제품/완성품 생산량</a></li>
+                       <li><a tabindex="-1" href="/set/hproductInoutOut/page">반제품 입출고(외주)</a></li>
                    </ul>
                </li>
                <li class="dropdown">
-                   <a href="/stock/search" role="button" class="dropdown-toggle" data-toggle="dropdown">产品 <i class="caret"></i></a>
+                   <a href="/stock/search" role="button" class="dropdown-toggle" data-toggle="dropdown">재고관리<i class="caret"></i></a>
                    <ul class="dropdown-menu">
-                   </ul>
-               </li>
-               <li class="dropdown">
-                   <a href="/stock/search" role="button" class="dropdown-toggle" data-toggle="dropdown">原材料<i class="caret"></i></a>
-                   <ul class="dropdown-menu">
-                   </ul>
-               </li>
-               <li class="dropdown">
-                   <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">纳品计划 <i class="caret"></i></a>
-                   <ul class="dropdown-menu">
-                   </ul>
-               </li>
-               <li class="dropdown">
-                   <a href="/sales/search" role="button" class="dropdown-toggle" data-toggle="dropdown">买卖 <i class="caret"></i></a>
-                   <ul class="dropdown-menu">
-                       
+                       <li><a tabindex="-1" href="/set/hgoodsStock/page">반제품/완성품</a></li>
+                       <li><a tabindex="-1" href="/set/mtrlsStock/page">원부자재</a></li>
+                       <li><a tabindex="-1" href="/set/hgoodsOutStock/page">반제품(외주)</a></li>
                    </ul>
                </li>
            </ul>
