@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.ProductionProdMapper">
+	
+	<select id="selectPrdtProdNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionProdMapper.selectPrdtProdNm */
+		SELECT DISTINCT info.PROD_NM CODE, info.PROD_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionProdMapper.selectPrdtProdDtlNm */
+		SELECT DISTINCT info.PROD_DTL_NM CODE, info.PROD_DTL_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionProdMapper.selectPrdtProdId */
+		SELECT info.PROD_ID CODE, info.PROD_ID NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+	       AND PROD_DTL_NM = #{prodDtlNm}
+	     </if>
+	</select>
+	
+	<select id="getProdIdRowList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionProdMapper.getProdIdRowList */
+	SELECT kind
+		 , prod_nm
+		 , LISTAGG(prod_dtl_nm,',') WITHIN GROUP(ORDER BY  kind, prod_nm, prod_dtl_nm) AS prod_dtl_nm
+		 , client
+	  FROM HANADMIN.PRDT_INFO
+	 GROUP BY kind, prod_nm, client
+	</select>
+	
+	<select id="getPrice" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionProdMapper.getPrice */
+	SELECT info.OUT_PRICE CODE, info.OUT_PRICE NAME 
+	  FROM hanadmin.prdt_info info
+	 WHERE 1=1
+     <if test='kind != null and !kind.equals("")'>
+       AND KIND = #{kind}
+     </if>
+     <if test='prodNm != null and !prodNm.equals("")'>
+       AND PROD_NM = #{prodNm}
+     </if>
+     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+       AND PROD_DTL_NM = #{prodDtlNm}
+     </if>
+	</select>
+	
+	<select id="selectPrdtInOutList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionProdMapper.selectPrdtInOutList */
+	SELECT s.*, u.BOM_ID 
+      FROM hanadmin.prdt_status s, hanadmin.mtrls_usage u 
+     WHERE s.PRDT_DATE = u.PRDT_DATE
+       AND s.WORK_TYPE = u.WORK_TYPE
+       AND s.EQP_ID = u.EQP_ID
+       AND s.AREA = u.AREA
+       AND s.PROD_ID = u.PROD_ID
+	</select>
+	
+	<insert id="insertPrdtInOut" parameterType="java.util.HashMap" >
+	/* ProductionProdMapper.insertPrdtInOut */
+		INSERT INTO hanadmin.prdt_inout
+		(	
+			IDX
+			, PRODUCT_GUBUN
+			, KIND 
+			, PROD_ID 
+			, OUT_NUM
+			, TO_PLACE 
+			, CLIENT 
+			, INOUT_DATE
+			, BOX_COUNT
+			, BOX_PER_COUNT
+			, OUT_METHOD 
+			, MAN 
+			, PRICE 
+			, BIGO
+			, IS_CHECK
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			hanadmin.prdt_inout_seq.nextval
+			, #{PRODUCT_GUBUN} 
+			, #{KIND}  
+			, (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			, #{OUT_NUM} 
+			, #{TO_PLACE}
+			, #{CLIENT}
+			, #{INOUT_DATE} 
+			, #{BOX_COUNT} 
+			, #{BOX_PER_COUNT} 
+			, #{OUT_METHOD} 
+			, #{MAN} 
+			, (SELECT OUT_PRICE FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			, #{BIGO}
+			, 'NO'
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+		
+	</insert>
+	
+	<update id="updatePrdtInOut" parameterType="java.util.HashMap">
+	/* ProductionProdMapper.updatePrdtInOut */
+		UPDATE hanadmin.prdt_inout
+		   SET PRODUCT_GUBUN = #{PRODUCT_GUBUN} 
+			   , KIND = #{KIND} 
+			   , PROD_ID = (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			   , OUT_NUM = #{OUT_NUM} 
+			   , TO_PLACE = #{TO_PLACE} 
+			   , CLIENT = #{CLIENT}
+			   , INOUT_DATE = #{INOUT_DATE} 
+			   , BOX_COUNT = #{BOX_COUNT} 
+			   , BOX_PER_COUNT = #{BOX_PER_COUNT} 
+			   , OUT_METHOD = #{OUT_METHOD} 
+			   , MAN = #{MAN} 
+			   , PRICE = #{PRICE}
+			   , BIGO = #{BIGO}
+			   , IS_CHECK = #{IS_CHECK}
+			   , CREATE_DATE = SYSDATE
+			   , CREATE_USER = #{CREATE_USER}
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='IDX != null and !IDX.equals("")'>
+	    	AND IDX = #{IDX}
+	    </if>
+	</update>
+	
+	<delete id="deletePrdtInOut" parameterType="java.util.HashMap">
+	/* ProductionProdMapper.deletePrdtInOut */
+		DELETE FROM hanadmin.prdt_inout
+		 WHERE 1=1 
+		 <if test='IDX != null and !IDX.equals("")'>
+	    	 AND IDX = #{IDX}
+	     </if>
+	</delete>
+	
+	<update id="mergePrdtStock" parameterType="java.util.HashMap">
+	/* ProductionProdMapper.mergePrdtStock */
+		MERGE INTO hanadmin.prdt_stock S
+	    USING DUAL
+	       ON (S.PROD_ID = #{PROD_ID})
+	    WHEN MATCHED THEN
+	        UPDATE SET S.COUNT = S.COUNT - (#{BOX_PER_COUNT}*-1)
+			   	 , S.BOX_COUNT = S.BOX_COUNT - (#{BOX_COUNT}*-1)
+				 , S.UPDATE_DATE = SYSDATE
+				 , S.UPDATE_USER = #{UPDATE_USER}
+	    WHEN NOT MATCHED THEN
+	        INSERT (S.INOUT_DATE , S.KIND, S.PRODUCT_GUBUN, S.PROD_ID, S.COUNT, S.BOX_COUNT, S.PRICE, S.CREATE_DATE, S.CREATE_USER) 
+	        VALUES (#{INOUT_DATE}, #{KIND}, #{PRODUCT_GUBUN}, #{PROD_ID}, #{BOX_PER_COUNT}, #{BOX_COUNT}, #{PRICE}, SYSDATE, #{CREATE_USER})
+	</update>
+	
+	<update id="deletePrdtStock" parameterType="java.util.HashMap">
+	/* ProductionProdMapper.deletePrdtStock */
+		UPDATE hanadmin.prdt_stock  
+		   SET COUNT = COUNT - (#{BOX_PER_COUNT})
+			   , BOX_COUNT = BOX_COUNT - (#{BOX_COUNT})
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	AND PROD_ID = #{PROD_ID} 
+	    </if>		 
+	</update>
+
+</mapper>

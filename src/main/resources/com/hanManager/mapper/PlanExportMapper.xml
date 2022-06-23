@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.PlanExportMapper">
+	
+	<select id="selectPrdtProdNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PlanExportMapper.selectPrdtProdNm */
+		SELECT DISTINCT info.PROD_NM CODE, info.PROD_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PlanExportMapper.selectPrdtProdDtlNm */
+		SELECT DISTINCT info.PROD_DTL_NM CODE, info.PROD_DTL_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PlanExportMapper.selectPrdtProdId */
+		SELECT info.PROD_ID CODE, info.PROD_ID NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+	       AND PROD_DTL_NM = #{prodDtlNm}
+	     </if>
+	</select>
+	
+	<select id="getProdIdRowList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	SELECT kind
+		 , prod_nm
+		 , LISTAGG(prod_dtl_nm,',') WITHIN GROUP(ORDER BY  kind, prod_nm, prod_dtl_nm) AS prod_dtl_nm
+		 , client
+	  FROM HANADMIN.PRDT_INFO
+	 GROUP BY kind, prod_nm, client
+	</select> 
+	
+	<select id="getPrice" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	SELECT info.OUT_PRICE CODE, info.OUT_PRICE NAME 
+	  FROM hanadmin.prdt_info info
+	 WHERE 1=1
+     <if test='kind != null and !kind.equals("")'>
+       AND KIND = #{kind}
+     </if>
+     <if test='prodNm != null and !prodNm.equals("")'>
+       AND PROD_NM = #{prodNm}
+     </if>
+     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+       AND PROD_DTL_NM = #{prodDtlNm}
+     </if>
+	</select>  
+	
+	<select id="selectPlanExportListV" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PlanExportMapper.selectPlanExportListV */
+		SELECT explan.ORDER_NO
+ 			 , explan.ORDER_DATE
+ 			 , MAX(explan.HY_DATE) AS HY_DATE 
+ 			 , CASE WHEN MAX(explan.SH_DATE) IS NOT NULL THEN 
+				  CASE WHEN TO_CHAR(TO_DATE(MAX(explan.SH_DATE), 'YYYY-MM-DD'), 'D') = 2 THEN MAX(explan.SH_DATE) || '(' || '月' || ')' 
+					   WHEN TO_CHAR(TO_DATE(MAX(explan.SH_DATE), 'YYYY-MM-DD'), 'D') = 3 THEN MAX(explan.SH_DATE) || '(' || '火' || ')' 
+					   WHEN TO_CHAR(TO_DATE(MAX(explan.SH_DATE), 'YYYY-MM-DD'), 'D') = 4 THEN MAX(explan.SH_DATE) || '(' || '水' || ')' 
+					   WHEN TO_CHAR(TO_DATE(MAX(explan.SH_DATE), 'YYYY-MM-DD'), 'D') = 5 THEN MAX(explan.SH_DATE) || '(' || '木' || ')' 
+					   WHEN TO_CHAR(TO_DATE(MAX(explan.SH_DATE), 'YYYY-MM-DD'), 'D') = 6 THEN MAX(explan.SH_DATE) || '(' || '金' || ')' 
+					   WHEN TO_CHAR(TO_DATE(MAX(explan.SH_DATE), 'YYYY-MM-DD'), 'D') = 7 THEN MAX(explan.SH_DATE) || '(' || '土' || ')' 
+				  ELSE MAX(explan.SH_DATE) || '(' || '日' || ')' END
+ 			   ELSE '' END SH_DATE
+ 			 , MAX(explan.OUT_DATE) AS OUT_DATE
+ 			 , MAX(explan.SHIP_NM) AS SHIP_NM
+ 			 , explan.CLIENT
+ 			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'client' and CODE = explan.CLIENT) AS CLIENT_NM
+ 			 , MAX(explan.EXPORT_NO) AS EXPORT_NO
+ 			 , explan.FROM_PLACE
+ 			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'start_city' and CODE = explan.FROM_PLACE) AS FROM_PLACE_NM
+ 			 , explan.TO_PLACE
+ 			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'goal_city' and CODE = explan.TO_PLACE) AS TO_PLACE_NM
+ 			 , sum(COUNT) AS COUNT  
+ 			 , sum(BOX_COUNT) AS BOX_COUNT
+ 			 , round(sum((explan.COUNT * explan.PRICE)), 2) AS DAL_PRICE
+			 , round(sum((explan.COUNT * explan.PRICE * explan.EXCHANGE)),2) AS RMB_PRICE
+			 , MAX(explan.IS_CHECK) AS IS_CHECK
+		 FROM hanadmin.export_plan explan, hanadmin.prdt_info info
+	   WHERE explan.PROD_ID = info.PROD_ID
+	   <if test='MONTHS != null and !MONTHS.equals("")'>
+	     AND explan.ORDER_DATE = '2022-'||#{MONTHS}
+	   </if>
+	   <if test='START_CITY != null and !START_CITY.equals("")'>
+	     AND explan.FROM_PLACE = #{START_CITY}
+	   </if>
+	   <if test='GOAL_CITY != null and !GOAL_CITY.equals("")'>
+	     AND explan.TO_PLACE = #{GOAL_CITY}
+	   </if>
+	   <if test='KIND != null and !KIND.equals("")'>
+	     AND info.KIND = #{KIND}
+	   </if>
+	   <if test='PROD_NM != null and !PROD_NM.equals("")'>
+	     AND info.PROD_NM = #{PROD_NM}
+	   </if>
+	   <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+	     AND info.PROD_DTL_NM = #{PROD_DTL_NM}
+	   </if>
+	   <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	     AND explan.PROD_ID = #{PROD_ID}
+	   </if>
+	   <choose>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND REPLACE(explan.OUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+            AND REPLACE(explan.OUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND REPLACE(explan.OUT_DATE, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+          </when>
+      </choose>
+      <choose>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(hyDateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(hyDateEnd)">
+            AND REPLACE(explan.HY_DATE, '-', '') BETWEEN REPLACE(#{hyDateStart}, '-', '') AND REPLACE(#{hyDateEnd}, '-', '')
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(hyDateStart)">
+            AND REPLACE(explan.HY_DATE, '-', '') BETWEEN REPLACE(#{hyDateStart}, '-', '') AND '99999999'
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(hyDateEnd)">
+            AND REPLACE(explan.HY_DATE, '-', '') BETWEEN '00000000' AND REPLACE(#{hyDateEnd}, '-', '')
+          </when>
+      </choose>
+		GROUP BY explan.ORDER_NO, explan.ORDER_DATE, explan.CLIENT, explan.FROM_PLACE, explan.TO_PLACE
+		ORDER BY explan.ORDER_DATE desc, explan.ORDER_NO
+	</select>
+	
+	<select id="selectPlanExportListE" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PlanExportMapper.selectPlanExportListE */
+		SELECT IDX
+			 , explan.ORDER_NO
+			 , explan.ORDER_DATE
+			 , info.CLIENT
+			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'client' and CODE = explan.CLIENT) AS CLIENT_NM
+			 , explan.HY_DATE
+			 , explan.SH_DATE
+			 , explan.OUT_DATE
+			 , explan.SHIP_NM
+			 , explan.EXPORT_NO
+			 , info.KIND
+			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'product_kind' and CODE = info.KIND) AS KIND_NM
+			 , info.PROD_NM 
+			 , info.PROD_DTL_NM 
+			 , explan.PROD_ID
+			 , explan.COUNT
+			 , explan.BOX_COUNT
+			 , explan.EXCHANGE
+			 , explan.PRICE
+			 , explan.FROM_PLACE
+			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'start_city' and CODE = explan.FROM_PLACE) AS FROM_PLACE_NM
+			 , explan.TO_PLACE
+			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'goal_city' and CODE = explan.TO_PLACE) AS TO_PLACE_NM
+			 , explan.BIGO 
+			 , explan.IS_CHECK 
+			 , explan.CREATE_DATE 
+			 , explan.CREATE_USER 
+			 , explan.UPDATE_DATE 
+			 , explan.UPDATE_USER
+		FROM hanadmin.export_plan explan, hanadmin.prdt_info info
+	   WHERE explan.PROD_ID = info.PROD_ID
+	   <if test='MONTHS != null and !MONTHS.equals("")'>
+	     AND explan.ORDER_DATE = '2022-'||#{MONTHS}
+	   </if>
+	   <if test='START_CITY != null and !START_CITY.equals("")'>
+	     AND explan.FROM_PLACE = #{START_CITY}
+	   </if>
+	   <if test='GOAL_CITY != null and !GOAL_CITY.equals("")'>
+	     AND explan.TO_PLACE = #{GOAL_CITY}
+	   </if>
+	   <if test='KIND != null and !KIND.equals("")'>
+	     AND info.KIND = #{KIND}
+	   </if>
+	   <if test='PROD_NM != null and !PROD_NM.equals("")'>
+	     AND info.PROD_NM = #{PROD_NM}
+	   </if>
+	   <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+	     AND info.PROD_DTL_NM = #{PROD_DTL_NM}
+	   </if>
+	   <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	     AND explan.PROD_ID = #{PROD_ID}
+	   </if>
+	   <choose>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND REPLACE(explan.OUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+            AND REPLACE(explan.OUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND REPLACE(explan.OUT_DATE, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+          </when>
+      </choose>
+	   ORDER BY explan.ORDER_DATE desc, explan.ORDER_NO, explan.PROD_ID
+	</select>
+	
+	<insert id="insertPlanExport" parameterType="java.util.HashMap" >
+	/* PlanExportMapper.insertPlanExport */
+		INSERT INTO hanadmin.export_plan
+		(	
+			IDX
+			, ORDER_NO 
+			, ORDER_DATE
+			, CLIENT
+			, HY_DATE
+			, SH_DATE
+			, OUT_DATE
+			, SHIP_NM
+			, EXPORT_NO
+			, PROD_ID 
+			, COUNT
+			, BOX_COUNT
+			, EXCHANGE
+			, PRICE
+			, FROM_PLACE 
+			, TO_PLACE 
+			, BIGO 
+			, IS_CHECK 
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER 
+		)
+		VALUES
+		(			
+			hanadmin.export_plan_seq.nextval
+			, #{ORDER_NO} 
+			, #{ORDER_DATE}
+			, #{CLIENT}
+			, #{HY_DATE}
+			, #{SH_DATE}
+			, #{OUT_DATE}
+			, #{SHIP_NM}
+			, #{EXPORT_NO}
+			, (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			, #{COUNT}
+			, #{BOX_COUNT}
+			, #{EXCHANGE}
+			, #{PRICE}
+			, #{FROM_PLACE}
+			, #{TO_PLACE}
+			, #{BIGO}
+			, 'NO'
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+		
+	</insert>
+	
+	<update id="updatePlanExport" parameterType="java.util.HashMap">
+	/* PlanExportMapper.updatePlanExport */
+		UPDATE hanadmin.export_plan
+		   SET ORDER_NO = #{ORDER_NO}
+		   	   , ORDER_DATE = #{ORDER_DATE}
+			   , CLIENT = #{CLIENT}
+			   , HY_DATE = #{HY_DATE}
+			   , SH_DATE = #{SH_DATE}
+			   , OUT_DATE = #{OUT_DATE}
+			   , SHIP_NM = #{SHIP_NM}
+			   , EXPORT_NO = #{EXPORT_NO}
+			   , PROD_ID = (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			   , COUNT = #{COUNT}
+			   , BOX_COUNT = #{BOX_COUNT}
+			   , EXCHANGE = #{EXCHANGE}
+			   , PRICE = #{PRICE}
+			   , FROM_PLACE = #{FROM_PLACE}
+			   , TO_PLACE = #{TO_PLACE}
+			   , BIGO = #{BIGO}
+			   , IS_CHECK = #{IS_CHECK}
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='IDX != null and !IDX.equals("")'>
+	    	AND IDX = #{IDX} 
+	    </if>
+	</update>
+	
+	<delete id="deletePlanExport" parameterType="java.util.HashMap">
+	/* PlanExportMapper.deletePlanExport */
+		DELETE FROM hanadmin.export_plan
+		 WHERE 1=1 
+		 <if test='IDX != null and !IDX.equals("")'>
+	    	 AND IDX = #{IDX}
+	     </if>
+	</delete>
+	
+	<update id="updatePlanExportIsChk" parameterType="String">
+	/* PlanExportMapper.updatePlanExportIsChk */
+		UPDATE hanadmin.export_plan
+		   SET IS_CHECK = #{IS_CHECK}
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='ORDER_NO != null and !ORDER_NO.equals("")'>
+	    	AND ORDER_NO = #{ORDER_NO} 
+	    </if>
+	</update>
+	
+	<insert id="insertPlanExportToInout" parameterType="String" >
+	/* PlanExportMapper.insertPlanExportToInout */
+		INSERT INTO hanadmin.prdt_inout(
+				IDX
+				, PRODUCT_GUBUN
+				, KIND 
+				, PROD_ID 
+				, OUT_NUM
+				, TO_PLACE 
+				, CLIENT 
+				, INOUT_DATE
+				, BOX_COUNT
+				, BOX_PER_COUNT
+				, OUT_METHOD 
+				, MAN 
+				, PRICE 
+				, BIGO
+				, IS_CHECK
+				, CREATE_DATE 
+				, CREATE_USER 
+				, UPDATE_DATE 
+				, UPDATE_USER
+		)
+		SELECT hanadmin.prdt_inout_seq.nextval
+				 , 'product01'
+				 , '完成品'
+				 , PROD_ID
+				 , ORDER_NO
+				 , TO_PLACE 
+				 , CLIENT
+				 , OUT_DATE
+				 , BOX_COUNT
+				 , COUNT
+				 , NULL 
+				 , 'system'
+				 , PRICE
+				 , NULL
+				 , 'NO'
+				 , SYSDATE
+				 , 'hanadmin'
+				 , SYSDATE
+				 , 'hanadmin'
+		FROM hanadmin.export_plan ep 
+	   WHERE ORDER_NO = #{ORDER_NO}
+	</insert>
+	
+	<select id="selectOrderNo" parameterType="java.util.HashMap" resultType="String">
+	/* PlanExportMapper.selectOrderNo */
+		SELECT DISTINCT OUT_NUM 
+		  FROM hanadmin.prdt_inout 
+		 WHERE OUT_NUM = #{ORDER_NO}
+	</select>
+	
+	<select id="selectProdIdList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PlanExportMapper.selectProdIdList */
+		SELECT PROD_ID, COUNT, BOX_COUNT, count(PROD_ID) over() AS CNT
+		  FROM hanadmin.export_plan ep
+		 WHERE ORDER_NO = #{ORDER_NO}
+	</select>
+	
+	<update id="updateProdStock" parameterType="java.util.HashMap">
+	/* PlanExportMapper.updateProdStock */
+		UPDATE hanadmin.prdt_stock
+		   SET COUNT = COUNT - (#{COUNT})
+		   	 , BOX_COUNT = BOX_COUNT - (#{BOX_COUNT}) 
+			 , UPDATE_DATE = SYSDATE
+			 , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	AND PROD_ID = #{PROD_ID} 
+	    </if>
+	</update>
+
+</mapper>

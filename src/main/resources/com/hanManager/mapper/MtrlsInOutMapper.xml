@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.MtrlsInOutMapper">
+	
+	<select id="selectMtrlsProdNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* MtrlsInOutMapper.selectMtrlsProdNm */
+		SELECT DISTINCT info.PROD_NM CODE, info.PROD_NM NAME
+		  FROM hanadmin.mtrls_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectMtrlsProdDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* MtrlsInOutMapper.selectMtrlsProdDtlNm */
+		SELECT DISTINCT info.PROD_DTL_NM CODE, info.PROD_DTL_NM NAME
+		  FROM hanadmin.mtrls_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectMtrlsProdId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* MtrlsInOutMapper.selectMtrlsProdId */
+		SELECT info.PROD_ID CODE, info.PROD_ID NAME
+		  FROM hanadmin.mtrls_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+	       AND PROD_DTL_NM = #{prodDtlNm}
+	     </if>
+	</select>
+	
+	<select id="selectMtrlsProdDtlList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	SELECT kind
+		 , prod_nm
+		 , LISTAGG(prod_dtl_nm,',') WITHIN GROUP(ORDER BY  kind, prod_nm) AS prod_dtl_nm
+	  FROM HANADMIN.MTRLS_INFO
+	 GROUP BY kind, prod_nm
+	</select>  
+	
+	<select id="selectMtrlsInOutList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* MtrlsInOutMapper.selectMtrlsInOutList */
+		SELECT inout.IDX 
+			 , inout.STTL_MON
+			 , inout.RAW_GUBUN
+			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'raw_gubun' and CODE = inout.RAW_GUBUN) RAW_GUBUN_NM
+			 , inout.KIND
+			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'kind' and CODE = inout.KIND) AS KIND_NM
+			 , info.PROD_NM 
+			 , info.PROD_DTL_NM 
+			 , inout.PROD_ID 
+			 , inout.LOT_NUM 
+			 , inout.WEIGHT
+			 , inout.CLIENT AS RAW_CLIENT
+			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'raw_client' and CODE = inout.CLIENT) AS RAW_CLIENT_NM
+			 , inout.IN_DATE 
+			 , inout.MAN 
+			 , inout.PRICE AS PRICE
+			 , (inout.PRICE * inout.WEIGHT) AS TOT_PRICE
+			 , inout.BIGO 
+			 , inout.IS_CHECK 
+			 , inout.CREATE_DATE 
+			 , inout.CREATE_USER 
+			 , inout.UPDATE_DATE 
+			 , inout.UPDATE_USER
+		FROM hanadmin.mtrls_inout inout, hanadmin.mtrls_info info
+	   WHERE inout.PROD_ID = info.PROD_ID
+	   <if test='STTL_MON != null and !STTL_MON.equals("")'>
+	     AND inout.STTL_MON = (SELECT TO_CHAR(sysdate, 'YYYY')||'-'||#{STTL_MON} FROM DUAL)
+	   </if>
+	   <if test='RAW_GUBUN != null and !RAW_GUBUN.equals("")'>
+	     AND inout.RAW_GUBUN = #{RAW_GUBUN}
+	   </if>
+	   <if test='RAW_CLIENT != null and !RAW_CLIENT.equals("")'>
+	     AND inout.CLIENT = #{RAW_CLIENT}
+	   </if>
+	   <if test='KIND != null and !KIND.equals("")'>
+	     AND info.KIND = #{KIND}
+	   </if>
+	   <if test='PROD_NM != null and !PROD_NM.equals("")'>
+	     AND info.PROD_NM = #{PROD_NM}
+	   </if>
+	   <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+	     AND info.PROD_DTL_NM = #{PROD_DTL_NM}
+	   </if>
+	   <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	     AND inout.PROD_ID = #{PROD_ID}
+	   </if>
+	   <choose>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND REPLACE(inout.IN_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+            AND REPLACE(inout.IN_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND REPLACE(inout.IN_DATE, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+          </when>
+      </choose>
+	   ORDER BY inout.IN_DATE desc, inout.IDX
+	</select>
+	
+	<insert id="insertMtrlsInOut" parameterType="java.util.HashMap" >
+	/* MtrlsInOutMapper.insertMtrlsInOut */
+		INSERT INTO hanadmin.mtrls_inout
+		(	
+			IDX
+			, STTL_MON 
+			, RAW_GUBUN
+			, KIND 
+			, PROD_ID 
+			, LOT_NUM 
+			, WEIGHT 
+			, CLIENT 
+			, IN_DATE 
+			, MAN 
+			, PRICE 
+			, BIGO
+			, IS_CHECK
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			hanadmin.mtrls_inout_seq.nextval
+			, #{STTL_MON} 
+			, #{RAW_GUBUN} 
+			, #{KIND}  
+			, (SELECT PROD_ID FROM hanadmin.mtrls_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			, #{LOT_NUM} 
+			, #{WEIGHT} 
+			, #{RAW_CLIENT}
+			, #{IN_DATE} 
+			, #{MAN} 
+			, #{PRICE}
+			, #{BIGO}
+			, 'NO'
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+		
+	</insert>
+	
+	<update id="updateMtrlsInOut" parameterType="java.util.HashMap">
+	/* MtrlsInOutMapper.updateMtrlsInOut */
+		UPDATE hanadmin.mtrls_inout
+		   SET STTL_MON = #{STTL_MON} 
+			   , RAW_GUBUN = #{RAW_GUBUN} 
+			   , KIND = #{KIND} 
+			   , PROD_ID = (SELECT PROD_ID FROM hanadmin.mtrls_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			   , LOT_NUM = #{LOT_NUM} 
+			   , WEIGHT = #{WEIGHT} 
+			   , CLIENT = #{RAW_CLIENT}
+			   , IN_DATE = #{IN_DATE} 
+			   , MAN = #{MAN} 
+			   , PRICE = #{PRICE}
+			   , BIGO = #{BIGO}
+			   , IS_CHECK = #{IS_CHECK}
+			   , CREATE_DATE = SYSDATE
+			   , CREATE_USER = #{CREATE_USER}
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='IDX != null and !IDX.equals("")'>
+	    	AND IDX = #{IDX}
+	    </if>
+	</update>
+	
+	<delete id="deleteMtrlsInOut" parameterType="java.util.HashMap">
+	/* MtrlsInOutMapper.deleteMtrlsInOut */
+		DELETE FROM hanadmin.mtrls_inout
+		 WHERE 1=1 
+		 <if test='IDX != null and !IDX.equals("")'>
+	    	 AND IDX = #{IDX}
+	     </if>
+	</delete>
+
+</mapper>

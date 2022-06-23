@@ -13,10 +13,21 @@
 			A.user_state,
 			A.created,
 			A.last_modified
-		FROM HANADMIN.users A
+		FROM hanadmin.users A
 		<where>
 			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(userId)">AND A.user_id = #{userId}</if>
 		</where>
 	</select>
+	
+	<update id="updateUserPW" parameterType="Users">
+	/* UsersMapper.updateUserPW */
+		UPDATE hanadmin.users
+		   SET USER_PWD = #{userPwd}
+			 , LAST_MODIFIED = SYSDATE
+		WHERE 1=1
+		<if test='@com.hanManager.web.util.CommonUtil@isNotEmpty(userId)'>
+	    	AND USER_ID = #{userId}
+	    </if>
+	</update>
 
 </mapper>

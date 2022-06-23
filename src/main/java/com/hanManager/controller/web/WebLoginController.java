@@ -1,6 +1,8 @@
 package com.hanManager.controller.web;
 
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -9,15 +11,19 @@ import javax.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.hanManager.Constant;
 import com.hanManager.controller.DefaultController;
 import com.hanManager.domain.LoginUsers;
 import com.hanManager.domain.Users;
+import com.hanManager.domain.VehicleManagement;
 import com.hanManager.mapper.UsersMapper;
 import com.hanManager.model.LoginModel;
 import com.hanManager.web.util.CommonUtil;
@@ -102,6 +108,34 @@ public class WebLoginController extends DefaultController {
 	public String logout(HttpServletRequest request) {
 		LoginManager.getInstance().logout(request);
 		return "redirect:/";
+	}
+	
+	/**
+	 * 사용자 비밀번호 변경
+	 *
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping(value="userEditSave")
+	public @ResponseBody Map<String, Object> userEditSave(@Valid Users users, @RequestParam String eventType, BindingResult result, Locale locale) {
+
+    	Map<String, Object> map = new HashMap<String, Object>();
+    	map.put("success", "NO");
+    	
+		try {
+			String id = users.getUserId();
+			String pw = users.getUserPwd();
+			
+			if((id != null && !"".equals(id)) && (pw != null && !"".equals(pw))){
+				String pwd = CommonUtil.encryptPassword(users.getUserPwd());
+				users.setUserPwd(pwd);
+				usersMapper.updateUserPW(users);
+				map.put("success", "OK");
+			}
+    	} catch (Exception e) {
+			log.error("Exception : ", e);
+		}
+    	return map;
 	}
 
 	/**

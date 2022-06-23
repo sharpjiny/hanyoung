@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.CodesInfoMapper">
+
+	<!-- 콤보박스 셋 START -->
+	<select id="selectCodesProdNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT prod_nm
+		  FROM hanadmin.common_code mi 
+		 WHERE 1=1
+		 <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(KIND)">
+		   AND mi.kind = #{KIND}
+		 </if>
+	</select>
+	
+	<select id="selectCodesProdDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT prod_dtl_nm 
+		  FROM hanadmin.common_code mi 
+		 WHERE 1=1
+		 <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(KIND)">
+		   AND mi.kind = #{KIND}
+		 </if>
+		 <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(PROD_NM)"> 
+		   AND mi.prod_nm = #{PROD_NM}
+		 </if>
+	</select>
+	
+	<select id="selectCodesProdId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+		SELECT prod_id 
+		  FROM hanadmin.common_code mi 
+		 WHERE 1=1
+		 <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(KIND)">
+		   AND mi.kind = #{KIND}
+		 </if>
+		 <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(PROD_NM)"> 
+		   AND mi.prod_nm = #{PROD_NM}
+		 </if>
+		 <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(PROD_DTL_NM)">
+		   AND mi.prod_dtl_nm = #{PROD_DTL_NM}
+		 </if>  
+	</select>
+	<!-- 콤보박스 셋 END -->
+	
+	<select id="selectCodesInfoList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* CodesInfoMapper.selectCodesInfoList */
+		SELECT CODE
+			, CODE_GROUP
+			, CODE_NAME
+			, to_char(CREATED, 'YYYY.MM.DD') CREATED
+			, CODE_SORT
+			, CODE_KEY
+			, CODE_USE
+			, CODE_ETC
+		FROM hanadmin.common_code
+	   WHERE 1=1
+	   <if test='CODE_GROUP != null and !CODE_GROUP.equals("")'>
+	    	AND CODE_GROUP = #{CODE_GROUP}
+	   </if>
+	   <if test='CODE != null and !CODE.equals("")'>
+	    	AND CODE = #{CODE}
+	   </if>
+	   <if test='CODE_NAME != null and !CODE_NAME.equals("")'>
+	   	   AND CODE_NAME = #{CODE_NAME}
+	   </if>
+	   ORDER BY CODE_GROUP DESC, CODE
+	</select>
+	
+	<insert id="insertCodesInfo" parameterType="java.util.HashMap" >
+	/* CodesInfoMapper.insertCodesInfo */
+		INSERT INTO hanadmin.common_code
+		(	
+			CODE
+			, CODE_GROUP
+			, CODE_NAME
+			, CREATED
+			, CODE_SORT
+			, CODE_KEY
+			, CODE_USE
+			, CODE_ETC
+		)
+		VALUES
+		(
+			#{CODE}
+			, #{CODE_GROUP}
+			, #{CODE_NAME}
+			, SYSDATE
+			, #{CODE_SORT}
+			, 0
+			, 'Y'
+			, #{CODE_ETC}
+		)
+		
+	</insert>
+	
+	<update id="updateCodesInfo" parameterType="java.util.HashMap">
+	/* CodesInfoMapper.updateCodesInfo */
+		UPDATE hanadmin.common_code 
+		   SET CODE_NAME = #{CODE_NAME}
+			   , CODE_ETC = #{CODE_ETC}
+			   , CREATED = SYSDATE
+			   , CODE_SORT = #{CODE_SORT}
+		WHERE 1=1
+		<if test='CODE_GROUP != null and !CODE_GROUP.equals("")'>
+	    	AND CODE_GROUP = #{CODE_GROUP}
+	    </if>
+	    <if test='CODE != null and !CODE.equals("")'>
+	    	AND CODE = #{CODE}
+	    </if>
+	</update>
+	
+	<delete id="deleteCodesInfo" parameterType="java.util.HashMap">
+	/* CodesInfoMapper.deleteCodesInfo */
+		DELETE FROM hanadmin.common_code 
+		 WHERE 1=1 
+		 <if test='CODE_GROUP != null and !CODE_GROUP.equals("")'>
+	    	AND CODE_GROUP = #{CODE_GROUP}
+	    </if>
+	    <if test='CODE != null and !CODE.equals("")'>
+	    	AND CODE = #{CODE}
+	    </if>
+	</delete>
+
+</mapper>

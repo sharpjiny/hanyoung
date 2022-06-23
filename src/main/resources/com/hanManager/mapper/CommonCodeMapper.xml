@@ -8,13 +8,14 @@
 		SELECT A.code,
 			   A.code_name AS name,
 			   A.code_sort AS sort
-		FROM common_code A
+		FROM hanadmin.common_code A
 		<where>
-			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(group)">AND A.code_group = #{group}</if>
+			<if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(code_group)">AND A.code_group = #{code_group}</if>
 		</where>
 		<choose>
 		<when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(sort)">ORDER BY #{sort}</when>
 		<otherwise>ORDER BY code_sort, code_name</otherwise>
 		</choose>
 	</select>
+	
 </mapper>

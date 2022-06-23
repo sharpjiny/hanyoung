@@ -2,21 +2,21 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hanManager.mapper.MtrlsInfoMapper">
+<mapper namespace="com.hanManager.mapper.PrdtInfoMapper">
 
 	<!-- 콤보박스 셋 START -->
-	<select id="selectMtrlsProdNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	<select id="selectPrdtProdNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
 		SELECT prod_nm
-		  FROM HANADMIN.MTRLS_INFO mi 
+		  FROM HANADMIN.PRDT_INFO mi 
 		 WHERE 1=1
 		 <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(KIND)">
 		   AND mi.kind = #{KIND}
 		 </if>
 	</select>
 	
-	<select id="selectMtrlsProdDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	<select id="selectPrdtProdDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
 		SELECT prod_dtl_nm 
-		  FROM HANADMIN.MTRLS_INFO mi 
+		  FROM HANADMIN.PRDT_INFO mi 
 		 WHERE 1=1
 		 <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(KIND)">
 		   AND mi.kind = #{KIND}
@@ -26,9 +26,9 @@
 		 </if>
 	</select>
 	
-	<select id="selectMtrlsProdId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	<select id="selectPrdtProdId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
 		SELECT prod_id 
-		  FROM HANADMIN.MTRLS_INFO mi 
+		  FROM HANADMIN.PRDT_INFO mi 
 		 WHERE 1=1
 		 <if test="@com.hanManager.web.util.CommonUtil@isNotEmpty(KIND)">
 		   AND mi.kind = #{KIND}
@@ -42,18 +42,21 @@
 	</select>
 	<!-- 콤보박스 셋 END -->
 	
-	<select id="selectMtrlsInfoList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-	/* MtrlsInfoMapper.selectMtrlsInfoList */
+	<select id="selectPrdtInfoList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PrdtInfoMapper.selectPrdtInfoList */
 		SELECT PROD_ID
 			, KIND
 			, PROD_NM
 			, PROD_DTL_NM
+			, CLIENT
+			, OUT_PRICE
+			, SH_PRICE
 			, BIGO
 			, to_char(CREATE_DATE, 'YYYY.MM.DD') CREATE_DATE
 			, CREATE_USER
 			, to_char(UPDATE_DATE, 'YYYY.MM.DD') UPDATE_DATE
 			, UPDATE_USER
-		FROM hanadmin.mtrls_info
+		FROM hanadmin.prdt_info
 	   WHERE 1=1
 	   <if test='PROD_ID != null and !PROD_ID.equals("")'>
 	   	   AND PROD_ID = #{PROD_ID}
@@ -70,14 +73,17 @@
 	   ORDER BY PROD_ID
 	</select>
 	
-	<insert id="insertMtrlsInfo" parameterType="java.util.HashMap" >
-	/* MtrlsInfoMapper.insertMtrlsInfo */
-		INSERT INTO hanadmin.mtrls_info
+	<insert id="insertPrdtInfo" parameterType="java.util.HashMap" >
+	/* PrdtInfoMapper.insertPrdtInfo */
+		INSERT INTO hanadmin.prdt_info
 		(	
 			PROD_ID
 			, KIND
 			, PROD_NM
 			, PROD_DTL_NM
+			, CLIENT
+			, OUT_PRICE
+			, SH_PRICE
 			, BIGO
 			, CREATE_DATE
 			, CREATE_USER
@@ -90,6 +96,9 @@
 			, #{KIND}
 			, #{PROD_NM}
 			, #{PROD_DTL_NM}
+			, #{CLIENT}
+			, #{OUT_PRICE}
+			, ''
 			, #{BIGO}
 			, SYSDATE
 			, #{CREATE_USER}
@@ -99,12 +108,15 @@
 		
 	</insert>
 	
-	<update id="updateMtrlsInfo" parameterType="java.util.HashMap">
-	/* MtrlsInfoMapper.updateMtrlsInfo */
-		UPDATE hanadmin.mtrls_info 
+	<update id="updatePrdtInfo" parameterType="java.util.HashMap">
+	/* PrdtInfoMapper.updatePrdtInfo */
+		UPDATE hanadmin.prdt_info 
 		   SET KIND = #{KIND}
 			   , PROD_NM = #{PROD_NM}
 			   , PROD_DTL_NM = #{PROD_DTL_NM}
+			   , CLIENT = #{CLIENT}
+			   , OUT_PRICE = #{OUT_PRICE}
+			   <!-- , SH_PRICE = #{SH_PRICE} -->
 			   , BIGO = #{BIGO}
 			   , CREATE_DATE = SYSDATE
 			   , CREATE_USER = #{CREATE_USER}
@@ -116,9 +128,9 @@
 	    </if>
 	</update>
 	
-	<delete id="deleteMtrlsInfo" parameterType="java.util.HashMap">
-	/* MtrlsInfoMapper.deleteMtrlsInfo */
-		DELETE FROM hanadmin.mtrls_info 
+	<delete id="deletePrdtInfo" parameterType="java.util.HashMap">
+	/* PrdtInfoMapper.deletePrdtInfo */
+		DELETE FROM hanadmin.prdt_info 
 		 WHERE 1=1 
 		 <if test='PROD_ID != null and !PROD_ID.equals("")'>
 	    	 AND PROD_ID = #{PROD_ID}

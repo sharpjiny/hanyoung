@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.PrdtStockMapper">
+	
+	<select id="selectPrdtProdNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PrdtStockMapper.selectPrdtProdNm */
+		SELECT DISTINCT info.PROD_NM CODE, info.PROD_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PrdtStockMapper.selectPrdtProdDtlNm */
+		SELECT DISTINCT info.PROD_DTL_NM CODE, info.PROD_DTL_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PrdtStockMapper.selectPrdtProdId */
+		SELECT info.PROD_ID CODE, info.PROD_ID NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+	       AND PROD_DTL_NM = #{prodDtlNm}
+	     </if>
+	</select>
+	
+	<select id="getProdIdRowList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	SELECT kind
+		 , prod_nm
+		 , prod_dtl_nm
+		 , LISTAGG(client,',') WITHIN GROUP(ORDER BY  kind, prod_nm, prod_dtl_nm) AS client
+	  FROM HANADMIN.PRDT_INFO
+	 GROUP BY kind, prod_nm, prod_dtl_nm
+	</select>  
+	
+	<select id="selectPrdtStockList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PrdtStockMapper.selectPrdtStockList */
+		WITH prod_sum as (
+			SELECT PRODUCT_GUBUN
+				 , PROD_ID
+				 , CASE WHEN PRODUCT_GUBUN = 'product01' then (sum(BOX_PER_COUNT) * -1)  
+		                    WHEN PRODUCT_GUBUN = 'product02' then sum(BOX_PER_COUNT) 
+		                    WHEN PRODUCT_GUBUN = 'product05' then sum(BOX_PER_COUNT) END per_tot
+		         , CASE WHEN PRODUCT_GUBUN = 'product01' then (sum(BOX_COUNT) * -1)  
+		                    WHEN PRODUCT_GUBUN = 'product02' then sum(BOX_COUNT) 
+		                    WHEN PRODUCT_GUBUN = 'product05' then sum(BOX_COUNT) END box_tot           
+			 FROM hanadmin.PRDT_INOUT inout
+			 <choose>
+		          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+		            AND REPLACE(inout.INOUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+		          </when>
+		          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+		            AND REPLACE(inout.INOUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+		          </when>
+		          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+		            AND REPLACE(inout.INOUT_DATE, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+		          </when>
+		      </choose>
+			GROUP BY PRODUCT_GUBUN, PROD_ID
+		)
+		SELECT i.kind as KIND_NM
+			 , i.prod_nm as PROD_NM
+			 , i.prod_dtl_nm as PROD_DTL_NM
+			 , s.prod_id as PROD_ID
+			 , i.out_price as PRICE
+			 , sum(per_tot) COUNT
+			 , sum(box_tot) BOX_COUNT
+			 , sum(box_tot) * i.out_price TOT_PRICE 
+		 FROM prod_sum s, hanadmin.prdt_info i
+		WHERE s.prod_id = i.prod_id
+		<if test='PRODUCT_GUBUN != null and !PRODUCT_GUBUN.equals("")'>
+	      AND i.PRODUCT_GUBUN = #{PRODUCT_GUBUN}
+	    </if>
+	    <if test='KIND != null and !KIND.equals("")'>
+	      AND i.KIND = #{KIND}
+	    </if>
+	    <if test='PROD_NM != null and !PROD_NM.equals("")'>
+	      AND i.PROD_NM = #{PROD_NM}
+	    </if>
+	    <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+	      AND i.PROD_DTL_NM = #{PROD_DTL_NM}
+	    </if>
+	    <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	      AND s.PROD_ID = #{PROD_ID}
+	    </if>
+		GROUP BY s.prod_id, i.kind, i.prod_nm, i.prod_dtl_nm, i.out_price 
+	    ORDER BY i.kind, i.prod_nm, prod_id
+	</select>
+
+</mapper>

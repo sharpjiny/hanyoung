@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.MtrlsStockMapper">
+	
+	<select id="selectMtrlsProdNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* MtrlsStockMapper.selectMtrlsProdNm */
+		SELECT DISTINCT info.PROD_NM CODE, info.PROD_NM NAME
+		  FROM hanadmin.mtrls_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectMtrlsProdDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* MtrlsStockMapper.selectMtrlsProdDtlNm */
+		SELECT DISTINCT info.PROD_DTL_NM CODE, info.PROD_DTL_NM NAME
+		  FROM hanadmin.mtrls_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectMtrlsProdId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* MtrlsStockMapper.selectMtrlsProdId */
+		SELECT info.PROD_ID CODE, info.PROD_ID NAME
+		  FROM hanadmin.mtrls_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+	       AND PROD_DTL_NM = #{prodDtlNm}
+	     </if>
+	</select>
+	
+	<select id="getProdIdRowList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	SELECT kind
+		 , prod_nm
+		 , prod_dtl_nm
+	  FROM HANADMIN.MTRLS_INFO
+	 GROUP BY kind, prod_nm, prod_dtl_nm
+	</select>  
+	
+	<select id="selectMtrlsStockList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PrdtStockMapper.selectMtrlsStockList */
+		WITH mtrls_sum as (
+			SELECT KIND
+			 	 , RAW_GUBUN
+				 , PROD_ID
+				 , CASE WHEN RAW_GUBUN = 'raw02' then (sum(WEIGHT) * -1)  
+		                WHEN RAW_GUBUN = 'raw05' then sum(WEIGHT)
+		                WHEN RAW_GUBUN = 'raw01' then sum(WEIGHT) END weight_tot
+			 FROM hanadmin.MTRLS_INOUT inout
+			 <choose>
+		          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+		            AND REPLACE(inout.INOUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+		          </when>
+		          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+		            AND REPLACE(inout.INOUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+		          </when>
+		          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+		            AND REPLACE(inout.INOUT_DATE, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+		          </when>
+		      </choose>
+			GROUP BY KIND, RAW_GUBUN, PROD_ID
+		)
+		SELECT i.kind as KIND_NM
+			 , i.prod_nm as PROD_NM
+			 , i.prod_dtl_nm as PROD_DTL_NM
+			 , s.prod_id as PROD_ID
+			 , sum(weight_tot) weight_tot
+		 FROM mtrls_sum s, hanadmin.mtrls_info i
+		WHERE s.prod_id = i.prod_id
+		<if test='RAW_GUBUN != null and !RAW_GUBUN.equals("")'>
+	      AND i.RAW_GUBUN = #{RAW_GUBUN}
+	    </if>
+	    <if test='KIND != null and !KIND.equals("")'>
+	      AND i.KIND = #{KIND}
+	    </if>
+	    <if test='PROD_NM != null and !PROD_NM.equals("")'>
+	      AND i.PROD_NM = #{PROD_NM}
+	    </if>
+	    <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+	      AND i.PROD_DTL_NM = #{PROD_DTL_NM}
+	    </if>
+	    <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	      AND s.PROD_ID = #{PROD_ID}
+	    </if>
+		GROUP BY s.prod_id, i.kind, i.prod_nm, i.prod_dtl_nm 
+	    ORDER BY i.kind, i.prod_nm, prod_id
+	</select>
+
+</mapper>

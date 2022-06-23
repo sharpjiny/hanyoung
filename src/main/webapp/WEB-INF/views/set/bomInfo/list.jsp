@@ -6,7 +6,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">원부자재 기준정보 리스트</div>
+            <div class="muted pull-left">BOM 기준정보 리스트</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">
@@ -62,8 +62,8 @@
                       <!-- btn-inverse, btn-info -->
                    </div>
                 </div>
-				<div id="mtrlsInfoGridView"></div>
-				<div id="mtrlsInfoGridEdit" style="display:none"></div>
+				<div id="bomInfoGridView"></div>
+				<div id="bomInfoGridEdit" style="display:none"></div>
             </div>
         </div>
     </div>
@@ -72,25 +72,9 @@
 
 
 <script>
-var MtrlsInfoGrid = tui.Grid;
+var BomInfoGrid = tui.Grid;
 tui.Grid.applyTheme('default', {
 	  cell: {
-	    /* normal: {
-	      background: '#014386',
-	      border: '#0c4e91',
-	      text: '#fff',
-	    },
-	    head: {
-	      background: '#0b3f73',
-	      border: '#0b3f73',
-	      text: '#208be4',
-	    },
-	    rowHead: {
-	      border: ''
-	    },
-	    selectedHead: {
-	      background: '#0b3f73',
-	    }, */
 	     evenRow: {
 	      background: '#f8f8ff',
 	    },
@@ -100,20 +84,8 @@ tui.Grid.applyTheme('default', {
 	  }
 	});
 
-/* MtrlsInfoGrid.applyTheme('striped', {
-   	grid:{
-   		border: '#aaa',
-   		text: '#333'
-   	},
-   	cell:{
-   		disabled:{
-   			text:'#999'
-   		}
-   	}
-}); */
-
 var gridView = new tui.Grid({
-    el: document.getElementById('mtrlsInfoGridView'),
+    el: document.getElementById('bomInfoGridView'),
     //scrollX: true,
     //scrollY: true,
     data: [],
@@ -122,46 +94,40 @@ var gridView = new tui.Grid({
     	height: 40
     },
     columns: [
-        {header: '품호',		    name: 'PROD_ID',          	   filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '종류',         	name: 'KIND',          		   filter:{type:'text'},         	sortable:true,            align:'center'        },
         {header: '품명',     		name: 'PROD_NM',          	   filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '상세품명',       	name: 'PROD_DTL_NM',           filter:{type:'text'},          	sortable:true,            align:'center'        },
+        {header: '품호',		    name: 'PROD_ID',          	   filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '비고',       		name: 'BIGO',           	   filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '생성일자',        name: 'CREATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
         {header: '생성자',          name: 'CREATE_USER',           filter:{type:'text'},            sortable:true,            align:'center'        },
         {header: '수정일자',        name: 'UPDATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
         {header: '수정자',          name: 'UPDATE_USER',           filter:{type:'text'},            sortable:true,            align:'center'        }
-    ],
-    columnOptions: {
-    	resizable: true
-    }
+    ]
 });
 
 var gridEdit = new tui.Grid({
-    el: document.getElementById('mtrlsInfoGridEdit'),
+    el: document.getElementById('bomInfoGridEdit'),
     data: [],
     rowHeaders: ['checkbox', 'rowNum'],//'checkbox', 'rowNum'
     header:{
     	height: 40
     },
     columns: [
-		{header: '품호',		    name: 'PROD_ID',          	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '종류',         	name: 'KIND',          		   filter:{type:'text'},         	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '품명',     		name: 'PROD_NM',          	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '상세품명',       	name: 'PROD_DTL_NM',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
+		{header: '품호',		    name: 'PROD_ID',          	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '비고',       		name: 'BIGO',           	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '생성일자',        name: 'CREATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
 		{header: '생성자',          name: 'CREATE_USER',           filter:{type:'text'},            sortable:true,            align:'center'        },
 		{header: '수정일자',        name: 'UPDATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
 		{header: '수정자',          name: 'UPDATE_USER',           filter:{type:'text'},            sortable:true,            align:'center'        }
-    ],
-    columnOptions: {
-    	resizable: true
-    }
+    ]
 });
 
 var dataSet;
-var mtrlsInfo = {
+var bomInfo = {
 	init:function(){
 		console.log("[DEBUG] 콤보박스 초기화(세팅)");
 		//this.comboList();
@@ -169,13 +135,13 @@ var mtrlsInfo = {
 	comboList:function(){
 		var params = {};
 		$.ajax({
-		    url : "/set/mtrlsInfo/comboList",
+		    url : "/set/bomInfo/comboList",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
 			dataSet = result;
 			gridView.resetData(result);
-			mtrlsInfo.view();
+			bomInfo.view();
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
@@ -184,13 +150,13 @@ var mtrlsInfo = {
 		//var params = {'PROD_ID':'PROD_01'};
 		var params = {};
 		$.ajax({
-		    url : "/set/mtrlsInfo/list",
+		    url : "/set/bomInfo/list",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
 			dataSet = result;
 			gridView.resetData(result);
-			mtrlsInfo.view();
+			bomInfo.view();
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    })/* .error(function(ev){
@@ -198,8 +164,8 @@ var mtrlsInfo = {
 	    }) */;
 	},
 	view:function(){
-		$('#mtrlsInfoGridEdit').hide();
-		$('#mtrlsInfoGridView').show();
+		$('#bomInfoGridEdit').hide();
+		$('#bomInfoGridView').show();
 		$('#editBtn').show();
 		$('#saveBtn').hide();
 		$('#delBtn').hide();
@@ -207,8 +173,8 @@ var mtrlsInfo = {
 		$('#viewBtn').hide();
 	},
 	edit:function(){
-		$('#mtrlsInfoGridView').hide();
-		$('#mtrlsInfoGridEdit').show();
+		$('#bomInfoGridView').hide();
+		$('#bomInfoGridEdit').show();
 		$('#viewBtn').show();
 		$('#editBtn').hide();
 		$('#saveBtn').show();
@@ -231,13 +197,13 @@ var mtrlsInfo = {
 		
 		if(chkLen > 0){
 			$.ajax({
-			    url : "/set/mtrlsInfo/save",
+			    url : "/set/bomInfo/save",
 			    contentType : "application/json",
 			    method :"POST",
 			    data:JSON.stringify(saveData)
 			}).success(function(result) {
 				alert(" ㅇ 추가 : " + result["insert"] + "건\n" + " ㅇ 수정 : " + result["update"] + "건\n" + " ㅇ 삭제 : " + result["delete"] + "건");
-				mtrlsInfo.search();
+				bomInfo.search();
 			}).fail(function(ev) {
 		    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 		    });
@@ -256,22 +222,22 @@ var mtrlsInfo = {
 		}
 	},
 	add:function(){
-		gridEdit.prependRow([]);
+		gridEdit.appendRow([]);
 	}
 }
 
 $(function(){
 	
-	$('#searchBtn').click(mtrlsInfo.search);
-	$('#viewBtn').click(mtrlsInfo.view);
-	$('#editBtn').click(mtrlsInfo.edit);
-	$('#saveBtn').click(mtrlsInfo.save);
-	$('#addBtn').click(mtrlsInfo.add);
-	$('#delBtn').click(mtrlsInfo.del);
+	$('#searchBtn').click(bomInfo.search);
+	$('#viewBtn').click(bomInfo.view);
+	$('#editBtn').click(bomInfo.edit);
+	$('#saveBtn').click(bomInfo.save);
+	$('#addBtn').click(bomInfo.add);
+	$('#delBtn').click(bomInfo.del);
 	
 	dateUtil.init();
-	mtrlsInfo.init();
-	mtrlsInfo.search();
+	bomInfo.init();
+	bomInfo.search();
 	
 });
 </script>
