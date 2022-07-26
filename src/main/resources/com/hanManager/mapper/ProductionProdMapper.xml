@@ -45,14 +45,13 @@
 	     </if>
 	</select>
 	
-	<select id="getProdIdRowList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-	/* ProductionProdMapper.getProdIdRowList */
+	<select id="getProdDtlList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionProdMapper.getProdDtlList */
 	SELECT kind
 		 , prod_nm
-		 , LISTAGG(prod_dtl_nm,',') WITHIN GROUP(ORDER BY  kind, prod_nm, prod_dtl_nm) AS prod_dtl_nm
-		 , client
+		 , LISTAGG(prod_dtl_nm,',') WITHIN GROUP(ORDER BY  kind, prod_nm) AS prod_dtl_nm
 	  FROM HANADMIN.PRDT_INFO
-	 GROUP BY kind, prod_nm, client
+	 GROUP BY kind, prod_nm
 	</select>
 	
 	<select id="getPrice" parameterType="java.util.HashMap" resultType="java.util.HashMap">
@@ -71,36 +70,50 @@
      </if>
 	</select>
 	
-	<select id="selectPrdtInOutList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-	/* ProductionProdMapper.selectPrdtInOutList */
-	SELECT s.*, u.BOM_ID 
-      FROM hanadmin.prdt_status s, hanadmin.mtrls_usage u 
-     WHERE s.PRDT_DATE = u.PRDT_DATE
-       AND s.WORK_TYPE = u.WORK_TYPE
-       AND s.EQP_ID = u.EQP_ID
-       AND s.AREA = u.AREA
-       AND s.PROD_ID = u.PROD_ID
+	<select id="selectPrdtProdList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionProdMapper.selectPrdtProdList */
+	SELECT s.PRDT_DATE
+	     , s.WORK_TYPE
+		 , s.EQP_ID
+		 , s.AREA
+		 , info.KIND
+		 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'product_kind' and CODE = info.KIND) AS KIND_NM
+		 , info.PROD_NM
+		 , info.PROD_DTL_NM
+		 , s.PROD_ID
+		 , s.UPH
+		 , s.ST_TIME
+		 , s.ED_TIME
+		 , TRUNC((TO_DATE(s.ED_TIME, 'HH24:MI') - TO_DATE(s.ST_TIME, 'HH24:MI')) * 24 * 60, 2) WORK_TIME
+		 , s.PRDT_CNT
+		 , s.FAULTY_CNT
+		 , s.FINISHED_CNT
+		 , ROUND((s.FINISHED_CNT / s.PRDT_CNT) * 100, 2) || '%' CMPLT_PER
+		 , u.BOM_ID
+      FROM HANADMIN.PRDT_STATUS_PROD s, HANADMIN.PRDT_INFO info, HANADMIN.MTRLS_USAGE u 
+     WHERE s.PROD_ID = info.PROD_ID
+       AND s.PRDT_DATE = u.PRDT_DATE(+)
+       AND s.WORK_TYPE = u.WORK_TYPE(+)
+       AND s.EQP_ID = u.EQP_ID(+)
+       AND s.AREA = u.AREA(+)
+       AND s.PROD_ID = u.PROD_ID(+)
 	</select>
 	
-	<insert id="insertPrdtInOut" parameterType="java.util.HashMap" >
-	/* ProductionProdMapper.insertPrdtInOut */
-		INSERT INTO hanadmin.prdt_inout
+	<insert id="insertPrdtStatusProd" parameterType="java.util.HashMap" >
+	/* ProductionProdMapper.insertPrdtStatusProd */
+		INSERT INTO hanadmin.prdt_status_prod
 		(	
-			IDX
-			, PRODUCT_GUBUN
-			, KIND 
-			, PROD_ID 
-			, OUT_NUM
-			, TO_PLACE 
-			, CLIENT 
-			, INOUT_DATE
-			, BOX_COUNT
-			, BOX_PER_COUNT
-			, OUT_METHOD 
-			, MAN 
-			, PRICE 
-			, BIGO
-			, IS_CHECK
+			PRDT_DATE 
+			, WORK_TYPE
+			, EQP_ID
+			, AREA
+			, PROD_ID
+			, UPH
+			, ST_TIME
+			, ED_TIME
+			, PRDT_CNT
+			, FAULTY_CNT
+			, FINISHED_CNT
 			, CREATE_DATE 
 			, CREATE_USER 
 			, UPDATE_DATE 
@@ -108,21 +121,17 @@
 		)
 		VALUES
 		(
-			hanadmin.prdt_inout_seq.nextval
-			, #{PRODUCT_GUBUN} 
-			, #{KIND}  
-			, (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
-			, #{OUT_NUM} 
-			, #{TO_PLACE}
-			, #{CLIENT}
-			, #{INOUT_DATE} 
-			, #{BOX_COUNT} 
-			, #{BOX_PER_COUNT} 
-			, #{OUT_METHOD} 
-			, #{MAN} 
-			, (SELECT OUT_PRICE FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
-			, #{BIGO}
-			, 'NO'
+			#{PRDT_DATE}
+			, #{WORK_TYPE} 
+			, #{EQP_ID}  
+			, #{AREA}
+			, (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}) 
+			, #{UPH}
+			, #{ST_TIME}
+			, #{ED_TIME} 
+			, #{PRDT_CNT} 
+			, #{FAULTY_CNT} 
+			, #{FINISHED_CNT} 
 			, SYSDATE
 			, #{CREATE_USER}
 			, SYSDATE
@@ -131,9 +140,40 @@
 		
 	</insert>
 	
-	<update id="updatePrdtInOut" parameterType="java.util.HashMap">
-	/* ProductionProdMapper.updatePrdtInOut */
-		UPDATE hanadmin.prdt_inout
+	<insert id="insertPrdtMtrlsUsage" parameterType="java.util.HashMap" >
+	/* ProductionProdMapper.insertPrdtMtrlsUsage */
+		INSERT INTO hanadmin.mtrls_usage
+		(	
+			PRDT_DATE 
+			, WORK_TYPE
+			, EQP_ID
+			, AREA
+		    , PROD_ID
+		    , BOM_ID 
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			#{PRDT_DATE} 
+			, #{WORK_TYPE}  
+			, #{EQP_ID} 
+			, #{AREA}
+			, #{PROD_ID}
+			, #{BOM_ID} 
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+		
+	</insert>
+	
+	<update id="updatePrdtStatusProd" parameterType="java.util.HashMap">
+	/* ProductionProdMapper.updatePrdtStatusProd */
+		UPDATE hanadmin.prdt_status_prod
 		   SET PRODUCT_GUBUN = #{PRODUCT_GUBUN} 
 			   , KIND = #{KIND} 
 			   , PROD_ID = (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
@@ -153,21 +193,111 @@
 			   , UPDATE_DATE = SYSDATE
 			   , UPDATE_USER = #{UPDATE_USER}
 		WHERE 1=1
-		<if test='IDX != null and !IDX.equals("")'>
-	    	AND IDX = #{IDX}
-	    </if>
+		<if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	    	 AND WORK_TYPE = #{WORK_TYPE}
+	     </if>
+	     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	 AND EQP_ID = #{EQP_ID}
+	     </if>
+	     <if test='AREA != null and !AREA.equals("")'>
+	    	 AND AREA = #{AREA}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
 	</update>
 	
-	<delete id="deletePrdtInOut" parameterType="java.util.HashMap">
-	/* ProductionProdMapper.deletePrdtInOut */
-		DELETE FROM hanadmin.prdt_inout
+	<update id="updatePrdtMtrlsUsage" parameterType="java.util.HashMap">
+	/* ProductionProdMapper.updatePrdtMtrlsUsage */
+		UPDATE hanadmin.mtrls_usage
+		   SET PRODUCT_GUBUN = #{PRODUCT_GUBUN} 
+			   , KIND = #{KIND} 
+			   , PROD_ID = (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			   , OUT_NUM = #{OUT_NUM} 
+			   , TO_PLACE = #{TO_PLACE} 
+			   , CLIENT = #{CLIENT}
+			   , INOUT_DATE = #{INOUT_DATE} 
+			   , BOX_COUNT = #{BOX_COUNT} 
+			   , BOX_PER_COUNT = #{BOX_PER_COUNT} 
+			   , OUT_METHOD = #{OUT_METHOD} 
+			   , MAN = #{MAN} 
+			   , PRICE = #{PRICE}
+			   , BIGO = #{BIGO}
+			   , IS_CHECK = #{IS_CHECK}
+			   , CREATE_DATE = SYSDATE
+			   , CREATE_USER = #{CREATE_USER}
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	    	 AND WORK_TYPE = #{WORK_TYPE}
+	     </if>
+	     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	 AND EQP_ID = #{EQP_ID}
+	     </if>
+	     <if test='AREA != null and !AREA.equals("")'>
+	    	 AND AREA = #{AREA}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	     <if test='BOM_ID != null and !BOM_ID.equals("")'>
+	    	 AND BOM_ID = #{BOM_ID}
+	     </if>
+	</update>
+	
+	<delete id="deletePrdtStatusProd" parameterType="java.util.HashMap">
+	/* ProductionProdMapper.deletePrdtStatusProd */
+		DELETE FROM hanadmin.prdt_status_prod
 		 WHERE 1=1 
-		 <if test='IDX != null and !IDX.equals("")'>
-	    	 AND IDX = #{IDX}
+		 <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	    	 AND WORK_TYPE = #{WORK_TYPE}
+	     </if>
+	     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	 AND EQP_ID = #{EQP_ID}
+	     </if>
+	     <if test='AREA != null and !AREA.equals("")'>
+	    	 AND AREA = #{AREA}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
 	     </if>
 	</delete>
 	
-	<update id="mergePrdtStock" parameterType="java.util.HashMap">
+	<delete id="deletePrdtMtrlsUsage" parameterType="java.util.HashMap">
+	/* ProductionProdMapper.deletePrdtMtrlsUsage */
+		DELETE FROM hanadmin.mtrls_usage
+		 WHERE 1=1
+		 <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	    	 AND WORK_TYPE = #{WORK_TYPE}
+	     </if>
+	     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	 AND EQP_ID = #{EQP_ID}
+	     </if>
+	     <if test='AREA != null and !AREA.equals("")'>
+	    	 AND AREA = #{AREA}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	     <if test='BOM_ID != null and !BOM_ID.equals("")'>
+	    	 AND BOM_ID = #{BOM_ID}
+	     </if>
+	</delete>
+	
+	<!-- <update id="mergePrdtStock" parameterType="java.util.HashMap">
 	/* ProductionProdMapper.mergePrdtStock */
 		MERGE INTO hanadmin.prdt_stock S
 	    USING DUAL
@@ -193,6 +323,6 @@
 		<if test='PROD_ID != null and !PROD_ID.equals("")'>
 	    	AND PROD_ID = #{PROD_ID} 
 	    </if>		 
-	</update>
+	</update> -->
 
 </mapper>

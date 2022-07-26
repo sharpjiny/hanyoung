@@ -82,21 +82,31 @@ public class ProdcutProdController extends DefaultController{
 	}
 	
 	@SuppressWarnings("null")
-	@RequestMapping(value={"clientSets"})
-	public @ResponseBody Map<String, Object> clientSets(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
+	@RequestMapping(value={"eqpIdSets"})
+	public @ResponseBody Map<String, Object> eqpIdSets(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
 		
 		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("CLIENT", codeMapper.selectCodeList(params));
+		result.put("EQP_ID", codeMapper.selectCodeList(params));
 		
 		return result;
 	}
 	
 	@SuppressWarnings("null")
-	@RequestMapping(value={"goalCitySets"})
-	public @ResponseBody Map<String, Object> goalCitySets(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
+	@RequestMapping(value={"areaTypeSets"})
+	public @ResponseBody Map<String, Object> areaTypeSets(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
 		
 		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("GOAL_CITY", codeMapper.selectCodeList(params));
+		result.put("AREA_TYPE", codeMapper.selectCodeList(params));
+		
+		return result;
+	}
+	
+	@SuppressWarnings("null")
+	@RequestMapping(value={"workTypeSets"})
+	public @ResponseBody Map<String, Object> workTypeSets(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("WORK_TYPE", codeMapper.selectCodeList(params));
 		
 		return result;
 	}
@@ -132,11 +142,11 @@ public class ProdcutProdController extends DefaultController{
 	}
 	
 	@SuppressWarnings("null")
-	@RequestMapping(value={"getProdIdRowList"})
-	public @ResponseBody Map<String, Object> getProdIdRowList(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
+	@RequestMapping(value={"getProdDtlList"})
+	public @ResponseBody Map<String, Object> getProdDtlList(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
 		
 		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("PROD_ID_LIST", productionProdMapper.getProdIdRowList(params));
+		result.put("PROD_DTL_LIST", productionProdMapper.getProdDtlList(params));
 		
 		return result;
 	}
@@ -160,7 +170,7 @@ public class ProdcutProdController extends DefaultController{
 		
 		List<HashMap<String, Object>> result = null;
 		
-		result = productionProdMapper.selectPrdtInOutList(params);
+		result = productionProdMapper.selectPrdtProdList(params);
 		
 		return result;
 	}
@@ -179,7 +189,7 @@ public class ProdcutProdController extends DefaultController{
 		LoginUsers loginUser = LoginManager.getInstance().getSession(request);
 		params.put("loginUser", loginUser.getId());
 		
-	    result = productionProdService.prdtInOutSave(params);
+	    result = productionProdService.prdtProdSave(params);
 
 		return result;
 	}

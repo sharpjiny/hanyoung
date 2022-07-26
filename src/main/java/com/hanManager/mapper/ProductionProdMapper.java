@@ -6,17 +6,17 @@ import java.util.List;
 
 public interface ProductionProdMapper {
 	HashMap<String, Object> getPrice(HashMap<String, Object> map) throws Exception;
-	List<HashMap<String, Object>> getProdIdRowList(HashMap<String, Object> map) throws Exception;
+	List<HashMap<String, Object>> getProdDtlList(HashMap<String, Object> map) throws Exception;
 	List<HashMap<String, Object>> selectPrdtProdDtlNm(HashMap<String, Object> map) throws Exception;
 	List<HashMap<String, Object>> selectPrdtProdNm(HashMap<String, Object> map) throws Exception;
 	List<HashMap<String, Object>> selectPrdtProdId(HashMap<String, Object> map) throws Exception;
-	public List<HashMap<String, Object>> selectPrdtInOutList(HashMap<String, Object> params) throws Exception;
-	public void insertPrdtInOut(HashMap<String, Object> params) throws Exception;
-	public void updatePrdtInOut(HashMap<String, Object> params) throws Exception;
-	public void deletePrdtInOut(HashMap<String, Object> params) throws Exception;
+	public List<HashMap<String, Object>> selectPrdtProdList(HashMap<String, Object> params) throws Exception;
+	public void insertPrdtStatusProd(HashMap<String, Object> params) throws Exception;
+	public void updatePrdtStatusProd(HashMap<String, Object> params) throws Exception;
+	public void deletePrdtStatusProd(HashMap<String, Object> params) throws Exception;
 	
-	// 재고 연동
-	//public void mergePrdtStock(HashMap<String, Object> params) throws Exception;
-	//public void deletePrdtStock(HashMap<String, Object> params) throws Exception;
-
+	public void insertPrdtMtrlsUsage(HashMap<String, Object> params) throws Exception;
+	public void updatePrdtMtrlsUsage(HashMap<String, Object> params) throws Exception;
+	public void deletePrdtMtrlsUsage(HashMap<String, Object> params) throws Exception;
+	
 }

@@ -1,7 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="utf-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
+<style>
+.tui-timepicker-select {
+	padding: 0px 0 5px 9px;
+}
+</style>
 <div class="row-fluid">
     <!-- block -->
     <div class="block">
@@ -25,14 +29,14 @@
 									</td>
 									<td width='70px'>입고사</td>
 									<td>
-										<select id="CLIENT" name="CLIENT" class="" title="입고사" style="margin-bottom:0px;">
+										<select id="EQP_ID" name="EQP_ID" class="" title="입고사" style="margin-bottom:0px;">
 											<option value="">입고사</option>
 										</select>
 									</td>
-									<td width='70px'>목적지</td>
+									<td width='70px'>주/야</td>
 									<td>
-										<select id="GOAL_CITY" name="GOAL_CITY" class="" title="목적지" style="margin-bottom:0px;">
-											<option value="">목적지</option>
+										<select id="WORK_TYPE" name="WORK_TYPE" class="" title="주/야" style="margin-bottom:0px;">
+											<option value="">주/야</option>
 										</select>
 									</td>
 									<td width='70px'>입고일자</td>
@@ -91,8 +95,8 @@
             </div>
         </div>
         <div style="height:525px;">
-			<div id="prdtInOutGridView" ></div>
-			<div id="prdtInOutGridEdit" style="display:none"></div>
+			<div id="prdtProdGridView" ></div>
+			<div id="prdtProdGridEdit" style="display:none"></div>
 		</div>
     </div>
     <!-- /block -->
@@ -110,14 +114,15 @@ tui.Grid.applyTheme('default', {
 	  }
 	});
 
-var goalCityList = [{value:'', text:'-선택-'}];
+var workTypeList = [{value:'', text:'-선택-'}];
 var productGubunList = [{value:'', text:'-선택-'}];
 var kindList = [{value:'', text:'-선택-'}];
-var clientList = [{value:'', text:'-선택-'}];
-var prodIdRowList = [{value:'', text:'-선택-'}];
+var eqpIdList = [{value:'', text:'-선택-'}];
+var areaTypeList = [{value:'', text:'-선택-'}];
+var prodDtlList = [{value:'', text:'-선택-'}];
 
 var gridView = new tui.Grid({
-    el: document.getElementById('prdtInOutGridView'),
+    el: document.getElementById('prdtProdGridView'),
     data: [],
     rowHeaders: ['rowNum'],//'checkbox', 'rowNum'
     header:{
@@ -125,27 +130,33 @@ var gridView = new tui.Grid({
     },
     bodyHeight: 500,
     columns: [
-		{header: '입고일자',    name: 'INOUT_DATE',      filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '구분',     	name: 'PRODUCT_GUBUN_NM', filter:{type:'text'},         sortable:true,            align:'center'},
-		{header: '종류',     	name: 'KIND_NM',   	  filter:{type:'text'},         	sortable:true,            align:'center'},
-		{header: '품명',       	name: 'PROD_NM',      filter:{type:'text'},         	sortable:true,            align:'center'},
-		{header: '상세품명',    name: 'PROD_DTL_NM',  filter:{type:'text'},         	sortable:true,            align:'center', width:150},
-		{header: '입고사',      name: 'CLIENT_NM',    filter:{type:'text'},         	sortable:true,            align:'center'},
-		{header: '품호',       	name: 'PROD_ID',      filter:{type:'text'},         	sortable:true,            align:'center'},
-		{header: '제품수량',  	name: 'BOX_PER_COUNT',filter:{type:'text'},         	sortable:true,            align:'center', formatter :function(v) {
+		{header: '생산일자',      name: 'PRDT_DATE',      filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '주/야',    	  name: 'WORK_TYPE',      filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '설비',    	  name: 'EQP_ID',      	  filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '공정',    	  name: 'AREA',           filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '종류',     	  name: 'KIND_NM',   	  filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '품명',       	  name: 'PROD_NM',        filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '상세품명',      name: 'PROD_DTL_NM',    filter:{type:'text'},          sortable:true,            align:'center', width:150},
+		{header: '품호',    	  name: 'PROD_ID',        filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '시작시간',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '종료시간',      name: 'ED_TIME',        filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '작업시간(분)',      name: 'WORK_TIME',      filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '생산수량',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
-		{header: '박스수량',    name: 'BOX_COUNT',    filter:{type:'text'},         	sortable:true,            align:'center', formatter :function(v) {
+		{header: '불량수량',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
-		{header: '담당자',      name: 'MAN',          filter:{type:'text'},         	sortable:true,            align:'center'},
-		{header: '비고',       	name: 'BIGO',         filter:{type:'text'},         	sortable:true,            align:'center'},
-		{header: '확인',       	name: 'IS_CHECK',     filter:{type:'text'},         	sortable:true,            align:'center'},
-		{header: '생성일자',    name: 'CREATE_DATE',  filter:{type:'text'},         	sortable:true,            align:'center',		hidden: true},
-		{header: '생성자',      name: 'CREATE_USER',  filter:{type:'text'},         	sortable:true,            align:'center',		hidden: true},
-		{header: '수정일자',    name: 'UPDATE_DATE',  filter:{type:'text'},         	sortable:true,            align:'center',		hidden: true},
-		{header: '수정자',      name: 'UPDATE_USER',  filter:{type:'text'},         	sortable:true,            align:'center',		hidden: true},
-		{header: 'IDX',		    name: 'IDX',          filter:{type:'text'},         hidden: true}
+		{header: '양품수량',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', formatter :function(v) {
+		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	    }},
+		{header: '달성률',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: 'BOM',    		  name: 'BOM_ID',      	  filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '생성일자',      name: 'CREATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
+		{header: '생성자',    	  name: 'CREATE_USER',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
+		{header: '수정일자',      name: 'UPDATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
+		{header: '수정자',    	  name: 'UPDATE_USER',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true}
     ],
     columnOptions: {
     	resizable: true
@@ -154,12 +165,17 @@ var gridView = new tui.Grid({
         height: 10,
         position: 'bottom', // or 'top'
         columnContent: {
-        	BOX_PER_COUNT: {
+        	PRDT_CNT: {
              template: function(valueMap) {
                return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
              }
            },
-           BOX_COUNT: {
+           FAULTY_CNT: {
+             template: function(valueMap) {
+               return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+             }
+           },
+           FINISHED_CNT: {
              template: function(valueMap) {
                return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
              }
@@ -169,7 +185,7 @@ var gridView = new tui.Grid({
 });
 
 var gridEdit = new tui.Grid({
-    el: document.getElementById('prdtInOutGridEdit'),
+    el: document.getElementById('prdtProdGridEdit'),
     //scrollY: true,
     data: [],
     rowHeaders: ['checkbox', 'rowNum'],//'checkbox', 'rowNum'
@@ -178,15 +194,29 @@ var gridEdit = new tui.Grid({
     },
     bodyHeight: 500,
     columns: [
-		{header: '입고일자',    name: 'INOUT_DATE',      filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:{type:'datePicker', options:{language: 'ko'}}},
-		{header: '구분', name: 'PRODUCT_GUBUN', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+		{header: '생산일자',      name: 'PRDT_DATE',      filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor:{type:'datePicker', options:{language: 'ko'}}},
+		{header: '주/야',    	  name: 'WORK_TYPE',      filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
 	        editor:{
 	        	type:'select', // checkbox, select
 	        	options:{
-	        		listItems:productGubunList
+	        		listItems:workTypeList
 	       		}
         }},
-		{header: '종류', name: 'KIND', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+		{header: '설비',    	  name: 'EQP_ID',      	  filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+	        editor:{
+	        	type:'select', // checkbox, select
+	        	options:{
+	        		listItems:eqpIdList
+	       		}
+        }},
+		{header: '공정',    	  name: 'AREA',           filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+	        editor:{
+	        	type:'select', // checkbox, select
+	        	options:{
+	        		listItems:areaTypeList
+	       		}
+        }},
+		{header: '종류', 		  name: 'KIND', 		  filter:{type:'text'}, 		 sortable:true,            align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
         	onAfterChange:function(o){
 	   	    	searchCombo.getProdId(o);
 	   	    },
@@ -205,7 +235,7 @@ var gridEdit = new tui.Grid({
 	    		}
 	    	]
 		},
-		{header: '품명', name: 'PROD_NM', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+		{header: '품명',		 name: 'PROD_NM', 		  filter:{type:'text'}, 		sortable:true, 			  align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
 			onAfterChange:function(o){
 	   	    	searchCombo.getProdId(o);
 	   	    },
@@ -222,47 +252,56 @@ var gridEdit = new tui.Grid({
    	    		}
 	   	    ]},
 		{header: '상세품명', name: 'PROD_DTL_NM', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', width:150, validation:{required:true}, formatter:'listItemText',
-	   	    onAfterChange:function(o){
+   	    	onAfterChange:function(o){
 	   	    	searchCombo.getProdId(o);
-	   	    	searchCombo.getPrice(o.rowKey);
 	   	    },
    	    	editor:{type:'select', // checkbox, select
         	options:{
-        		listItems:[]
-       		}},
-	   	 	relations:[
-	   	    	{
-	   	    		targetNames: ['CLIENT'],
-	   	    		listItems: function(o) {
-	   	              return searchCombo.getMatched(o, 'prodDtlNm');
-	   	            }
-	   	    	}
-		   	]},
-     	{header: '입고사', name: 'CLIENT', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
-       	    editor:{type:'select', // checkbox, select
-            options:{
-            	listItems:[{value:'', text:'-선택-'}]
-           	}}},	
-		{header: '품호',       	name: 'PROD_ID',      filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable',        editor:'text', disabled:true},
-		/* {header: '수출번호',    name: 'OUT_NUM',      filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable',        editor:'text'}, */
-		{header: '제품수량',  	name: 'BOX_PER_COUNT',filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text', validation:{dataType:'number'}, formatter :function(v) {
-		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    }},
-		{header: '박스수량',    name: 'BOX_COUNT',    filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text', validation:{dataType:'number'}, formatter :function(v) {
-		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    }},
-		{header: '담당자',      name: 'MAN',          filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text'},
-		{header: '비고',       	name: 'BIGO',         filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
-		{header: '확인',       	name: 'IS_CHECK',     filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', formatter:'listItemText',        
-			editor:{type:'select',
-			options:{
-        		listItems:[{text:'NO', value:'NO'}, {text:'OK', value:'OK'}]
+        		listItems:[{value:'', text:'-선택-'}]
        		}}},
-		{header: '생성일자',    name: 'CREATE_DATE',  filter:{type:'text'},         sortable:true,            align:'center',		hidden: true        },
-		{header: '생성자',      name: 'CREATE_USER',  filter:{type:'text'},         sortable:true,            align:'center',		hidden: true        },
-		{header: '수정일자',    name: 'UPDATE_DATE',  filter:{type:'text'},         sortable:true,            align:'center',		hidden: true        },
-		{header: '수정자',      name: 'UPDATE_USER',  filter:{type:'text'},         sortable:true,            align:'center',		hidden: true        },
-		{header: 'IDX',		    name: 'IDX',          filter:{type:'text'},         hidden: true}
+		{header: '품호',    	  name: 'PROD_ID',        filter:{type:'text'},          sortable:true,            align:'center', className:'clickable',        editor:'text', disabled:true},
+		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor:'text'},
+		{header: '시작시간',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor: {
+            type: 'datePicker',
+            options: {
+            	language: 'ko',
+            	format: 'HH:mm',
+            	timepicker: {
+            		//layoutType: 'tab',
+            		showMeridiem:false,
+            		inputType: 'selectbox'
+                }
+            }
+          }},
+		{header: '종료시간',      name: 'ED_TIME',        filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor:{
+            type: 'datePicker',
+            options: {
+            	language: 'ko',
+            	format: 'HH:mm',
+            	timepicker: {
+            		//layoutType: 'tab',
+            		//inputType: 'spinbox'
+            		showMeridiem:false,
+            		inputType: 'selectbox'
+                }
+            }
+          }},
+		{header: '작업시간(분)',      name: 'WORK_TIME',      filter:{type:'text'},          sortable:true,            align:'center', disabled:true},
+		{header: '생산수량',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', validation:{required:true}, editor:'text', formatter :function(v) {
+		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+		}},
+		{header: '불량수량',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', validation:{required:true}, editor:'text', formatter :function(v) {
+		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	    }},
+		{header: '양품수량',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', validation:{required:true}, editor:'text', formatter :function(v) {
+		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	    }},
+		{header: '달성률',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', disabled:true},
+		{header: 'BOM',    		  name: 'BOM_ID',      	  filter:{type:'text'},          sortable:true,            align:'center', validation:{required:true}, editor:'text'},
+		{header: '생성일자',      name: 'CREATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
+		{header: '생성자',    	  name: 'CREATE_USER',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
+		{header: '수정일자',      name: 'UPDATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true}, 
+		{header: '수정자',    	  name: 'UPDATE_USER',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true}
     ],
     columnOptions: {
     	resizable: true
@@ -271,16 +310,21 @@ var gridEdit = new tui.Grid({
         height: 10,
         position: 'bottom', // or 'top'
         columnContent: {
-        	BOX_PER_COUNT: {
-             template: function(valueMap) {
-               return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-             }
-           },
-           BOX_COUNT: {
-             template: function(valueMap) {
-               return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-             }
-           }
+        	PRDT_CNT: {
+        		template: function(valueMap) {
+        			return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+             	}
+    		},
+    		FAULTY_CNT: {
+                template: function(valueMap) {
+                	return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                }
+            },
+            FINISHED_CNT: {
+            	template: function(valueMap) {
+            		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            	}
+            }
        }
     }
 });
@@ -296,13 +340,14 @@ var gridEdit = new tui.Grid({
 var dataSet;
 var comboSet;
 
-var prdtInOut = {
+var prdtProd = {
 	init:function(){
 		this.productGubunSets();
 		this.kindSets();
-		this.clientSets();
-		this.goalCitySets();
-		searchCombo.getProdIdRowList();
+		this.eqpIdSets();
+		this.areaTypeSets();
+		this.workTypeSets();
+		searchCombo.getProdDtlList();
 	},
 	productGubunSets:function(){
 		var params = {"code_group":"product_gubun"};
@@ -318,7 +363,7 @@ var prdtInOut = {
 			
 			/* dataSet = result;
 			gridView.resetData(result);
-			prdtInOut.view(); */
+			prdtProd.view(); */
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
@@ -338,31 +383,46 @@ var prdtInOut = {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
 	},
-	clientSets:function(){
-		var params = {"code_group":"client"};
+	eqpIdSets:function(){
+		var params = {"code_group":"eqp_id"};
 		$.ajax({
-		    url : "/production/prod/clientSets",
+		    url : "/production/prod/eqpIdSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
-			$.each(result["CLIENT"], function(i, item){
-				$('#CLIENT').append($('<option/>').val(item.CODE).text(item.NAME));
-				clientList.push({value:item.CODE, text:item.NAME});
+			$.each(result["EQP_ID"], function(i, item){
+				$('#EQP_ID').append($('<option/>').val(item.CODE).text(item.NAME));
+				eqpIdList.push({value:item.CODE, text:item.NAME});
 			});
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
 	},
-	goalCitySets:function(){
-		var params = {"code_group":"goal_city"};
+	areaTypeSets:function(){
+		var params = {"code_group":"area_type"};
 		$.ajax({
-		    url : "/production/prod/goalCitySets",
+		    url : "/production/prod/areaTypeSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
-			$.each(result["GOAL_CITY"], function(i, item){
-				$('#GOAL_CITY').append($('<option/>').val(item.CODE).text(item.NAME));
-				goalCityList.push({value:item.CODE, text:item.NAME});
+			$.each(result["AREA_TYPE"], function(i, item){
+				$('#AREA_TYPE').append($('<option/>').val(item.CODE).text(item.NAME));
+				areaTypeList.push({value:item.CODE, text:item.NAME});
+			});
+		}).fail(function(ev) {
+	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
+	    });
+	},
+	workTypeSets:function(){
+		var params = {"code_group":"work_type"};
+		$.ajax({
+		    url : "/production/prod/workTypeSets",
+		    method :"POST",
+		    data:params
+		}).success(function(result) {
+			$.each(result["WORK_TYPE"], function(i, item){
+				$('#WORK_TYPE').append($('<option/>').val(item.CODE).text(item.NAME));
+				workTypeList.push({value:item.CODE, text:item.NAME});
 			});
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
@@ -372,7 +432,7 @@ var prdtInOut = {
 		var params = {
 			'STTL_MON':$('#STTL_MON option:selected').val(),
 			'PRODUCT_GUBUN':$('#PRODUCT_GUBUN option:selected').val(),
-			'CLIENT':$('#CLIENT option:selected').val(),
+			'EQP_ID':$('#EQP_ID option:selected').val(),
 			'KIND':$('#KIND option:selected').val(),
 			'PROD_NM':$('#PROD_NM option:selected').val(),
 			'PROD_DTL_NM':$('#PROD_DTL_NM option:selected').val(),
@@ -394,7 +454,7 @@ var prdtInOut = {
 			
 			dataSet = result;
 			gridView.resetData(result);
-			prdtInOut.view();
+			prdtProd.view();
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    })/* .error(function(ev){
@@ -402,8 +462,8 @@ var prdtInOut = {
 	    }) */;
 	},
 	view:function(){
-		$('#prdtInOutGridEdit').hide();
-		$('#prdtInOutGridView').show();
+		$('#prdtProdGridEdit').hide();
+		$('#prdtProdGridView').show();
 		$('#editBtn').show();
 		$('#saveBtn').hide();
 		$('#delBtn').hide();
@@ -411,8 +471,8 @@ var prdtInOut = {
 		$('#viewBtn').hide();
 	},
 	edit:function(){
-		$('#prdtInOutGridView').hide();
-		$('#prdtInOutGridEdit').show();
+		$('#prdtProdGridView').hide();
+		$('#prdtProdGridEdit').show();
 		$('#viewBtn').show();
 		$('#editBtn').hide();
 		$('#saveBtn').show();
@@ -453,7 +513,7 @@ var prdtInOut = {
 			    data:JSON.stringify(saveData)
 			}).success(function(result) {
 				alert(" ㅇ 추가 : " + result["insert"] + "건\n" + " ㅇ 수정 : " + result["update"] + "건\n" + " ㅇ 삭제 : " + result["delete"] + "건");
-				prdtInOut.search();
+				prdtProd.search();
 			}).fail(function(ev) {
 		    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 		    });
@@ -472,7 +532,7 @@ var prdtInOut = {
 		}
 	},
 	add:function(){
-		gridEdit.prependRow({PRODUCT_GUBUN:'', KIND:'', CLIENT:'', IS_CHECK:'NO'});
+		gridEdit.prependRow({WORK_TYPE:'', AREA:'', PRODUCT_GUBUN:'', KIND:'', EQP_ID:'', IS_CHECK:'NO'});
 	}
 }
 
@@ -552,26 +612,24 @@ var searchCombo = {
 		    });
 		}
 	},
-	getProdIdRowList:function(){
+	getProdDtlList:function(){
 		$.ajax({
-		    url : "/production/prod/getProdIdRowList",
+		    url : "/production/prod/getProdDtlList",
 		    method :"POST",
 		    data:{}
 		}).success(function(result) {
-			prodIdRowList = result["PROD_ID_LIST"];
+			prodDtlList = result["PROD_DTL_LIST"];
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
 	},
 	getMatched:function(o, p){
 		let ret = [{value:'', text:'-선택-'}];
-		let temp = prodIdRowList.filter(function(item){
+		let temp = prodDtlList.filter(function(item){
 			if(p == 'prodNm'){
 				return item.KIND ==  o.row.KIND && item.PROD_NM == o.row.PROD_NM;
 			}else if(p == 'kind'){
 				return item.KIND ==  o.row.KIND;
-			}else {
-				return item.KIND ==  o.row.KIND && item.PROD_NM == o.row.PROD_NM && item.PROD_DTL_NM.indexOf(o.row.PROD_DTL_NM) >= 0;
 			}
 			return false;
 		});
@@ -584,8 +642,6 @@ var searchCombo = {
 				$.each(temp, function(i, v){
 					items.push(temp[i]["PROD_NM"]);
 				});
-			}else {
-				items = temp[0].CLIENT.split(',');
 			}
 			$.each(items, function(i, v){
 				ret.push({text:v, value:v});
@@ -618,12 +674,12 @@ var searchCombo = {
 
 $(function(){
 	// 그리드 제어용
-	$('#searchBtn').click(prdtInOut.search);
-	$('#viewBtn').click(prdtInOut.view);
-	$('#editBtn').click(prdtInOut.edit);
-	$('#saveBtn').click(prdtInOut.save);
-	$('#addBtn').click(prdtInOut.add);
-	$('#delBtn').click(prdtInOut.del);
+	$('#searchBtn').click(prdtProd.search);
+	$('#viewBtn').click(prdtProd.view);
+	$('#editBtn').click(prdtProd.edit);
+	$('#saveBtn').click(prdtProd.save);
+	$('#addBtn').click(prdtProd.add);
+	$('#delBtn').click(prdtProd.del);
 	
 	// 조회 콤보박스 제어용(품명, 상세품명 선택을 통해 품호를 구하기만 있음)
 	$('#KIND').change(searchCombo.getProdNm);
@@ -631,8 +687,8 @@ $(function(){
 	$('#PROD_DTL_NM').change(searchCombo.getProdId);
 	
 	dateUtil.init();
-	prdtInOut.init();
-	prdtInOut.search('init');
+	prdtProd.init();
+	prdtProd.search('init');
 	
 });
 </script>

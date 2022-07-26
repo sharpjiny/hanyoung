@@ -4,9 +4,13 @@ import java.util.HashMap;
 import java.util.List;
 
 public interface ProductionProdService {
-	public List<HashMap<String, Object>> selectPrdtInOutList(HashMap<String, Object> params) throws Exception;
-	public HashMap<String, Object> prdtInOutSave(HashMap<String, Object> params) throws Exception;
-	public Integer insert(HashMap<String, Object> params) throws Exception;
-	public Integer update(HashMap<String, Object> params) throws Exception;
-	public Integer delete(HashMap<String, Object> params) throws Exception;
+	public List<HashMap<String, Object>> selectPrdtProdList(HashMap<String, Object> params) throws Exception;
+	public HashMap<String, Object> prdtProdSave(HashMap<String, Object> params) throws Exception;
+	public Integer insertPrdtStatusProd(HashMap<String, Object> params) throws Exception;
+	public Integer updatePrdtStatusProd(HashMap<String, Object> params) throws Exception;
+	public Integer deletePrdtStatusProd(HashMap<String, Object> params) throws Exception;
+	
+	public Integer insertPrdtMtrlsUsage(HashMap<String, Object> params) throws Exception;
+	public Integer updatePrdtMtrlsUsage(HashMap<String, Object> params) throws Exception;
+	public Integer deletePrdtMtrlsUsage(HashMap<String, Object> params) throws Exception;
 }
