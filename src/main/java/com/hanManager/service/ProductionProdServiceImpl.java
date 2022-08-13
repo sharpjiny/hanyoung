@@ -32,16 +32,16 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 		int upCnt = 0;
 		int dpCnt = 0;
 		
-		int iuCnt = 0;
+		/*int iuCnt = 0;
 		int uuCnt = 0;
-		int duCnt = 0;
+		int duCnt = 0;*/
 		
 		if(ilist.size() > 0){
 			for(int i=0; i<ilist.size();i++){
 				ilist.get(i).put("CREATE_USER", params.get("loginUser"));
 				ilist.get(i).put("UPDATE_USER", params.get("loginUser"));
 				ipCnt += insertPrdtStatusProd(ilist.get(i));
-				iuCnt += insertPrdtMtrlsUsage(ilist.get(i));
+				//iuCnt += insertPrdtMtrlsUsage(ilist.get(i));
 			}
 		}
 		
@@ -50,7 +50,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 				ulist.get(i).put("CREATE_USER", params.get("loginUser"));
 				ulist.get(i).put("UPDATE_USER", params.get("loginUser"));
 				upCnt += updatePrdtStatusProd(ulist.get(i));
-				uuCnt += updatePrdtMtrlsUsage(ulist.get(i));
+				//uuCnt += updatePrdtMtrlsUsage(ulist.get(i));
 			}
 		}
 		
@@ -59,7 +59,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 				dlist.get(i).put("CREATE_USER", params.get("loginUser"));
 				dlist.get(i).put("UPDATE_USER", params.get("loginUser"));
 				dpCnt += deletePrdtStatusProd(dlist.get(i));
-				duCnt += deletePrdtMtrlsUsage(dlist.get(i));
+				//duCnt += deletePrdtMtrlsUsage(dlist.get(i));
 			}
 		}
 		
@@ -67,9 +67,9 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 		rtnMap.put("update", upCnt);
 		rtnMap.put("delete", dpCnt);
 		
-		rtnMap.put("insert", iuCnt);
+		/*rtnMap.put("insert", iuCnt);
 		rtnMap.put("update", uuCnt);
-		rtnMap.put("delete", duCnt);
+		rtnMap.put("delete", duCnt);*/
 		
 		return rtnMap;
 	}

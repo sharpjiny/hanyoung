@@ -84,6 +84,8 @@ tui.Grid.applyTheme('default', {
 	  }
 	});
 
+var kindList = [{value:'', text:'-선택-'}];
+var prodDtlList = [{value:'', text:'-선택-'}];
 var gridView = new tui.Grid({
     el: document.getElementById('bomInfoGridView'),
     //scrollX: true,
@@ -93,16 +95,23 @@ var gridView = new tui.Grid({
     header:{
     	height: 40
     },
+    bodyHeight: 500,
     columns: [
         {header: '종류',         	name: 'KIND',          		   filter:{type:'text'},         	sortable:true,            align:'center'        },
         {header: '품명',     		name: 'PROD_NM',          	   filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '상세품명',       	name: 'PROD_DTL_NM',           filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '품호',		    name: 'PROD_ID',          	   filter:{type:'text'},          	sortable:true,            align:'center'        },
+        {header: '1.45',		    name: 'THICKNESS_1',           filter:{type:'text'},          	sortable:true,            align:'center'        },
+        {header: '2.0',		    name: 'THICKNESS_2',           filter:{type:'text'},          	sortable:true,            align:'center'        },
+        {header: '2.5',		    name: 'THICKNESS_3',           filter:{type:'text'},          	sortable:true,            align:'center'        },
+        {header: '2.9',		    name: 'THICKNESS_4',           filter:{type:'text'},          	sortable:true,            align:'center'        },
+        {header: '3.8',		    name: 'THICKNESS_5',           filter:{type:'text'},          	sortable:true,            align:'center'        },
+        {header: '추가두께',		    name: 'THICKNESS_6',           filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '비고',       		name: 'BIGO',           	   filter:{type:'text'},          	sortable:true,            align:'center'        },
-        {header: '생성일자',        name: 'CREATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
-        {header: '생성자',          name: 'CREATE_USER',           filter:{type:'text'},            sortable:true,            align:'center'        },
-        {header: '수정일자',        name: 'UPDATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
-        {header: '수정자',          name: 'UPDATE_USER',           filter:{type:'text'},            sortable:true,            align:'center'        }
+        {header: '생성일자',        name: 'CREATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true        },
+        {header: '생성자',          name: 'CREATE_USER',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true        },
+        {header: '수정일자',        name: 'UPDATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true       },
+        {header: '수정자',          name: 'UPDATE_USER',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true        }
     ]
 });
 
@@ -113,24 +122,86 @@ var gridEdit = new tui.Grid({
     header:{
     	height: 40
     },
+    bodyHeight: 500,
     columns: [
-		{header: '종류',         	name: 'KIND',          		   filter:{type:'text'},         	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
-		{header: '품명',     		name: 'PROD_NM',          	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
-		{header: '상세품명',       	name: 'PROD_DTL_NM',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
-		{header: '품호',		    name: 'PROD_ID',          	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
+		{header: '종류', name: 'KIND', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+        	onAfterChange:function(o){
+	   	    	searchCombo.getProdId(o);
+	   	    },
+        	editor:{
+	        	type:'select', // checkbox, select
+	        	options:{
+	        		listItems:kindList
+	       		}
+	    	},
+	    	relations:[
+	    		{
+	    			targetNames: ['PROD_NM'],
+	    			listItems: function(o){
+	    				return searchCombo.getMatched(o, 'kind');
+	    			}
+	    		}
+	    	]
+		},
+		{header: '품명', name: 'PROD_NM', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+			onAfterChange:function(o){
+	   	    	searchCombo.getProdId(o);
+	   	    },
+			editor:{type:'select', // checkbox, select
+        	options:{
+        		listItems:[]
+       		}},
+	    	relations:[
+   	    		{
+   	    			targetNames: ['PROD_DTL_NM'],
+   	    			listItems: function(o) {
+   	    	          return searchCombo.getMatched(o, 'prodNm');
+   	    	        }
+   	    		}
+	   	    ]},
+		{header: '상세품명', name: 'PROD_DTL_NM', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', width:150, validation:{required:true}, formatter:'listItemText',
+	   	    onAfterChange:function(o){
+	   	    	searchCombo.getProdId(o);
+	   	    },
+   	    	editor:{type:'select', // checkbox, select
+        	options:{
+        		listItems:[{value:'', text:'-선택-'}]
+       		}}},
+		{header: '품호',       	name: 'PROD_ID',      filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable',        editor:'text', disabled:true},
+		{header: '1.45',		    name: 'THICKNESS_1',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
+		{header: '2.0',		    name: 'THICKNESS_2',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
+		{header: '2.5',		    name: 'THICKNESS_3',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
+		{header: '2.9',		    name: 'THICKNESS_4',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
+		{header: '3.8',		    name: 'THICKNESS_5',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
+		{header: '추가두께',		    name: 'THICKNESS_6',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '비고',       		name: 'BIGO',           	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
-		{header: '생성일자',        name: 'CREATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
-		{header: '생성자',          name: 'CREATE_USER',           filter:{type:'text'},            sortable:true,            align:'center'        },
-		{header: '수정일자',        name: 'UPDATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center'        },
-		{header: '수정자',          name: 'UPDATE_USER',           filter:{type:'text'},            sortable:true,            align:'center'        }
+		{header: '생성일자',        name: 'CREATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true },
+		{header: '생성자',          name: 'CREATE_USER',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true        },
+		{header: '수정일자',        name: 'UPDATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true        },
+		{header: '수정자',          name: 'UPDATE_USER',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true        }
     ]
 });
 
 var dataSet;
 var bomInfo = {
 	init:function(){
-		console.log("[DEBUG] 콤보박스 초기화(세팅)");
-		//this.comboList();
+		this.kindSets();
+		searchCombo.getProdIdRowList();
+	},
+	kindSets:function(){
+		var params = {"code_group":"product_kind"};
+		$.ajax({
+		    url : "/inout/prdt/kindSets",
+		    method :"POST",
+		    data:params
+		}).success(function(result) {
+			$.each(result["KIND"], function(i, item){
+				$('#KIND').append($('<option/>').val(item.CODE).text(item.NAME));
+				kindList.push({value:item.CODE, text:item.NAME});
+			});
+		}).fail(function(ev) {
+	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
+	    });
 	},
 	comboList:function(){
 		var params = {};
@@ -226,6 +297,126 @@ var bomInfo = {
 	}
 }
 
+var searchCombo = {
+	getProdNm:function(e){
+		var params = {"kind":$(this).val()};
+		$.ajax({
+		    url : "/inout/prdt/prodNmList",
+		    method :"POST",
+		    data:params
+		}).success(function(result) {
+			$('#PROD_NM').find('option:not(:eq(0))').remove();
+			$('#PROD_DTL_NM').find('option:not(:eq(0))').remove();
+			$('#PROD_ID').val('');
+			$.each(result["PROD_NM"], function(i, item){
+				$('#PROD_NM').append($('<option/>').val(item.CODE).text(item.NAME));
+			});
+		}).fail(function(ev) {
+	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
+	    });
+	},
+	getProdDtlNm:function(){
+		var params = {"kind":$('#KIND').val(), "prodNm":$(this).val()};
+		$.ajax({
+		    url : "/inout/prdt/prodDtlNmList",
+		    method :"POST",
+		    data:params
+		}).success(function(result) {
+			$('#PROD_DTL_NM').find('option:not(:eq(0))').remove();
+			$('#PROD_ID').val('');
+			$.each(result["PROD_DTL_NM"], function(i, item){
+				$('#PROD_DTL_NM').append($('<option/>').val(item.CODE).text(item.NAME));
+			});
+		}).fail(function(ev) {
+	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
+	    });
+	},
+	getProdId:function(o){
+		var stop = true;
+		var kind = '';
+		var prodNm = '';
+		var prodDtlNm = '';
+		var params = {};
+		
+		if(o.rowKey != null){
+			gridEdit.setValue(o.rowKey, "PROD_ID", '');
+			kind = gridEdit.getValue(o.rowKey, "KIND");
+			prodNm = gridEdit.getValue(o.rowKey, "PROD_NM");
+			prodDtlNm = gridEdit.getValue(o.rowKey, "PROD_DTL_NM");
+		}else{
+			kind = $('#KIND').val();
+			prodNm = $('#PROD_NM').val();
+			prodDtlNm = $(this).val();
+		}
+		
+		if(kind == null || prodNm == null || prodDtlNm == null || kind == '' || prodNm == '' || prodDtlNm == ''){
+			return;
+		}else{
+			params = {"kind":kind, "prodNm":prodNm, "prodDtlNm":prodDtlNm};
+			$.ajax({
+			    url : "/inout/prdt/prodIdList",
+			    method :"POST",
+			    data:params
+			}).success(function(result) {
+				if(o.rowKey != null){
+					gridEdit.setValue(o.rowKey, "PROD_ID", result["PROD_ID"][0]["CODE"]);
+				}else{
+					$('#PROD_ID').val('');
+					$.each(result["PROD_ID"], function(i, item){
+						$('#PROD_ID').val(item.CODE);
+					});
+				}
+				
+			}).fail(function(ev) {
+		    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
+		    	$('#PROD_ID').text('');
+		    });
+		}
+	},
+	getProdIdRowList:function(){
+		$.ajax({
+		    url : "/inout/prdt/getProdIdRowList",
+		    method :"POST",
+		    data:{}
+		}).success(function(result) {
+			prodIdRowList = result["PROD_ID_LIST"];
+		}).fail(function(ev) {
+	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
+	    });
+	},
+	getMatched:function(o, p){
+		let ret = [{value:'', text:'-선택-'}];
+		let temp = prodIdRowList.filter(function(item){
+			if(p == 'prodNm'){
+				return item.KIND ==  o.row.KIND && item.PROD_NM == o.row.PROD_NM;
+			}else if(p == 'kind'){
+				return item.KIND ==  o.row.KIND;
+			}else {
+				return item.KIND ==  o.row.KIND && item.PROD_NM == o.row.PROD_NM && item.PROD_DTL_NM.indexOf(o.row.PROD_DTL_NM) >= 0;
+			}
+			return false;
+		});
+		
+		if(temp != null && temp.length > 0 ){
+			let items = [];
+			if(p == 'prodNm'){
+				items = temp[0].PROD_DTL_NM.split(',');
+			}else if(p == 'kind'){
+				$.each(temp, function(i, v){
+					items.push(temp[i]["PROD_NM"]);
+				});
+			}else {
+				items = temp[0].CLIENT.split(',');
+			}
+			$.each(items, function(i, v){
+				ret.push({text:v, value:v});
+			});
+		}
+		
+		return	ret;
+	}
+}
+
 $(function(){
 	
 	$('#searchBtn').click(bomInfo.search);
@@ -234,6 +425,10 @@ $(function(){
 	$('#saveBtn').click(bomInfo.save);
 	$('#addBtn').click(bomInfo.add);
 	$('#delBtn').click(bomInfo.del);
+	
+	$('#KIND').change(searchCombo.getProdNm);
+	$('#PROD_NM').change(searchCombo.getProdDtlNm);
+	$('#PROD_DTL_NM').change(searchCombo.getProdId);
 	
 	dateUtil.init();
 	bomInfo.init();

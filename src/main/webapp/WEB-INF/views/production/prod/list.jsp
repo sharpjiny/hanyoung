@@ -130,29 +130,29 @@ var gridView = new tui.Grid({
     },
     bodyHeight: 500,
     columns: [
-		{header: '생산일자',      name: 'PRDT_DATE',      filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '주/야',    	  name: 'WORK_TYPE',      filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '설비',    	  name: 'EQP_ID',      	  filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '공정',    	  name: 'AREA',           filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '종류',     	  name: 'KIND_NM',   	  filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '품명',       	  name: 'PROD_NM',        filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '상세품명',      name: 'PROD_DTL_NM',    filter:{type:'text'},          sortable:true,            align:'center', width:150},
+		{header: '생산일자',      name: 'PRDT_DATE',      filter:{type:'text'},          sortable:true,            align:'center', width:100},
+		{header: '주/야',    	  name: 'WORK_TYPE',      filter:{type:'text'},          sortable:true,            align:'center', width:100},
+		{header: '설비',    	  name: 'EQP_ID',      	  filter:{type:'text'},          sortable:true,            align:'center', width:120},
+		{header: '공정',    	  name: 'AREA',           filter:{type:'text'},          sortable:true,            align:'center', width:120},
+		{header: '종류',     	  name: 'KIND_NM',   	  filter:{type:'text'},          sortable:true,            align:'center', width:120},
+		{header: '품명',       	  name: 'PROD_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
+		{header: '상세품명',      name: 'PROD_DTL_NM',    filter:{type:'text'},          sortable:true,            align:'center', width:100},
 		{header: '품호',    	  name: 'PROD_ID',        filter:{type:'text'},          sortable:true,            align:'center'},
 		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '시작시간',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '종료시간',      name: 'ED_TIME',        filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '작업시간(분)',      name: 'WORK_TIME',      filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '생산수량',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', formatter :function(v) {
-		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    }},
-		{header: '불량수량',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', formatter :function(v) {
-		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    }},
-		{header: '양품수량',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', formatter :function(v) {
-		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    }},
-		{header: '달성률',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: 'BOM',    		  name: 'BOM_ID',      	  filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '시작시간',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:80},
+		{header: '종료시간',      name: 'ED_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:80},
+		{header: '작업시간',  	  name: 'WORK_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:80},
+		{header: '생산수량',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:80},
+		{header: '불량수량',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:80},
+		{header: '양품수량',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:80},
+		{header: '달성률',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
+		{header: '1.45',    	  name: 'THICKNESS_1',    filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '2.0',    		  name: 'THICKNESS_2',    filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '2.5',    		  name: 'THICKNESS_3',    filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '2.9',    		  name: 'THICKNESS_4',    filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '3.8',    		  name: 'THICKNESS_5',    filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: '추가두께',   	  name: 'THICKNESS_6',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
+		{header: '비고',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:250},
 		{header: '생성일자',      name: 'CREATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
 		{header: '생성자',    	  name: 'CREATE_USER',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
 		{header: '수정일자',      name: 'UPDATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
@@ -167,18 +167,43 @@ var gridView = new tui.Grid({
         columnContent: {
         	PRDT_CNT: {
              template: function(valueMap) {
-               return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+               return valueMap.sum;
              }
            },
            FAULTY_CNT: {
              template: function(valueMap) {
-               return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+               return valueMap.sum;
              }
            },
            FINISHED_CNT: {
              template: function(valueMap) {
-               return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+               return valueMap.sum;
              }
+           },
+           THICKNESS_1: {
+           	template: function(valueMap) {
+           		return valueMap.sum/1000;
+           	}
+           },
+           THICKNESS_2: {
+           	template: function(valueMap) {
+           		return valueMap.sum/1000;
+           	}
+           },
+           THICKNESS_3: {
+           	template: function(valueMap) {
+           		return valueMap.sum/1000;
+           	}
+           },
+           THICKNESS_4: {
+           	template: function(valueMap) {
+           		return valueMap.sum/1000;
+           	}
+           },
+           THICKNESS_5: {
+           	template: function(valueMap) {
+           		return valueMap.sum/1000;
+           	}
            }
        }
     }
@@ -194,29 +219,29 @@ var gridEdit = new tui.Grid({
     },
     bodyHeight: 500,
     columns: [
-		{header: '생산일자',      name: 'PRDT_DATE',      filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor:{type:'datePicker', options:{language: 'ko'}}},
-		{header: '주/야',    	  name: 'WORK_TYPE',      filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+		{header: '생산일자',      name: 'PRDT_DATE',      filter:{type:'text'},          sortable:true,            align:'center', width:100, className:'clickable', validation:{required:true}, editor:{type:'datePicker', options:{language: 'ko', format: 'yy-MM-dd'}}},
+		{header: '주/야',    	  name: 'WORK_TYPE',      filter:{type:'text'},          sortable:true,            align:'center', width:100, className:'clickable', validation:{required:true}, formatter:'listItemText',
 	        editor:{
 	        	type:'select', // checkbox, select
 	        	options:{
 	        		listItems:workTypeList
 	       		}
         }},
-		{header: '설비',    	  name: 'EQP_ID',      	  filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+		{header: '설비',    	  name: 'EQP_ID',      	  filter:{type:'text'},          sortable:true,            align:'center', width:120, className:'clickable', validation:{required:true}, formatter:'listItemText',
 	        editor:{
 	        	type:'select', // checkbox, select
 	        	options:{
 	        		listItems:eqpIdList
 	       		}
         }},
-		{header: '공정',    	  name: 'AREA',           filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+		{header: '공정',    	  name: 'AREA',           filter:{type:'text'},          sortable:true,            align:'center', width:120, className:'clickable', validation:{required:true}, formatter:'listItemText',
 	        editor:{
 	        	type:'select', // checkbox, select
 	        	options:{
 	        		listItems:areaTypeList
 	       		}
         }},
-		{header: '종류', 		  name: 'KIND', 		  filter:{type:'text'}, 		 sortable:true,            align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+		{header: '종류', 		  name: 'KIND', 		  filter:{type:'text'}, 		 sortable:true,            align:'center', width:120, className:'clickable', validation:{required:true}, formatter:'listItemText',
         	onAfterChange:function(o){
 	   	    	searchCombo.getProdId(o);
 	   	    },
@@ -235,7 +260,7 @@ var gridEdit = new tui.Grid({
 	    		}
 	    	]
 		},
-		{header: '품명',		 name: 'PROD_NM', 		  filter:{type:'text'}, 		sortable:true, 			  align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+		{header: '품명',		 name: 'PROD_NM', 		  filter:{type:'text'}, 		sortable:true, 			  align:'center', width:120, className:'clickable', validation:{required:true}, formatter:'listItemText',
 			onAfterChange:function(o){
 	   	    	searchCombo.getProdId(o);
 	   	    },
@@ -251,7 +276,7 @@ var gridEdit = new tui.Grid({
    	    	        }
    	    		}
 	   	    ]},
-		{header: '상세품명', name: 'PROD_DTL_NM', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', width:150, validation:{required:true}, formatter:'listItemText',
+		{header: '상세품명', name: 'PROD_DTL_NM', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', width:100, validation:{required:true}, formatter:'listItemText',
    	    	onAfterChange:function(o){
 	   	    	searchCombo.getProdId(o);
 	   	    },
@@ -261,7 +286,7 @@ var gridEdit = new tui.Grid({
        		}}},
 		{header: '품호',    	  name: 'PROD_ID',        filter:{type:'text'},          sortable:true,            align:'center', className:'clickable',        editor:'text', disabled:true},
 		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor:'text'},
-		{header: '시작시간',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor: {
+		{header: '시작시간',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:80, className:'clickable', validation:{required:true}, editor: {
             type: 'datePicker',
             options: {
             	language: 'ko',
@@ -273,7 +298,7 @@ var gridEdit = new tui.Grid({
                 }
             }
           }},
-		{header: '종료시간',      name: 'ED_TIME',        filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor:{
+		{header: '종료시간',      name: 'ED_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:80, className:'clickable', validation:{required:true}, editor:{
             type: 'datePicker',
             options: {
             	language: 'ko',
@@ -286,18 +311,18 @@ var gridEdit = new tui.Grid({
                 }
             }
           }},
-		{header: '작업시간(분)',      name: 'WORK_TIME',      filter:{type:'text'},          sortable:true,            align:'center', disabled:true},
-		{header: '생산수량',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', validation:{required:true}, editor:'text', formatter :function(v) {
-		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-		}},
-		{header: '불량수량',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', validation:{required:true}, editor:'text', formatter :function(v) {
-		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    }},
-		{header: '양품수량',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', validation:{required:true}, editor:'text', formatter :function(v) {
-		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    }},
-		{header: '달성률',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', disabled:true},
-		{header: 'BOM',    		  name: 'BOM_ID',      	  filter:{type:'text'},          sortable:true,            align:'center', validation:{required:true}, editor:'text'},
+		{header: '작업시간',  	  name: 'WORK_TIME',      filter:{type:'text'},          sortable:true,            align:'center', width:80, disabled:true},
+		{header: '생산수량',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:80, validation:{required:true}, editor:'text'},
+		{header: '불량수량',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:80, validation:{required:true}, editor:'text'},
+		{header: '양품수량',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:80, editor:'text', disabled:true},
+		{header: '달성률',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:80, disabled:true},
+		{header: '1.45',    	  name: 'THICKNESS_1',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', disabled:true},
+		{header: '2.0',    		  name: 'THICKNESS_2',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', disabled:true},
+		{header: '2.5',    		  name: 'THICKNESS_3',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', disabled:true},
+		{header: '2.9',    		  name: 'THICKNESS_4',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', disabled:true},
+		{header: '3.8',    		  name: 'THICKNESS_5',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', disabled:true},
+		{header: '추가두께',      name: 'THICKNESS_6',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', disabled:true, hidden:true},
+		{header: '비고',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:250, editor:'text'},
 		{header: '생성일자',      name: 'CREATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
 		{header: '생성자',    	  name: 'CREATE_USER',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
 		{header: '수정일자',      name: 'UPDATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true}, 
@@ -312,17 +337,42 @@ var gridEdit = new tui.Grid({
         columnContent: {
         	PRDT_CNT: {
         		template: function(valueMap) {
-        			return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        			return valueMap.sum;
              	}
     		},
     		FAULTY_CNT: {
                 template: function(valueMap) {
-                	return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                	return valueMap.sum;
                 }
             },
             FINISHED_CNT: {
             	template: function(valueMap) {
-            		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            		return valueMap.sum;
+            	}
+            },
+            THICKNESS_1: {
+            	template: function(valueMap) {
+            		return valueMap.sum/1000;
+            	}
+            },
+            THICKNESS_2: {
+            	template: function(valueMap) {
+            		return valueMap.sum/1000;
+            	}
+            },
+            THICKNESS_3: {
+            	template: function(valueMap) {
+            		return valueMap.sum/1000;
+            	}
+            },
+            THICKNESS_4: {
+            	template: function(valueMap) {
+            		return valueMap.sum/1000;
+            	}
+            },
+            THICKNESS_5: {
+            	template: function(valueMap) {
+            		return valueMap.sum/1000;
             	}
             }
        }

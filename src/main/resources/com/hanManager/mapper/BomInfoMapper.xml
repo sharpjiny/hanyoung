@@ -48,9 +48,12 @@
 			, KIND
 			, PROD_NM
 			, PROD_DTL_NM
-			, CLIENT
-			, OUT_PRICE
-			, SH_PRICE
+			, THICKNESS_1
+			, THICKNESS_2
+			, THICKNESS_3
+			, THICKNESS_4
+			, THICKNESS_5
+			, THICKNESS_6
 			, BIGO
 			, to_char(CREATE_DATE, 'YYYY.MM.DD') CREATE_DATE
 			, CREATE_USER
@@ -81,9 +84,12 @@
 			, KIND
 			, PROD_NM
 			, PROD_DTL_NM
-			, CLIENT
-			, OUT_PRICE
-			, SH_PRICE
+			, THICKNESS_1
+			, THICKNESS_2
+			, THICKNESS_3
+			, THICKNESS_4
+			, THICKNESS_5
+			, THICKNESS_6
 			, BIGO
 			, CREATE_DATE
 			, CREATE_USER
@@ -96,9 +102,12 @@
 			, #{KIND}
 			, #{PROD_NM}
 			, #{PROD_DTL_NM}
-			, #{CLIENT}
-			, #{OUT_PRICE}
-			, #{SH_PRICE}
+			, #{THICKNESS_1}
+			, #{THICKNESS_2}
+			, #{THICKNESS_3}
+			, #{THICKNESS_4}
+			, #{THICKNESS_5}
+			, #{THICKNESS_6}
 			, #{BIGO}
 			, SYSDATE
 			, #{CREATE_USER}
@@ -114,9 +123,12 @@
 		   SET KIND = #{KIND}
 			   , PROD_NM = #{PROD_NM}
 			   , PROD_DTL_NM = #{PROD_DTL_NM}
-			   , CLIENT = #{CLIENT}
-			   , OUT_PRICE = #{OUT_PRICE}
-			   , SH_PRICE = #{SH_PRICE}
+			   , THICKNESS_1 = #{THICKNESS_1}
+			   , THICKNESS_2 = #{THICKNESS_2}
+			   , THICKNESS_3 = #{THICKNESS_3}
+			   , THICKNESS_4 = #{THICKNESS_4}
+			   , THICKNESS_5 = #{THICKNESS_5}
+			   , THICKNESS_6 = #{THICKNESS_6}
 			   , BIGO = #{BIGO}
 			   , CREATE_DATE = SYSDATE
 			   , CREATE_USER = #{CREATE_USER}

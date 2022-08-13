@@ -72,7 +72,7 @@
 	
 	<select id="selectPrdtProdList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
 	/* ProductionProdMapper.selectPrdtProdList */
-	SELECT s.PRDT_DATE
+	SELECT to_char(to_date(s.PRDT_DATE), 'YY-MM-DD') PRDT_DATE
 	     , s.WORK_TYPE
 		 , s.EQP_ID
 		 , s.AREA
@@ -84,19 +84,27 @@
 		 , s.UPH
 		 , s.ST_TIME
 		 , s.ED_TIME
-		 , TRUNC((TO_DATE(s.ED_TIME, 'HH24:MI') - TO_DATE(s.ST_TIME, 'HH24:MI')) * 24 * 60, 2) WORK_TIME
+		 ,  trim(to_char(trunc(TRUNC((TO_DATE(s.ED_TIME, 'HH24:MI') - TO_DATE(s.ST_TIME, 'HH24:MI')) * 24 * 60, 2) / 60), '09')) || ':' ||
+      		trim(to_char(trunc(mod(abs(TRUNC((TO_DATE(s.ED_TIME, 'HH24:MI') - TO_DATE(s.ST_TIME, 'HH24:MI')) * 24 * 60, 2)), 60)), '09')) WORK_TIME
 		 , s.PRDT_CNT
 		 , s.FAULTY_CNT
 		 , s.FINISHED_CNT
-		 , ROUND((s.FINISHED_CNT / s.PRDT_CNT) * 100, 2) || '%' CMPLT_PER
-		 , u.BOM_ID
-      FROM HANADMIN.PRDT_STATUS_PROD s, HANADMIN.PRDT_INFO info, HANADMIN.MTRLS_USAGE u 
+		 <!-- , ROUND((s.FINISHED_CNT / s.PRDT_CNT) * 100, 2) || '%' CMPLT_PER -->
+		 , FINISHED_CNT/(UPH*TRUNC((TO_DATE(s.ED_TIME, 'HH24:MI') - TO_DATE(s.ST_TIME, 'HH24:MI')) * 24 * 60, 2))*100 || '%' CMPLT_PER
+		 , s.THICKNESS_1
+		 , s.THICKNESS_2
+		 , s.THICKNESS_3
+		 , s.THICKNESS_4
+		 , s.THICKNESS_5
+	 	 , s.THICKNESS_6
+		 <!-- , u.BOM_ID -->
+      FROM HANADMIN.PRDT_STATUS_PROD s, HANADMIN.PRDT_INFO info<!-- , HANADMIN.MTRLS_USAGE u --> 
      WHERE s.PROD_ID = info.PROD_ID
-       AND s.PRDT_DATE = u.PRDT_DATE(+)
-       AND s.WORK_TYPE = u.WORK_TYPE(+)
+       <!-- AND s.PROD_ID = u.PROD_ID(+) -->
+       <!-- AND s.WORK_TYPE = u.WORK_TYPE(+)
        AND s.EQP_ID = u.EQP_ID(+)
        AND s.AREA = u.AREA(+)
-       AND s.PROD_ID = u.PROD_ID(+)
+       AND s.PROD_ID = u.PROD_ID(+) -->
 	</select>
 	
 	<insert id="insertPrdtStatusProd" parameterType="java.util.HashMap" >
@@ -114,6 +122,13 @@
 			, PRDT_CNT
 			, FAULTY_CNT
 			, FINISHED_CNT
+			, THICKNESS_1
+			, THICKNESS_2
+			, THICKNESS_3
+			, THICKNESS_4
+			, THICKNESS_5
+			, THICKNESS_6
+			, BIGO
 			, CREATE_DATE 
 			, CREATE_USER 
 			, UPDATE_DATE 
@@ -131,7 +146,14 @@
 			, #{ED_TIME} 
 			, #{PRDT_CNT} 
 			, #{FAULTY_CNT} 
-			, #{FINISHED_CNT} 
+			, #{PRDT_CNT}-#{FAULTY_CNT} 
+			, NVL((SELECT THICKNESS_1 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, NVL((SELECT THICKNESS_2 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, NVL((SELECT THICKNESS_3 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
+			, NVL((SELECT THICKNESS_4 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
+			, NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
+			, NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
+			, #{BIGO}
 			, SYSDATE
 			, #{CREATE_USER}
 			, SYSDATE
@@ -142,7 +164,7 @@
 	
 	<insert id="insertPrdtMtrlsUsage" parameterType="java.util.HashMap" >
 	/* ProductionProdMapper.insertPrdtMtrlsUsage */
-		INSERT INTO hanadmin.mtrls_usage
+		<!-- INSERT INTO hanadmin.mtrls_usage
 		(	
 			PRDT_DATE 
 			, WORK_TYPE
@@ -167,31 +189,35 @@
 			, #{CREATE_USER}
 			, SYSDATE
 			, #{UPDATE_USER}
-		)
+		) -->
 		
 	</insert>
 	
 	<update id="updatePrdtStatusProd" parameterType="java.util.HashMap">
 	/* ProductionProdMapper.updatePrdtStatusProd */
 		UPDATE hanadmin.prdt_status_prod
-		   SET PRODUCT_GUBUN = #{PRODUCT_GUBUN} 
-			   , KIND = #{KIND} 
-			   , PROD_ID = (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
-			   , OUT_NUM = #{OUT_NUM} 
-			   , TO_PLACE = #{TO_PLACE} 
-			   , CLIENT = #{CLIENT}
-			   , INOUT_DATE = #{INOUT_DATE} 
-			   , BOX_COUNT = #{BOX_COUNT} 
-			   , BOX_PER_COUNT = #{BOX_PER_COUNT} 
-			   , OUT_METHOD = #{OUT_METHOD} 
-			   , MAN = #{MAN} 
-			   , PRICE = #{PRICE}
-			   , BIGO = #{BIGO}
-			   , IS_CHECK = #{IS_CHECK}
-			   , CREATE_DATE = SYSDATE
-			   , CREATE_USER = #{CREATE_USER}
-			   , UPDATE_DATE = SYSDATE
-			   , UPDATE_USER = #{UPDATE_USER}
+		   SET PRDT_DATE = #{PRDT_DATE}
+			, WORK_TYPE = #{WORK_TYPE}
+			, EQP_ID = #{EQP_ID}
+			, AREA = #{AREA}
+			, PROD_ID = #{PROD_ID}
+			, UPH = #{UPH}
+			, ST_TIME = #{ST_TIME}
+			, ED_TIME = #{ED_TIME}
+			, PRDT_CNT = #{PRDT_CNT}
+			, FAULTY_CNT = #{FAULTY_CNT}
+			, FINISHED_CNT = #{FINISHED_CNT}
+			, THICKNESS_1 = #{THICKNESS_1}
+			, THICKNESS_2 = #{THICKNESS_2}
+			, THICKNESS_3 = #{THICKNESS_3}
+			, THICKNESS_4 = #{THICKNESS_4}
+			, THICKNESS_5 = #{THICKNESS_5}
+			, THICKNESS_6 = #{THICKNESS_6}
+			, BIGO = #{BIGO}
+			, CREATE_DATE = #{CREATE_DATE}
+			, CREATE_USER = #{CREATE_USER} 
+			, UPDATE_DATE = #{UPDATE_DATE}
+			, UPDATE_USER = #{UPDATE_USER}
 		WHERE 1=1
 		<if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
 	    	 AND PRDT_DATE = #{PRDT_DATE}
@@ -212,7 +238,7 @@
 	
 	<update id="updatePrdtMtrlsUsage" parameterType="java.util.HashMap">
 	/* ProductionProdMapper.updatePrdtMtrlsUsage */
-		UPDATE hanadmin.mtrls_usage
+		<!-- UPDATE hanadmin.mtrls_usage
 		   SET PRODUCT_GUBUN = #{PRODUCT_GUBUN} 
 			   , KIND = #{KIND} 
 			   , PROD_ID = (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
@@ -249,7 +275,7 @@
 	     </if>
 	     <if test='BOM_ID != null and !BOM_ID.equals("")'>
 	    	 AND BOM_ID = #{BOM_ID}
-	     </if>
+	     </if> -->
 	</update>
 	
 	<delete id="deletePrdtStatusProd" parameterType="java.util.HashMap">
@@ -275,7 +301,7 @@
 	
 	<delete id="deletePrdtMtrlsUsage" parameterType="java.util.HashMap">
 	/* ProductionProdMapper.deletePrdtMtrlsUsage */
-		DELETE FROM hanadmin.mtrls_usage
+		<!-- DELETE FROM hanadmin.mtrls_usage
 		 WHERE 1=1
 		 <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
 	    	 AND PRDT_DATE = #{PRDT_DATE}
@@ -294,7 +320,7 @@
 	     </if>
 	     <if test='BOM_ID != null and !BOM_ID.equals("")'>
 	    	 AND BOM_ID = #{BOM_ID}
-	     </if>
+	     </if> -->
 	</delete>
 	
 	<!-- <update id="mergePrdtStock" parameterType="java.util.HashMap">
