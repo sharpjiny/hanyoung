@@ -180,7 +180,7 @@ var mtrlsStock = {
 	    });
 	}, */
 	kindSets:function(){
-		var params = {"code_group":"product_kind"};
+		var params = {"code_group":"kind"};
 		$.ajax({
 		    url : "/stock/mtrls/kindSets",
 		    method :"POST",

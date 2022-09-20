@@ -10,6 +10,8 @@ public interface ProductionProdService {
 	public Integer updatePrdtStatusProd(HashMap<String, Object> params) throws Exception;
 	public Integer deletePrdtStatusProd(HashMap<String, Object> params) throws Exception;
 	
+	public Integer insertToMtrlsInOut(HashMap<String, Object> params) throws Exception; // 생산출고로~~~
+	
 	public Integer insertPrdtMtrlsUsage(HashMap<String, Object> params) throws Exception;
 	public Integer updatePrdtMtrlsUsage(HashMap<String, Object> params) throws Exception;
 	public Integer deletePrdtMtrlsUsage(HashMap<String, Object> params) throws Exception;

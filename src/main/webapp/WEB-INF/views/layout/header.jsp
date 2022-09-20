@@ -43,18 +43,19 @@
                    <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">생산관리<i class="caret"></i></a>
                    <ul class="dropdown-menu">
                        <li><a tabindex="-1" href="/plan/export/page">수출계획표</a></li>
-                       <li><a tabindex="-1" href="/plan/produce/page">생산일보</a></li>
+                       <li><a tabindex="-1" href="/production/prod/page">생산일보</a></li>
+                       <li><a tabindex="-1" href="/production/repair/page">수리일보</a></li>
                        <li><a tabindex="-1" href="/inout/prdt/page">완제품 입출고</a></li>
                        <li><a tabindex="-1" href="/set/hgoodsUsage/page">반제품/완성품 생산량</a></li>
                        <li><a tabindex="-1" href="/set/hproductInoutOut/page">반제품 입출고(외주)</a></li>
                    </ul>
                </li>
-               <li class="dropdown">
+               <!-- <li class="dropdown">
                    <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">생산현황<i class="caret"></i></a>
                    <ul class="dropdown-menu">
-                       <li><a tabindex="-1" href="/production/prod/page">생산</a></li>
+                       <li><a tabindex="-1" href="/plan/produce/page">생산</a></li>
                    </ul>
-               </li>
+               </li> -->
                <li class="dropdown">
                    <a href="/stock/search" role="button" class="dropdown-toggle" data-toggle="dropdown">재고관리<i class="caret"></i></a>
                    <ul class="dropdown-menu">

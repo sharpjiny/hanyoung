@@ -84,22 +84,67 @@
 		 , s.UPH
 		 , s.ST_TIME
 		 , s.ED_TIME
-		 ,  trim(to_char(trunc(TRUNC((TO_DATE(s.ED_TIME, 'HH24:MI') - TO_DATE(s.ST_TIME, 'HH24:MI')) * 24 * 60, 2) / 60), '09')) || ':' ||
-      		trim(to_char(trunc(mod(abs(TRUNC((TO_DATE(s.ED_TIME, 'HH24:MI') - TO_DATE(s.ST_TIME, 'HH24:MI')) * 24 * 60, 2)), 60)), '09')) WORK_TIME
+		 , s.STOPPING_TIME
+		 , s.REST_TIME
+		 , ROUND((TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI')) * 24, 2) WORK_TIME
+		 <!-- ,  trim(to_char(trunc(TRUNC((TO_DATE(s.ED_TIME, 'HH24.MI') - TO_DATE(s.ST_TIME, 'HH24.MI')) * 24 * 60, 2) / 60), '09')) || '.' ||
+      		trim(to_char(trunc(mod(abs(TRUNC((TO_DATE(s.ED_TIME, 'HH24.MI') - TO_DATE(s.ST_TIME, 'HH24.MI')) * 24 * 60, 2)), 60)), '09')) WORK_TIME -->
 		 , s.PRDT_CNT
 		 , s.FAULTY_CNT
-		 , s.FINISHED_CNT
+		 , s.PRDT_CNT - s.FAULTY_CNT FINISHED_CNT
 		 <!-- , ROUND((s.FINISHED_CNT / s.PRDT_CNT) * 100, 2) || '%' CMPLT_PER -->
-		 , FINISHED_CNT/(UPH*TRUNC((TO_DATE(s.ED_TIME, 'HH24:MI') - TO_DATE(s.ST_TIME, 'HH24:MI')) * 24 * 60, 2))*100 || '%' CMPLT_PER
-		 , s.THICKNESS_1
-		 , s.THICKNESS_2
-		 , s.THICKNESS_3
-		 , s.THICKNESS_4
-		 , s.THICKNESS_5
-	 	 , s.THICKNESS_6
+		 , TRUNC(NVL((s.PRDT_CNT - s.FAULTY_CNT)/(UPH*(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME))*100, 0), 2) CMPLT_PER
+		 , TRUNC(NVL((s.PRDT_CNT - s.FAULTY_CNT)/(UPH*(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME - STOPPING_TIME))*100, 0), 2) MAN_CMPLT_PER
+		 , s.MAN1
+		 , s.MAN2
+		 , s.MAN3
+		 , s.MAN4
+		 , DECODE(ROUND(s.THICKNESS_1/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_1/1000, 2), 'FM99990.00')) THICKNESS_1
+		 , DECODE(ROUND(s.THICKNESS_2/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_2/1000, 2), 'FM99990.00')) THICKNESS_2
+		 , DECODE(ROUND(s.THICKNESS_3/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_3/1000, 2), 'FM99990.00')) THICKNESS_3
+		 , DECODE(ROUND(s.THICKNESS_4/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_4/1000, 2), 'FM99990.00')) THICKNESS_4
+		 , DECODE(ROUND(s.THICKNESS_5/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_5/1000, 2), 'FM99990.00')) THICKNESS_5
+		 , DECODE(ROUND(s.THICKNESS_6/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_6/1000, 2), 'FM99990.00')) THICKNESS_6
+	 	 , s.IS_CHECK
 		 <!-- , u.BOM_ID -->
       FROM HANADMIN.PRDT_STATUS_PROD s, HANADMIN.PRDT_INFO info<!-- , HANADMIN.MTRLS_USAGE u --> 
      WHERE s.PROD_ID = info.PROD_ID
+     <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	   AND WORK_TYPE = #{WORK_TYPE}
+     </if>
+     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	   AND EQP_ID = #{EQP_ID}
+     </if>
+     <if test='KIND != null and !KIND.equals("")'>
+	   AND info.KIND = #{KIND}
+     </if>
+     <if test='PROD_NM != null and !PROD_NM.equals("")'>
+       AND info.PROD_NM = #{PROD_NM}
+     </if>
+     <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+       AND info.PROD_DTL_NM = #{PROD_DTL_NM}
+     </if>
+     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+       AND s.PROD_ID = #{PROD_ID}
+     </if>
+     <if test='PRODUCT_MAN != null and !PRODUCT_MAN.equals("")'>
+       AND (s.MAN1 = #{PRODUCT_MAN} 
+       	OR s.MAN2 = #{PRODUCT_MAN}
+       	OR s.MAN3 = #{PRODUCT_MAN}
+       	OR s.MAN4 = #{PRODUCT_MAN})
+     </if>
+     <choose>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND '20'||PRDT_DATE BETWEEN #{dateStart} AND #{dateEnd}
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+            AND '20'||PRDT_DATE BETWEEN #{dateStart} AND '99-99-99'
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND '20'||PRDT_DATE BETWEEN '00-00-00' AND #{dateEnd}
+          </when>
+      </choose>
+     ORDER BY s.PRDT_DATE desc
        <!-- AND s.PROD_ID = u.PROD_ID(+) -->
        <!-- AND s.WORK_TYPE = u.WORK_TYPE(+)
        AND s.EQP_ID = u.EQP_ID(+)
@@ -119,9 +164,14 @@
 			, UPH
 			, ST_TIME
 			, ED_TIME
+			, STOPPING_TIME
+			, REST_TIME
 			, PRDT_CNT
 			, FAULTY_CNT
-			, FINISHED_CNT
+			, MAN1
+		 	, MAN2
+		 	, MAN3
+		 	, MAN4
 			, THICKNESS_1
 			, THICKNESS_2
 			, THICKNESS_3
@@ -129,6 +179,7 @@
 			, THICKNESS_5
 			, THICKNESS_6
 			, BIGO
+			, IS_CHECK
 			, CREATE_DATE 
 			, CREATE_USER 
 			, UPDATE_DATE 
@@ -144,9 +195,14 @@
 			, #{UPH}
 			, #{ST_TIME}
 			, #{ED_TIME} 
+			, #{STOPPING_TIME} 
+			, #{REST_TIME} 
 			, #{PRDT_CNT} 
 			, #{FAULTY_CNT} 
-			, #{PRDT_CNT}-#{FAULTY_CNT} 
+			, #{MAN1} 
+			, #{MAN2} 
+			, #{MAN3} 
+			, #{MAN4} 
 			, NVL((SELECT THICKNESS_1 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
 			, NVL((SELECT THICKNESS_2 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
 			, NVL((SELECT THICKNESS_3 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
@@ -154,6 +210,7 @@
 			, NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
 			, NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
 			, #{BIGO}
+			, #{IS_CHECK}
 			, SYSDATE
 			, #{CREATE_USER}
 			, SYSDATE
@@ -204,19 +261,25 @@
 			, UPH = #{UPH}
 			, ST_TIME = #{ST_TIME}
 			, ED_TIME = #{ED_TIME}
+			, STOPPING_TIME = #{STOPPING_TIME}
+			, REST_TIME = #{REST_TIME}
 			, PRDT_CNT = #{PRDT_CNT}
 			, FAULTY_CNT = #{FAULTY_CNT}
-			, FINISHED_CNT = #{FINISHED_CNT}
-			, THICKNESS_1 = #{THICKNESS_1}
-			, THICKNESS_2 = #{THICKNESS_2}
-			, THICKNESS_3 = #{THICKNESS_3}
-			, THICKNESS_4 = #{THICKNESS_4}
-			, THICKNESS_5 = #{THICKNESS_5}
-			, THICKNESS_6 = #{THICKNESS_6}
+			, MAN1 = #{MAN1}
+			, MAN2 = #{MAN2}
+			, MAN3 = #{MAN3}
+			, MAN4 = #{MAN4}
+			, THICKNESS_1 = NVL((SELECT THICKNESS_1 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, THICKNESS_2 = NVL((SELECT THICKNESS_2 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, THICKNESS_3 = NVL((SELECT THICKNESS_3 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, THICKNESS_4 = NVL((SELECT THICKNESS_4 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, THICKNESS_5 = NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, THICKNESS_6 = NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
 			, BIGO = #{BIGO}
-			, CREATE_DATE = #{CREATE_DATE}
+			, IS_CHECK = #{IS_CHECK}
+			, CREATE_DATE = SYSDATE
 			, CREATE_USER = #{CREATE_USER} 
-			, UPDATE_DATE = #{UPDATE_DATE}
+			, UPDATE_DATE = SYSDATE
 			, UPDATE_USER = #{UPDATE_USER}
 		WHERE 1=1
 		<if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
@@ -350,5 +413,49 @@
 	    	AND PROD_ID = #{PROD_ID} 
 	    </if>		 
 	</update> -->
+	
+	<insert id="insertToMtrlsInOut" parameterType="java.util.HashMap" >
+	/* MtrlsInOutMapper.insertToMtrlsInOut */
+		INSERT INTO hanadmin.mtrls_inout
+		(	
+			IDX
+			, STTL_MON 
+			, RAW_GUBUN
+			, KIND 
+			, PROD_ID 
+			, LOT_NUM 
+			, WEIGHT 
+			, CLIENT 
+			, IN_DATE 
+			, MAN 
+			, PRICE 
+			, BIGO
+			, IS_CHECK
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			hanadmin.mtrls_inout_seq.nextval
+			, NULL
+			, 'raw02' 
+			, '原材料'  
+			, #{PROD_ID}
+			, NULL
+			, #{WEIGHT} 
+			, 'BOGO'
+			, '20'||#{PRDT_DATE}
+			, 'SYSTEM' 
+			, 0
+			, #{BIGO}
+			, 'NO'
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+	</insert>
 
 </mapper>

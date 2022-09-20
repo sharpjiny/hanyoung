@@ -1,5 +1,7 @@
 package com.hanManager.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,14 +47,30 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 			}
 		}
 		
+		
 		if(ulist.size() > 0){
+			for(int i=0; i<ulist.size();i++){
+				ulist.get(i).put("CREATE_USER", params.get("loginUser"));
+				ulist.get(i).put("UPDATE_USER", params.get("loginUser"));
+				
+				if("OK".equals(ulist.get(i).get("IS_CHECK"))){
+					// 입출고 작업 후 OK 로 업데이트.
+					upCnt += insertToMtrlsInOut(ulist.get(i));
+				}else{
+					upCnt += updatePrdtStatusProd(ulist.get(i));
+				}
+			}
+			
+		}
+		
+		/*if(ulist.size() > 0){
 			for(int i=0; i<ulist.size();i++){
 				ulist.get(i).put("CREATE_USER", params.get("loginUser"));
 				ulist.get(i).put("UPDATE_USER", params.get("loginUser"));
 				upCnt += updatePrdtStatusProd(ulist.get(i));
 				//uuCnt += updatePrdtMtrlsUsage(ulist.get(i));
 			}
-		}
+		}*/
 		
 		if(dlist.size() > 0){
 			for(int  i=0; i<dlist.size();i++){
@@ -195,6 +213,55 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 	        /*if("product02".equals(params.get("PRODUCT_GUBUN")) || "product05".equals(params.get("PRODUCT_GUBUN"))){
 	        	prdtProdMapper.deletePrdtStock(params);
 	        }*/
+			return retCode;
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	@Override
+	@Transactional(rollbackFor={Exception.class}, propagation = Propagation.REQUIRED)
+	public Integer insertToMtrlsInOut(HashMap<String, Object> params) throws Exception {
+		try {
+	        int retCode = 1;
+	        
+	        HashMap insertMap = new HashMap();
+	        insertMap.putAll(params);
+	        
+	        if(!"".equals(insertMap.get("THICKNESS_1")) && insertMap.get("THICKNESS_1") != null){
+	        	insertMap.put("PROD_ID", "Y101");
+	        	insertMap.put("WEIGHT", insertMap.get("THICKNESS_1"));
+	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        }
+	        if(!"".equals(insertMap.get("THICKNESS_2")) && insertMap.get("THICKNESS_2") != null){
+	        	insertMap.put("PROD_ID", "Y102");
+	        	insertMap.put("WEIGHT", insertMap.get("THICKNESS_2"));
+	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        }
+	        if(!"".equals(insertMap.get("THICKNESS_3")) && insertMap.get("THICKNESS_3") != null){
+	        	insertMap.put("PROD_ID", "Y103");
+	        	insertMap.put("WEIGHT", params.get("THICKNESS_3"));
+	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        }
+	        if(!"".equals(insertMap.get("THICKNESS_4")) && insertMap.get("THICKNESS_4") != null){
+	        	insertMap.put("PROD_ID", "Y104");
+	        	insertMap.put("WEIGHT", params.get("THICKNESS_4"));
+	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        }
+	        if(!"".equals(insertMap.get("THICKNESS_5")) && insertMap.get("THICKNESS_5") != null){
+	        	insertMap.put("PROD_ID", "Y105");
+	        	insertMap.put("WEIGHT", params.get("THICKNESS_5"));
+	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        }
+	        if(!"".equals(insertMap.get("THICKNESS_6")) && insertMap.get("THICKNESS_6") != null){
+	        	insertMap.put("PROD_ID", "Y106");
+	        	insertMap.put("WEIGHT", params.get("THICKNESS_6"));
+	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        }
+	        
+	        productionProdMapper.updatePrdtStatusProd(params);
+	        
 			return retCode;
 		}catch (Exception e) {
 			e.printStackTrace();
