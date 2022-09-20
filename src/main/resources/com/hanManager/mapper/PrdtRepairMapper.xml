@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.PrdtRepairMapper">
+	
+	<select id="selectPrdtProdNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PrdtRepairMapper.selectPrdtProdNm */
+		SELECT DISTINCT info.PROD_NM CODE, info.PROD_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PrdtRepairMapper.selectPrdtProdDtlNm */
+		SELECT DISTINCT info.PROD_DTL_NM CODE, info.PROD_DTL_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PrdtRepairMapper.selectPrdtProdId */
+		SELECT info.PROD_ID CODE, info.PROD_ID NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+	       AND PROD_DTL_NM = #{prodDtlNm}
+	     </if>
+	</select>
+	
+	<select id="getProdIdRowList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	SELECT kind
+		 , prod_nm
+		 , LISTAGG(prod_dtl_nm,',') WITHIN GROUP(ORDER BY  kind, prod_nm, prod_dtl_nm) AS prod_dtl_nm
+		 , client
+	  FROM HANADMIN.PRDT_INFO
+	 GROUP BY kind, prod_nm, client
+	</select>
+	
+	<select id="getPrice" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	SELECT info.OUT_PRICE CODE, info.OUT_PRICE NAME 
+	  FROM hanadmin.prdt_info info
+	 WHERE 1=1
+     <if test='kind != null and !kind.equals("")'>
+       AND KIND = #{kind}
+     </if>
+     <if test='prodNm != null and !prodNm.equals("")'>
+       AND PROD_NM = #{prodNm}
+     </if>
+     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+       AND PROD_DTL_NM = #{prodDtlNm}
+     </if>
+	</select>
+	
+	<select id="selectPrdtRepairList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* PrdtRepairMapper.selectPrdtRepairList */
+		SELECT repair.PRDT_DATE 
+			 , repair.WORK_TYPE
+			 , repair.EQP_ID
+			 , repair.ST_TIME 
+			 , repair.ED_TIME 
+			 , repair.STOPPING_TIME 
+			 , repair.BROKEN_PART
+			 , repair.IMG_URL
+			 , repair.PATH
+			 , repair.REASON 
+			 , repair.METHOD 
+			 , repair.MAN1 
+			 , repair.MAN2 
+			 , repair.REPAIR_MAN 
+			 , repair.BIGO 
+			 , repair.IS_CHECK 
+			 , repair.CREATE_DATE 
+			 , repair.CREATE_USER 
+			 , repair.UPDATE_DATE 
+			 , repair.UPDATE_USER
+		FROM hanadmin.REPAIR_NOTES repair
+	   WHERE 1=1
+	   <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	     AND repair.PRDT_DATE = #{PRDT_DATE}
+	   </if>
+	   <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	     AND repair.WORK_TYPE = #{WORK_TYPE}
+	   </if>
+	   <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	     AND repair.EQP_ID = #{EQP_ID}
+	   </if>
+	   <choose>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND REPLACE(repair.INOUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+            AND REPLACE(repair.INOUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND REPLACE(repair.INOUT_DATE, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+          </when>
+      </choose>
+	   ORDER BY repair.PRDT_DATE desc, repair.WORK_TYPE, repair.EQP_ID
+	</select>
+	
+	<insert id="insertPrdtRepair" parameterType="java.util.HashMap" >
+	/* PrdtRepairMapper.insertPrdtRepair */
+		INSERT INTO hanadmin.REPAIR_NOTES
+		(	
+			PRDT_DATE
+			, WORK_TYPE
+			, EQP_ID 
+			, ST_TIME 
+			, ED_TIME
+			, STOPPING_TIME 
+			, BROKEN_PART 
+			, IMG_URL
+			, PATH
+			, REASON
+			, METHOD 
+			, MAN1 
+			, MAN2 
+			, REPAIR_MAN 
+			, BIGO
+			, IS_CHECK
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			#{PRDT_DATE} 
+			, #{WORK_TYPE}  
+			, #{EQP_ID}
+			, #{ST_TIME} 
+			, #{ED_TIME}
+			, #{STOPPING_TIME}
+			, #{BROKEN_PART} 
+			, #{IMG_URL} 
+			, #{PATH} 
+			, #{REASON} 
+			, #{METHOD} 
+			, #{MAN1} 
+			, #{MAN2} 
+			, #{REPAIR_MAN} 
+			, #{BIGO}
+			, 'NO'
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+		
+	</insert>
+	
+	<update id="updatePrdtRepair" parameterType="java.util.HashMap">
+	/* PrdtRepairMapper.updatePrdtRepair */
+		UPDATE hanadmin.REPAIR_NOTES
+		   SET ST_TIME = #{ST_TIME} 
+			   , ED_TIME = #{ED_TIME} 
+			   , STOPPING_TIME = #{STOPPING_TIME}
+			   , BROKEN_PART = #{BROKEN_PART} 
+			   , IMG_URL = #{IMG_URL} 
+			   , PATH = #{PATH}
+			   , REASON = #{REASON} 
+			   , METHOD = #{METHOD} 
+			   , MAN1 = #{MAN1} 
+			   , MAN2 = #{MAN2} 
+			   , REPAIR_MAN = #{REPAIR_MAN} 
+			   , BIGO = #{BIGO}
+			   , IS_CHECK = #{IS_CHECK}
+			   , CREATE_DATE = SYSDATE
+			   , CREATE_USER = #{CREATE_USER}
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	AND PRDT_DATE = #{PRDT_DATE}
+	    </if>
+		<if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	    	AND WORK_TYPE = #{WORK_TYPE}
+	    </if>
+		<if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	AND EQP_ID = #{EQP_ID}
+	    </if>
+	</update>
+	
+	<delete id="deletePrdtRepair" parameterType="java.util.HashMap">
+	/* PrdtRepairMapper.deletePrdtRepair */
+		DELETE FROM hanadmin.REPAIR_NOTES
+		 WHERE 1=1 
+		 <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	AND PRDT_DATE = #{PRDT_DATE}
+	    </if>
+		<if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	    	AND WORK_TYPE = #{WORK_TYPE}
+	    </if>
+		<if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	AND EQP_ID = #{EQP_ID}
+	    </if>
+	</delete>
+	
+
+</mapper>
