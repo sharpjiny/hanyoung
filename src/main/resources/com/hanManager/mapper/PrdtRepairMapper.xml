@@ -71,15 +71,18 @@
 	
 	<select id="selectPrdtRepairList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
 	/* PrdtRepairMapper.selectPrdtRepairList */
-		SELECT repair.PRDT_DATE 
+		SELECT repair.PRDT_DATE <!-- to_char(to_date(repair.PRDT_DATE), 'YY-MM-DD')  -->
 			 , repair.WORK_TYPE
 			 , repair.EQP_ID
 			 , repair.ST_TIME 
 			 , repair.ED_TIME 
-			 , repair.STOPPING_TIME 
+			 , ROUND((TO_DATE(repair.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(repair.ST_TIME, 'YY-MM-DD HH24:MI')) * 24, 2) STOPPING_TIME 
 			 , repair.BROKEN_PART
-			 , repair.IMG_URL
-			 , repair.PATH
+			 <!-- , <![CDATA['<div style="background-image: url('||repair.PATH||'/'||repair.IMG_NAME||'")>haha</div>' ]]> AS IMG -->
+			 , <![CDATA['<img src="'||f.FILE_PATH||'/'||f.FILE_NAME||'" >' ]]> AS IMG
+			 , f.FILE_SEQ
+			 , f.FILE_NAME
+			 , f.FILE_PATH
 			 , repair.REASON 
 			 , repair.METHOD 
 			 , repair.MAN1 
@@ -91,11 +94,12 @@
 			 , repair.CREATE_USER 
 			 , repair.UPDATE_DATE 
 			 , repair.UPDATE_USER
-		FROM hanadmin.REPAIR_NOTES repair
+		FROM hanadmin.REPAIR_NOTES repair, hanadmin.fileTable f
 	   WHERE 1=1
-	   <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	     AND repair.FILE_SEQ = f.FILE_SEQ
+	   <!-- <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
 	     AND repair.PRDT_DATE = #{PRDT_DATE}
-	   </if>
+	   </if> -->
 	   <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
 	     AND repair.WORK_TYPE = #{WORK_TYPE}
 	   </if>
@@ -104,13 +108,13 @@
 	   </if>
 	   <choose>
           <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
-            AND REPLACE(repair.INOUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
+            AND REPLACE(repair.PRDT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND REPLACE(#{dateEnd}, '-', '')
           </when>
           <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
-            AND REPLACE(repair.INOUT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
+            AND REPLACE(repair.PRDT_DATE, '-', '') BETWEEN REPLACE(#{dateStart}, '-', '') AND '99999999'
           </when>
           <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
-            AND REPLACE(repair.INOUT_DATE, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
+            AND REPLACE(repair.PRDT_DATE, '-', '') BETWEEN '00000000' AND REPLACE(#{dateEnd}, '-', '')
           </when>
       </choose>
 	   ORDER BY repair.PRDT_DATE desc, repair.WORK_TYPE, repair.EQP_ID
@@ -127,8 +131,7 @@
 			, ED_TIME
 			, STOPPING_TIME 
 			, BROKEN_PART 
-			, IMG_URL
-			, PATH
+			, FILE_SEQ
 			, REASON
 			, METHOD 
 			, MAN1 
@@ -150,8 +153,7 @@
 			, #{ED_TIME}
 			, #{STOPPING_TIME}
 			, #{BROKEN_PART} 
-			, #{IMG_URL} 
-			, #{PATH} 
+			, #{FILE_SEQ}
 			, #{REASON} 
 			, #{METHOD} 
 			, #{MAN1} 
@@ -174,8 +176,7 @@
 			   , ED_TIME = #{ED_TIME} 
 			   , STOPPING_TIME = #{STOPPING_TIME}
 			   , BROKEN_PART = #{BROKEN_PART} 
-			   , IMG_URL = #{IMG_URL} 
-			   , PATH = #{PATH}
+			   , FILE_SEQ = #{FILE_SEQ} 
 			   , REASON = #{REASON} 
 			   , METHOD = #{METHOD} 
 			   , MAN1 = #{MAN1} 

@@ -82,7 +82,7 @@
 			 , inout.OUT_NUM
 			 , inout.TO_PLACE
 			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'goal_city' and CODE = inout.TO_PLACE) AS TO_PLACE_NM  
-			 , info.CLIENT
+			 , inout.CLIENT
 			 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'client' and CODE = inout.CLIENT) AS CLIENT_NM
 			 , inout.INOUT_DATE 
 			 , inout.BOX_COUNT 
@@ -164,7 +164,7 @@
 			hanadmin.prdt_inout_seq.nextval
 			, #{PRODUCT_GUBUN} 
 			, #{KIND}  
-			, (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			, (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM} and KIND = #{KIND})
 			, #{OUT_NUM} 
 			, #{TO_PLACE}
 			, #{CLIENT}
@@ -173,7 +173,7 @@
 			, #{BOX_PER_COUNT} 
 			, #{OUT_METHOD} 
 			, #{MAN} 
-			, (SELECT OUT_PRICE FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			, (SELECT OUT_PRICE FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM} and KIND = #{KIND})
 			, #{BIGO}
 			, 'NO'
 			, SYSDATE

@@ -126,6 +126,23 @@ var dateUtil={
             format: "yyyy-mm-dd",
             language: "ko"
         });
+		
+		$("input.month").datepicker({
+	        calendarWeeks: false,
+	        todayHighlight: true,
+	        autoclose: true,
+	        format: "yyyy-mm",
+	        viewMode: "months",
+	        minViewMode: "months",
+	        language: "ko"
+	    });
+		
+		$("input.time").datetimepicker({
+	        format: 'Y-m-d H:i',
+	        mask:'9999-19-39 29:59', 
+	        step:20,
+	        lang:'kr'
+	    });
 	},
 
 	initMonth : function(){

@@ -20,6 +20,8 @@
 		<link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.css" />
 		<link rel="stylesheet" href="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.css" />
 		<link rel="stylesheet" href="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.css" />
+		<link rel="stylesheet" type="text/css" href="<c:url value='/res/css/datepicker.css'/>" media="screen"/>
+		<link rel="stylesheet" type="text/css" href="<c:url value='/res/css/jquery.datetimepicker.css'/>" media="screen"/>
 		<script src="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.js"></script>
 		<script src="https://uicdn.toast.com/tui.date-picker/latest/tui-date-picker.js"></script>
 		<script src="https://uicdn.toast.com/tui.pagination/v3.4.0/tui-pagination.js"></script>
@@ -27,6 +29,7 @@
 		<link rel="stylesheet" type="text/css" href="<c:url value='/res/css/datepicker.css'/>" media="screen" />
 		<script src="<c:url value='/res/js/plugin/bootstrap-datepicker.js'/>"></script>
 		<script src="<c:url value='/res/js/plugin/bootstrap-datepicker.kr.js'/>"></script>
+		<script src="<c:url value='/res/js/plugin/jquery.datetimepicker.full.min.js'/>"></script>
 		<script type="text/javascript">
 			var userForm ={
 				pop : function(){

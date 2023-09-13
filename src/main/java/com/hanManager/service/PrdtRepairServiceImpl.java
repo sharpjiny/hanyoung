@@ -1,6 +1,5 @@
 package com.hanManager.service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +9,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.hanManager.mapper.FileUploadMapper;
 import com.hanManager.mapper.PrdtRepairMapper;
 
 @Service
 public class PrdtRepairServiceImpl implements PrdtRepairService {
 	@Autowired PrdtRepairMapper prdtRepairMapper;
+	@Autowired FileUploadMapper fileUploadMapper;
 	@Override
 	public List<HashMap<String, Object>> selectPrdtRepairList(HashMap<String, Object> params) throws Exception {
 		
@@ -23,46 +24,16 @@ public class PrdtRepairServiceImpl implements PrdtRepairService {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public HashMap<String, Object> prdtRepairSave(HashMap<String, Object> params) throws Exception {
-		
-		List<HashMap<String, Object>> ilist = (List<HashMap<String, Object>>) params.get("createdRows");
-		List<HashMap<String, Object>> ulist = (List<HashMap<String, Object>>) params.get("updatedRows");
-		List<HashMap<String, Object>> dlist = (List<HashMap<String, Object>>) params.get("deletedRows");
-		HashMap<String, Object> rtnMap = new HashMap<String, Object>();
-		
-		int icnt = 0;
-		int ucnt = 0;
-		int dcnt = 0;
-		
-		if(ilist.size() > 0){
-			for(int i=0; i<ilist.size();i++){
-				ilist.get(i).put("CREATE_USER", params.get("loginUser"));
-				ilist.get(i).put("UPDATE_USER", params.get("loginUser"));
-				icnt += insert(ilist.get(i));
-			}
+	public Integer prdtRepairSave(HashMap<String, Object> params) throws Exception {
+		String type = (String)params.get("EVENT_TYPE");
+		int rtn = 0;
+		if("C".equals(type)){
+			rtn = insert(params);
+		}else{
+			rtn = update(params);
 		}
 		
-		if(ulist.size() > 0){
-			for(int i=0; i<ulist.size();i++){
-				ulist.get(i).put("CREATE_USER", params.get("loginUser"));
-				ulist.get(i).put("UPDATE_USER", params.get("loginUser"));
-				ucnt += update(ulist.get(i));
-			}
-		}
-		
-		if(dlist.size() > 0){
-			for(int  i=0; i<dlist.size();i++){
-				dlist.get(i).put("CREATE_USER", params.get("loginUser"));
-				dlist.get(i).put("UPDATE_USER", params.get("loginUser"));
-				dcnt += delete(dlist.get(i));
-			}
-		}
-		
-		rtnMap.put("insert", icnt);
-		rtnMap.put("update", ucnt);
-		rtnMap.put("delete", dcnt);
-		
-		return rtnMap;
+		return rtn;
 	}
 	
 	@Override
@@ -70,6 +41,11 @@ public class PrdtRepairServiceImpl implements PrdtRepairService {
 	public Integer insert(HashMap<String, Object> params) throws Exception {
 		try {
 	        int retCode = 1;
+	        
+	        // 파일 뽑고, DB 저장하고
+	        int file_seq = fileUploadMapper.getFileSeq();
+	        params.put("FILE_SEQ", file_seq);
+	        fileUploadMapper.insertFileUpload(params);
 	        prdtRepairMapper.insertPrdtRepair(params);
 	        
 			return retCode;
@@ -84,6 +60,7 @@ public class PrdtRepairServiceImpl implements PrdtRepairService {
 	public Integer update(HashMap<String, Object> params) throws Exception {
 		try {
 			int retCode = 1;
+			fileUploadMapper.updateFileUpload(params);
 	        prdtRepairMapper.updatePrdtRepair(params);
 	        
 			return retCode;
@@ -95,10 +72,14 @@ public class PrdtRepairServiceImpl implements PrdtRepairService {
 
 	@Override
 	@Transactional(rollbackFor={Exception.class}, propagation = Propagation.REQUIRED)
-	public Integer delete(HashMap<String, Object> params) throws Exception {
+	public Integer delete(List<Map<String, Object>> params) throws Exception {
 		try {
-			int retCode = 1;
-	        prdtRepairMapper.deletePrdtRepair(params);
+			int retCode = 0;
+			for(int  i=0; i<params.size();i++){
+				fileUploadMapper.deleteFileUpload((HashMap)params.get(i));
+				prdtRepairMapper.deletePrdtRepair((HashMap)params.get(i));
+				retCode++;
+			}
 	        
 			return retCode;
 		}catch (Exception e) {
@@ -106,4 +87,5 @@ public class PrdtRepairServiceImpl implements PrdtRepairService {
 			throw new Exception(e.getMessage());
 		}
 	}
+	
 }

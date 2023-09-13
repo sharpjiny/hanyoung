@@ -54,12 +54,13 @@
 	</select>  
 	
 	<select id="selectMtrlsStockList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-	/* PrdtStockMapper.selectMtrlsStockList */
+	/* MtrlsStockMapper.selectMtrlsStockList */
 		WITH mtrls_sum as (
 			SELECT KIND
 			 	 , RAW_GUBUN
 				 , PROD_ID
-				 , CASE WHEN RAW_GUBUN = 'raw02' then (sum(WEIGHT) * -1)  
+				 , CASE WHEN RAW_GUBUN = 'raw02' then (sum(WEIGHT) * -1)
+				 		WHEN RAW_GUBUN = 'raw03' then (sum(WEIGHT) * -1)
 		                WHEN RAW_GUBUN = 'raw05' then sum(WEIGHT)
 		                WHEN RAW_GUBUN = 'raw01' then sum(WEIGHT) END weight_tot
 			 FROM hanadmin.MTRLS_INOUT inout

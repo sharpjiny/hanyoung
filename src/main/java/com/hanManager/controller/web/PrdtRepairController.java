@@ -3,28 +3,37 @@ package com.hanManager.controller.web;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.hanManager.Constant;
+import com.hanManager.controller.DefaultAjaxController;
 import com.hanManager.controller.DefaultController;
 import com.hanManager.domain.LoginUsers;
+import com.hanManager.domain.SubMaterialsManagement;
 import com.hanManager.mapper.CommonCodeMapper;
 import com.hanManager.mapper.PrdtRepairMapper;
+import java.io.FileOutputStream;
 import com.hanManager.service.PrdtRepairService;
 import com.hanManager.web.util.LoginManager;
 
 @Controller
 @RequestMapping(value={"/production/repair/"})
-public class PrdtRepairController extends DefaultController{
+public class PrdtRepairController extends DefaultAjaxController{
 	@Autowired CommonCodeMapper codeMapper;
 	@Autowired PrdtRepairService prdtRepairService;
 	@Autowired PrdtRepairMapper prdtRepairMapper;
@@ -52,11 +61,31 @@ public class PrdtRepairController extends DefaultController{
 	 * @throws Exception 
 	 */
 	@SuppressWarnings("null")
-	@RequestMapping(value={"productGubunSets"})
-	public @ResponseBody Map<String, Object> productGubunSets(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
+	@RequestMapping(value={"workTypeSets"})
+	public @ResponseBody Map<String, Object> workTypeSets(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
 		
 		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("PRODUCT_GUBUN", codeMapper.selectCodeList(params));
+		result.put("WORK_TYPE", codeMapper.selectCodeList(params));
+		
+		return result;
+	}
+	
+	@SuppressWarnings("null")
+	@RequestMapping(value={"eqpIdSets"})
+	public @ResponseBody Map<String, Object> eqpIdSets(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("EQP_ID", codeMapper.selectCodeList(params));
+		
+		return result;
+	}
+	
+	@SuppressWarnings("null")
+	@RequestMapping(value={"brokenParts"})
+	public @ResponseBody Map<String, Object> brokenParts(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("BROKEN_PARTS", codeMapper.selectCodeList(params));
 		
 		return result;
 	}
@@ -68,84 +97,6 @@ public class PrdtRepairController extends DefaultController{
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("MONTHS", codeMapper.selectCodeList(params));
 		
-		return result;
-	}
-	
-	@SuppressWarnings("null")
-	@RequestMapping(value={"kindSets"})
-	public @ResponseBody Map<String, Object> kindSets(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
-		
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("KIND", codeMapper.selectCodeList(params));
-		
-		return result;
-	}
-	
-	@SuppressWarnings("null")
-	@RequestMapping(value={"clientSets"})
-	public @ResponseBody Map<String, Object> clientSets(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
-		
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("CLIENT", codeMapper.selectCodeList(params));
-		
-		return result;
-	}
-	
-	@SuppressWarnings("null")
-	@RequestMapping(value={"goalCitySets"})
-	public @ResponseBody Map<String, Object> goalCitySets(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
-		
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("GOAL_CITY", codeMapper.selectCodeList(params));
-		
-		return result;
-	}
-	
-	@SuppressWarnings("null")
-	@RequestMapping(value={"prodNmList"})
-	public @ResponseBody Map<String, Object> prodNmList(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
-		
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("PROD_NM", prdtRepairMapper.selectPrdtProdNm(params));
-		
-		return result;
-	}
-	
-	@SuppressWarnings("null")
-	@RequestMapping(value={"prodDtlNmList"})
-	public @ResponseBody Map<String, Object> prodDtlNmList(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
-		
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("PROD_DTL_NM", prdtRepairMapper.selectPrdtProdDtlNm(params));
-		
-		return result;
-	}
-	
-	@SuppressWarnings("null")
-	@RequestMapping(value={"prodIdList"})
-	public @ResponseBody Map<String, Object> prodIdList(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
-		
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("PROD_ID", prdtRepairMapper.selectPrdtProdId(params));
-		
-		return result;
-	}
-	
-	@SuppressWarnings("null")
-	@RequestMapping(value={"getProdIdRowList"})
-	public @ResponseBody Map<String, Object> getProdIdRowList(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
-		
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("PROD_ID_LIST", prdtRepairMapper.getProdIdRowList(params));
-		
-		return result;
-	}
-	
-	@SuppressWarnings("null")
-	@RequestMapping(value={"getPrice"})
-	public @ResponseBody Map<String, Object> getPrice(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
-		Map<String, Object> result = new HashMap<String, Object>();
-		result.put("PRICE", prdtRepairMapper.getPrice(params));
 		return result;
 	}
 	
@@ -172,15 +123,28 @@ public class PrdtRepairController extends DefaultController{
 	 * @throws Exception 
 	 */
 	@RequestMapping(value={"save"})
-	public @ResponseBody HashMap<String, Object> save(Model model, @RequestBody HashMap<String, Object> params) throws Exception{
+	public @ResponseBody Map<String, Object> save(@RequestPart(value = "file") MultipartFile file, @RequestPart(value = "params") HashMap<String, Object> params) throws Exception{
 		
-		HashMap<String, Object> result = null;
+		HashMap<String, Object> map = new HashMap<String, Object>();
+		HashMap<String, Object> rtn = new HashMap<String, Object>();
 		
 		LoginUsers loginUser = LoginManager.getInstance().getSession(request);
-		params.put("loginUser", loginUser.getId());
+		params.put("CREATE_USER", loginUser.getId());
 		
-	    result = prdtRepairService.prdtRepairSave(params);
+		uploadFile(file, params);
+		
+	    rtn.put("rtn", prdtRepairService.prdtRepairSave(params));
 
-		return result;
+		return rtn;
 	}
+	
+	@RequestMapping(value={"del"})
+	public @ResponseBody Map<String, Object> del(Model model, @RequestBody List<Map<String, Object>> params) throws Exception{
+		HashMap<String, Object> rtn = new HashMap<String, Object>();
+		int cnt = prdtRepairService.delete(params);
+		rtn.put("rtn", cnt);
+		
+		return rtn;
+	}
+	
 }

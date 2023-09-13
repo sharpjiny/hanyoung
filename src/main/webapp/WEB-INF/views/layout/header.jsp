@@ -22,7 +22,7 @@
            <ul class="nav">
            	   <c:if test="${userSession.id == 'hanadmin'}"> 
                <li class="dropdown">
-                   <a href="/set/vehicle/search" role="button" class="dropdown-toggle" data-toggle="dropdown">設定 <i class="caret"></i></a>
+                   <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">設定 <i class="caret"></i></a>
                    <ul class="dropdown-menu">
                    	   <li><a tabindex="-1" href="/set/mtrlsInfo/page">원부자재 설정</a></li>
                    	   <li><a tabindex="-1" href="/set/prdtInfo/page">제품 설정</a></li>
@@ -33,7 +33,7 @@
                </li>
                </c:if>
                <li class="dropdown">
-                   <a href="/production/inspection/search" role="button" class="dropdown-toggle" data-toggle="dropdown">구매관리<i class="caret"></i></a>
+                   <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">구매관리<i class="caret"></i></a>
                    <ul class="dropdown-menu">
                        <li><a tabindex="-1" href="/inout/mtrls/page">원부자재 입출고(외주)</a></li>
                        <li><a tabindex="-1" href="/set/mtrlsUsage/page">원부자재 사용량</a></li>
@@ -44,6 +44,9 @@
                    <ul class="dropdown-menu">
                        <li><a tabindex="-1" href="/plan/export/page">수출계획표</a></li>
                        <li><a tabindex="-1" href="/production/prod/page">생산일보</a></li>
+                       <li><a tabindex="-1" href="/production/coating/page">코팅일보</a></li>
+                       <li><a tabindex="-1" href="/production/welding/page">용접일보</a></li>
+                       <li><a tabindex="-1" href="/production/packing/page">포장일보</a></li>
                        <li><a tabindex="-1" href="/production/repair/page">수리일보</a></li>
                        <li><a tabindex="-1" href="/inout/prdt/page">완제품 입출고</a></li>
                        <li><a tabindex="-1" href="/set/hgoodsUsage/page">반제품/완성품 생산량</a></li>

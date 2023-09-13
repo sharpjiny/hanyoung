@@ -83,6 +83,7 @@ var gridView = new tui.Grid({
     header:{
     	height: 40
     },
+    bodyHeight: 500,
     columns: [
         {header: 'code_group',      name: 'CODE_GROUP',        filter:{type:'text'},         	sortable:true,            align:'center'        },
         {header: 'code',		    name: 'CODE',          	   filter:{type:'text'},          	sortable:true,            align:'center'        },
@@ -105,6 +106,7 @@ var gridEdit = new tui.Grid({
     header:{
     	height: 40
     },
+    bodyHeight: 500,
     columns: [
         {header: 'code_group',      name: 'CODE_GROUP',        filter:{type:'text'},         	sortable:true,            align:'center',       className:'clickable',        editor:'text', validation:{required:true}},
 		{header: 'code',		    name: 'CODE',          	   filter:{type:'text'},          	sortable:true,            align:'center',       className:'clickable',        editor:'text', validation:{required:true}},

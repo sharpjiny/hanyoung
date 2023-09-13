@@ -146,7 +146,7 @@ tui.Grid.applyTheme('default', {
 var goalCityList = [{value:'', text:'-선택-'}];
 var productGubunList = [{value:'', text:'-선택-'}];
 var kindList = [{value:'', text:'-선택-'}];
-var clientList = [{value:'', text:'-선택-'}];
+//var clientList = [{value:'', text:'-선택-'}];
 var prodIdRowList = [{value:'', text:'-선택-'}];
 
 var gridView = new tui.Grid({
@@ -162,11 +162,11 @@ var gridView = new tui.Grid({
     columns: [
 		{header: '입고일자',    name: 'INOUT_DATE',      filter:{type:'text'},          sortable:true,            align:'center'},
 		/* {header: '목적지',    	name: 'TO_PLACE_NM',      filter:{type:'text'},         sortable:true,            align:'center', width:150}, */
-		{header: '구분',     	name: 'PRODUCT_GUBUN_NM', filter:{type:'text'},         sortable:true,            align:'center'},
+		{header: '구분',     	name: 'PRODUCT_GUBUN_NM', filter:{type:'text'},         sortable:true,            align:'center', width:225},
+		{header: '입고사',      name: 'CLIENT',    filter:{type:'text'},         	sortable:true,            align:'center'},
 		{header: '종류',     	name: 'KIND_NM',   	  filter:{type:'text'},         	sortable:true,            align:'center'},
 		{header: '품명',       	name: 'PROD_NM',      filter:{type:'text'},         	sortable:true,            align:'center'},
 		{header: '상세품명',    name: 'PROD_DTL_NM',  filter:{type:'text'},         	sortable:true,            align:'center', width:150},
-		{header: '입고사',      name: 'CLIENT_NM',    filter:{type:'text'},         	sortable:true,            align:'center'},
 		{header: '품호',       	name: 'PROD_ID',      filter:{type:'text'},         	sortable:true,            align:'center'},
 		/* {header: '수출번호',    name: 'OUT_NUM',      filter:{type:'text'},         	sortable:true,            align:'center'}, */
 		{header: '제품수량',  	name: 'BOX_PER_COUNT',filter:{type:'text'},         	sortable:true,            align:'center', formatter :function(v) {
@@ -233,13 +233,15 @@ var gridEdit = new tui.Grid({
 	        		listItems:goalCityList
 	       		}
         }}, */
-		{header: '구분', name: 'PRODUCT_GUBUN', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
+		{header: '구분', name: 'PRODUCT_GUBUN', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',  width:225,
 	        editor:{
 	        	type:'select', // checkbox, select
 	        	options:{
 	        		listItems:productGubunList
 	       		}
         }},
+        {header: '입고사', name: 'CLIENT', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true},
+       	    editor:'text'},
 		{header: '종류', name: 'KIND', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
         	onAfterChange:function(o){
 	   	    	searchCombo.getProdId(o);
@@ -284,19 +286,14 @@ var gridEdit = new tui.Grid({
         	options:{
         		listItems:[]
        		}},
-	   	 	relations:[
+       		/*relations:[
 	   	    	{
 	   	    		targetNames: ['CLIENT'],
 	   	    		listItems: function(o) {
 	   	              return searchCombo.getMatched(o, 'prodDtlNm');
 	   	            }
 	   	    	}
-		   	]},
-     	{header: '입고사', name: 'CLIENT', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
-       	    editor:{type:'select', // checkbox, select
-            options:{
-            	listItems:[{value:'', text:'-선택-'}]
-           	}}},	
+		   	]*/},
 		{header: '품호',       	name: 'PROD_ID',      filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable',        editor:'text', disabled:true},
 		/* {header: '수출번호',    name: 'OUT_NUM',      filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable',        editor:'text'}, */
 		{header: '제품수량',  	name: 'BOX_PER_COUNT',filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text', validation:{dataType:'number'}, formatter :function(v) {
@@ -368,7 +365,7 @@ var prdtInOut = {
 	init:function(){
 		this.productGubunSets();
 		this.kindSets();
-		this.clientSets();
+		//this.clientSets();
 		this.goalCitySets();
 		searchCombo.getProdIdRowList();
 	},
@@ -406,7 +403,7 @@ var prdtInOut = {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
 	},
-	clientSets:function(){
+	/* clientSets:function(){
 		var params = {"code_group":"client"};
 		$.ajax({
 		    url : "/inout/prdt/clientSets",
@@ -420,7 +417,7 @@ var prdtInOut = {
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
-	},
+	}, */
 	goalCitySets:function(){
 		var params = {"code_group":"goal_city"};
 		$.ajax({
@@ -653,7 +650,7 @@ var searchCombo = {
 					items.push(temp[i]["PROD_NM"]);
 				});
 			}else {
-				items = temp[0].CLIENT.split(',');
+				//items = temp[0].CLIENT.split(',');
 			}
 			$.each(items, function(i, v){
 				ret.push({text:v, value:v});

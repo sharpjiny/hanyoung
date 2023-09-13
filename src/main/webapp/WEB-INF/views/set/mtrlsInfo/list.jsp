@@ -121,6 +121,7 @@ var gridView = new tui.Grid({
     header:{
     	height: 40
     },
+    bodyHeight: 500,
     columns: [
         {header: '품호',		    name: 'PROD_ID',          	   filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '종류',         	name: 'KIND',          		   filter:{type:'text'},         	sortable:true,            align:'center'        },
@@ -144,6 +145,7 @@ var gridEdit = new tui.Grid({
     header:{
     	height: 40
     },
+    bodyHeight: 500,
     columns: [
 		{header: '품호',		    name: 'PROD_ID',          	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '종류',         	name: 'KIND',          		   filter:{type:'text'},         	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},

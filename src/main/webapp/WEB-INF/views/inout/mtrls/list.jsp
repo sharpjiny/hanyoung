@@ -160,13 +160,14 @@ var gridView = new tui.Grid({
     bodyHeight: 500,
     columns: [
 		{header: '입고일자',    name: 'IN_DATE',      filter:{type:'text'},         sortable:true,            align:'center'},
-        {header: '결산년월',    name: 'STTL_MON',     filter:{type:'text'},         sortable:true,            align:'center'},
+        /* {header: '결산년월',    name: 'STTL_MON',     filter:{type:'text'},         sortable:true,            align:'center'}, */
 		{header: '구분',     	name: 'RAW_GUBUN_NM', filter:{type:'text'},         sortable:true,            align:'center'},
+		{header: '입고사',      name: 'RAW_CLIENT_NM',    filter:{type:'text'},         sortable:true,            align:'center'},
 		{header: '종류',     	name: 'KIND_NM',   	  filter:{type:'text'},         sortable:true,            align:'center'},
 		{header: '품명',       	name: 'PROD_NM',      filter:{type:'text'},         sortable:true,            align:'center'},
 		{header: '상세품명',    name: 'PROD_DTL_NM',  filter:{type:'text'},         sortable:true,            align:'center', width:150},
 		{header: '품호',       	name: 'PROD_ID',      filter:{type:'text'},         sortable:true,            align:'center'},
-		{header: 'LOT',       	name: 'LOT_NUM',      filter:{type:'text'},         sortable:true,            align:'center'},
+		/* {header: 'LOT',       	name: 'LOT_NUM',      filter:{type:'text'},         sortable:true,            align:'center'}, */
 		{header: '중량',       	name: 'WEIGHT',       filter:{type:'text'},         sortable:true,            align:'center', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
@@ -176,7 +177,6 @@ var gridView = new tui.Grid({
 		{header: '총액',       	name: 'TOT_PRICE',    filter:{type:'text'},         sortable:true,            align:'center', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
-		{header: '입고사',      name: 'RAW_CLIENT_NM',    filter:{type:'text'},         sortable:true,            align:'center'},
 		{header: '담당자',      name: 'MAN',          filter:{type:'text'},         sortable:true,            align:'center'},
 		{header: '비고',       	name: 'BIGO',         filter:{type:'text'},         sortable:true,            align:'center'},
 		{header: '확인',       	name: 'IS_CHECK',     filter:{type:'text'},         sortable:true,            align:'center'},
@@ -218,7 +218,7 @@ var gridEdit = new tui.Grid({
     bodyHeight: 500,
     columns: [
 		{header: '입고일자',    name: 'IN_DATE',      filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:{type:'datePicker', options:{language: 'ko'}}},
-		{header: '결산년월', name: 'STTL_MON', filter:{type:'text'}, sortable:true, align:'center', className:'clickable',  
+		/* {header: '결산년월', name: 'STTL_MON', filter:{type:'text'}, sortable:true, align:'center', className:'clickable',  
 			editor: {
 	            type: 'datePicker',
 	            options: {
@@ -226,12 +226,19 @@ var gridEdit = new tui.Grid({
 	              language: 'ko',
 	              type: 'month'
 	            }
-        }},
+        }}, */
 		{header: '구분', name: 'RAW_GUBUN', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
 	        editor:{
 	        	type:'select', // checkbox, select
 	        	options:{
 	        		listItems:rawGubunList
+	       		}
+        }},
+        {header: '입고사',      name: 'RAW_CLIENT',       filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text', formatter:'listItemText',
+			editor:{
+	        	type:'select', // checkbox, select
+	        	options:{
+	        		listItems:rawClientList
 	       		}
         }},
 		{header: '종류', name: 'KIND', filter:{type:'text'}, sortable:true, align:'center', className:'clickable', validation:{required:true}, formatter:'listItemText',
@@ -278,7 +285,7 @@ var gridEdit = new tui.Grid({
         		listItems:[{value:'', text:'-선택-'}]
        		}}},
 		{header: '품호',       	name: 'PROD_ID',      filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable',        editor:'text', disabled:true},
-		{header: 'LOT',       	name: 'LOT_NUM',      filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
+		/* {header: 'LOT',       	name: 'LOT_NUM',      filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable',        editor:'text'}, */
 		{header: '중량',       	name: 'WEIGHT',       filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text', validation:{dataType:'number'}, formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
@@ -288,13 +295,6 @@ var gridEdit = new tui.Grid({
 		{header: '총액',       	name: 'TOT_PRICE',    filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', disabled:true,        editor:'text', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
-		{header: '입고사',      name: 'RAW_CLIENT',       filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text', formatter:'listItemText',
-			editor:{
-	        	type:'select', // checkbox, select
-	        	options:{
-	        		listItems:rawClientList
-	       		}
-        }},
 		{header: '담당자',      name: 'MAN',          filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text'},
 		{header: '비고',       	name: 'BIGO',         filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '확인',       	name: 'IS_CHECK',     filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', formatter:'listItemText',        

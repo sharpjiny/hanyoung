@@ -144,7 +144,9 @@ var gridView = new tui.Grid({
 		{header: '结束时间',      name: 'ED_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:110},
 		{header: '工作时间',  	  name: 'WORK_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
 		{header: '休息时间',  	  name: 'REST_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
-		{header: '流失时间',  	  name: 'STOPPING_TIME',  filter:{type:'text'},          sortable:true,            align:'center', width:100},
+		{header: '流失时间',  	  name: 'STOPPING_TIME',  filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) {
+			return "<div onclick=searchCombo.popup("+v.rowKey+")>"+v.value+"</div>";
+		}},
 		{header: '生产数量',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
 		      return v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
@@ -537,7 +539,7 @@ var prdtProd = {
 	workTypeSets:function(){
 		var params = {"code_group":"work_type"};
 		$.ajax({
-		    url : "/production/prod/workTypeSets",
+		    url : "/production/repair/workTypeSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -807,7 +809,14 @@ var searchCombo = {
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
-	}
+	},
+	popup: function(rowKey){
+		alert(rowKey);
+        var url = "/production/repair/page";
+        var name = "popup test";
+        var option = "width = 500, height = 500, top = 100, left = 200, location = no"
+        window.open(url, name, option);
+    }
 }
 
 $(function(){
