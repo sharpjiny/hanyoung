@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.FileUploadMapper">
+	
+	<select id="getFileSeq" resultType="int">
+		select FILE_SEQ.nextval AS FILE_SEQ from dual
+	</select>
+	
+	<insert id="insertFileUpload" parameterType="java.util.HashMap" >
+	/* FileUploadMapper.insertFileUpload */
+		INSERT INTO hanadmin.fileTable
+		(	
+			FILE_SEQ
+			, FILE_NAME
+			, FILE_PATH 
+			, FILE_SIZE 
+			, CREATE_DATE
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			#{FILE_SEQ} 
+			, #{FILE_NAME}  
+			, #{FILE_PATH}
+			, #{FILE_SIZE} 
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+	</insert>
+	
+	<update id="updateFileUpload" parameterType="java.util.HashMap">
+	/* FileUploadMapper.updateFileUpload */
+		UPDATE hanadmin.fileTable
+		   SET FILE_NAME = #{FILE_NAME} 
+			   , FILE_PATH = #{FILE_PATH} 
+			   , FILE_SIZE = #{FILE_SIZE}
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='FILE_SEQ != null and !FILE_SEQ.equals("")'>
+	    	AND FILE_SEQ = #{FILE_SEQ}
+	    </if>
+	</update>
+	
+	<delete id="deleteFileUpload" parameterType="java.util.HashMap">
+	/* FileUploadMapper.deleteFileUpload */
+		DELETE FROM hanadmin.fileTable
+		 WHERE 1=1 
+		 <if test='FILE_SEQ != null and !FILE_SEQ.equals("")'>
+	    	AND FILE_SEQ = #{FILE_SEQ}
+	    </if>
+	</delete>
+	
+
+</mapper>

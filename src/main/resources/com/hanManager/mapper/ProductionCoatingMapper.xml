@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.ProductionCoatingMapper">
+	
+	<select id="selectPrdtCoatingNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionCoatingMapper.selectPrdtCoatingNm */
+		SELECT DISTINCT info.PROD_NM CODE, info.PROD_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtCoatingDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionCoatingMapper.selectPrdtCoatingDtlNm */
+		SELECT DISTINCT info.PROD_DTL_NM CODE, info.PROD_DTL_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtCoatingId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionCoatingMapper.selectPrdtCoatingId */
+		SELECT info.PROD_ID CODE, info.PROD_ID NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+	       AND PROD_DTL_NM = #{prodDtlNm}
+	     </if>
+	</select>
+	
+	<select id="getCoatingDtlList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionCoatingMapper.getCoatingDtlList */
+	SELECT kind
+		 , prod_nm
+		 , LISTAGG(prod_dtl_nm,',') WITHIN GROUP(ORDER BY  kind, prod_nm) AS prod_dtl_nm
+	  FROM HANADMIN.PRDT_INFO
+	 GROUP BY kind, prod_nm
+	</select>
+	
+	<select id="getPrice" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionCoatingMapper.getPrice */
+	SELECT info.OUT_PRICE CODE, info.OUT_PRICE NAME 
+	  FROM hanadmin.prdt_info info
+	 WHERE 1=1
+     <if test='kind != null and !kind.equals("")'>
+       AND KIND = #{kind}
+     </if>
+     <if test='prodNm != null and !prodNm.equals("")'>
+       AND PROD_NM = #{prodNm}
+     </if>
+     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+       AND PROD_DTL_NM = #{prodDtlNm}
+     </if>
+	</select>
+	
+	<select id="selectPrdtCoatingList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionCoatingMapper.selectPrdtCoatingList */
+	SELECT to_char(to_date(s.PRDT_DATE), 'YY-MM-DD') PRDT_DATE
+	     , s.WORK_TYPE
+		 , s.EQP_ID
+		 , s.AREA
+		 , info.KIND
+		 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'product_kind' and CODE = info.KIND) AS KIND_NM
+		 , info.PROD_NM
+		 , info.PROD_DTL_NM
+		 , s.PROD_ID
+		 , s.UPH
+		 , s.ST_TIME
+		 , s.ED_TIME
+		 , s.STOPPING_TIME
+		 , s.REST_TIME
+		 , ROUND((TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI')) * 24, 2) WORK_TIME
+		 <!-- ,  trim(to_char(trunc(TRUNC((TO_DATE(s.ED_TIME, 'HH24.MI') - TO_DATE(s.ST_TIME, 'HH24.MI')) * 24 * 60, 2) / 60), '09')) || '.' ||
+      		trim(to_char(trunc(mod(abs(TRUNC((TO_DATE(s.ED_TIME, 'HH24.MI') - TO_DATE(s.ST_TIME, 'HH24.MI')) * 24 * 60, 2)), 60)), '09')) WORK_TIME -->
+		 , s.PRDT_CNT
+		 , s.FAULTY_CNT
+		 , s.PRDT_CNT - s.FAULTY_CNT FINISHED_CNT
+		 <!-- , ROUND((s.FINISHED_CNT / s.PRDT_CNT) * 100, 2) || '%' CMPLT_PER -->
+		 , TRUNC(NVL((s.PRDT_CNT - s.FAULTY_CNT)/(UPH*(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME))*100, 0), 2) CMPLT_PER
+		 , TRUNC(NVL((s.PRDT_CNT - s.FAULTY_CNT)/(UPH*(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME - STOPPING_TIME))*100, 0), 2) MAN_CMPLT_PER
+		 , s.MAN1
+		 , s.MAN2
+		 , s.MAN3
+		 , s.MAN4
+		 , DECODE(ROUND(s.THICKNESS_1/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_1/1000, 2), 'FM99990.00')) THICKNESS_1
+		 , DECODE(ROUND(s.THICKNESS_2/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_2/1000, 2), 'FM99990.00')) THICKNESS_2
+		 , DECODE(ROUND(s.THICKNESS_3/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_3/1000, 2), 'FM99990.00')) THICKNESS_3
+		 , DECODE(ROUND(s.THICKNESS_4/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_4/1000, 2), 'FM99990.00')) THICKNESS_4
+		 , DECODE(ROUND(s.THICKNESS_5/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_5/1000, 2), 'FM99990.00')) THICKNESS_5
+		 , DECODE(ROUND(s.THICKNESS_6/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_6/1000, 2), 'FM99990.00')) THICKNESS_6
+	 	 , s.IS_CHECK
+		 <!-- , u.BOM_ID -->
+      FROM HANADMIN.PRDT_STATUS_PROD s, HANADMIN.PRDT_INFO info<!-- , HANADMIN.MTRLS_USAGE u --> 
+     WHERE s.PROD_ID = info.PROD_ID
+     <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	   AND WORK_TYPE = #{WORK_TYPE}
+     </if>
+     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	   AND EQP_ID = #{EQP_ID}
+     </if>
+     <if test='KIND != null and !KIND.equals("")'>
+	   AND info.KIND = #{KIND}
+     </if>
+     <if test='PROD_NM != null and !PROD_NM.equals("")'>
+       AND info.PROD_NM = #{PROD_NM}
+     </if>
+     <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+       AND info.PROD_DTL_NM = #{PROD_DTL_NM}
+     </if>
+     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+       AND s.PROD_ID = #{PROD_ID}
+     </if>
+     <if test='PRODUCT_MAN != null and !PRODUCT_MAN.equals("")'>
+       AND (s.MAN1 = #{PRODUCT_MAN} 
+       	OR s.MAN2 = #{PRODUCT_MAN}
+       	OR s.MAN3 = #{PRODUCT_MAN}
+       	OR s.MAN4 = #{PRODUCT_MAN})
+     </if>
+     <choose>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND '20'||PRDT_DATE BETWEEN #{dateStart} AND #{dateEnd}
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+            AND '20'||PRDT_DATE BETWEEN #{dateStart} AND '99-99-99'
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND '20'||PRDT_DATE BETWEEN '00-00-00' AND #{dateEnd}
+          </when>
+      </choose>
+     ORDER BY s.PRDT_DATE desc
+       <!-- AND s.PROD_ID = u.PROD_ID(+) -->
+       <!-- AND s.WORK_TYPE = u.WORK_TYPE(+)
+       AND s.EQP_ID = u.EQP_ID(+)
+       AND s.AREA = u.AREA(+)
+       AND s.PROD_ID = u.PROD_ID(+) -->
+	</select>
+	
+	<insert id="insertPrdtStatusCoating" parameterType="java.util.HashMap" >
+	/* ProductionCoatingMapper.insertPrdtStatusCoating */
+		INSERT INTO hanadmin.prdt_status_prod
+		(	
+			PRDT_DATE 
+			, WORK_TYPE
+			, EQP_ID
+			, AREA
+			, PROD_ID
+			, UPH
+			, ST_TIME
+			, ED_TIME
+			, STOPPING_TIME
+			, REST_TIME
+			, PRDT_CNT
+			, FAULTY_CNT
+			, MAN1
+		 	, MAN2
+		 	, MAN3
+		 	, MAN4
+			, THICKNESS_1
+			, THICKNESS_2
+			, THICKNESS_3
+			, THICKNESS_4
+			, THICKNESS_5
+			, THICKNESS_6
+			, BIGO
+			, IS_CHECK
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			#{PRDT_DATE}
+			, #{WORK_TYPE} 
+			, #{EQP_ID}  
+			, #{AREA}
+			, (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}) 
+			, #{UPH}
+			, #{ST_TIME}
+			, #{ED_TIME} 
+			, #{STOPPING_TIME} 
+			, #{REST_TIME} 
+			, #{PRDT_CNT} 
+			, #{FAULTY_CNT} 
+			, #{MAN1} 
+			, #{MAN2} 
+			, #{MAN3} 
+			, #{MAN4} 
+			, NVL((SELECT THICKNESS_1 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, NVL((SELECT THICKNESS_2 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, NVL((SELECT THICKNESS_3 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
+			, NVL((SELECT THICKNESS_4 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
+			, NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
+			, NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
+			, #{BIGO}
+			, #{IS_CHECK}
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+		
+	</insert>
+	
+	<insert id="insertPrdtMtrlsUsage" parameterType="java.util.HashMap" >
+	/* ProductionCoatingMapper.insertPrdtMtrlsUsage */
+		<!-- INSERT INTO hanadmin.mtrls_usage
+		(	
+			PRDT_DATE 
+			, WORK_TYPE
+			, EQP_ID
+			, AREA
+		    , PROD_ID
+		    , BOM_ID 
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			#{PRDT_DATE} 
+			, #{WORK_TYPE}  
+			, #{EQP_ID} 
+			, #{AREA}
+			, #{PROD_ID}
+			, #{BOM_ID} 
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		) -->
+		
+	</insert>
+	
+	<update id="updatePrdtStatusCoating" parameterType="java.util.HashMap">
+	/* ProductionCoatingMapper.updatePrdtStatusCoating */
+		UPDATE hanadmin.prdt_status_prod
+		   SET PRDT_DATE = #{PRDT_DATE}
+			, WORK_TYPE = #{WORK_TYPE}
+			, EQP_ID = #{EQP_ID}
+			, AREA = #{AREA}
+			, PROD_ID = #{PROD_ID}
+			, UPH = #{UPH}
+			, ST_TIME = #{ST_TIME}
+			, ED_TIME = #{ED_TIME}
+			, STOPPING_TIME = #{STOPPING_TIME}
+			, REST_TIME = #{REST_TIME}
+			, PRDT_CNT = #{PRDT_CNT}
+			, FAULTY_CNT = #{FAULTY_CNT}
+			, MAN1 = #{MAN1}
+			, MAN2 = #{MAN2}
+			, MAN3 = #{MAN3}
+			, MAN4 = #{MAN4}
+			, THICKNESS_1 = NVL((SELECT THICKNESS_1 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, THICKNESS_2 = NVL((SELECT THICKNESS_2 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, THICKNESS_3 = NVL((SELECT THICKNESS_3 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, THICKNESS_4 = NVL((SELECT THICKNESS_4 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, THICKNESS_5 = NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, THICKNESS_6 = NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, BIGO = #{BIGO}
+			, IS_CHECK = #{IS_CHECK}
+			, CREATE_DATE = SYSDATE
+			, CREATE_USER = #{CREATE_USER} 
+			, UPDATE_DATE = SYSDATE
+			, UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	    	 AND WORK_TYPE = #{WORK_TYPE}
+	     </if>
+	     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	 AND EQP_ID = #{EQP_ID}
+	     </if>
+	     <if test='AREA != null and !AREA.equals("")'>
+	    	 AND AREA = #{AREA}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	</update>
+	
+	<update id="updatePrdtMtrlsUsage" parameterType="java.util.HashMap">
+	/* ProductionCoatingMapper.updatePrdtMtrlsUsage */
+		<!-- UPDATE hanadmin.mtrls_usage
+		   SET PRODUCT_GUBUN = #{PRODUCT_GUBUN} 
+			   , KIND = #{KIND} 
+			   , PROD_ID = (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			   , OUT_NUM = #{OUT_NUM} 
+			   , TO_PLACE = #{TO_PLACE} 
+			   , CLIENT = #{CLIENT}
+			   , INOUT_DATE = #{INOUT_DATE} 
+			   , BOX_COUNT = #{BOX_COUNT} 
+			   , BOX_PER_COUNT = #{BOX_PER_COUNT} 
+			   , OUT_METHOD = #{OUT_METHOD} 
+			   , MAN = #{MAN} 
+			   , PRICE = #{PRICE}
+			   , BIGO = #{BIGO}
+			   , IS_CHECK = #{IS_CHECK}
+			   , CREATE_DATE = SYSDATE
+			   , CREATE_USER = #{CREATE_USER}
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	    	 AND WORK_TYPE = #{WORK_TYPE}
+	     </if>
+	     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	 AND EQP_ID = #{EQP_ID}
+	     </if>
+	     <if test='AREA != null and !AREA.equals("")'>
+	    	 AND AREA = #{AREA}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	     <if test='BOM_ID != null and !BOM_ID.equals("")'>
+	    	 AND BOM_ID = #{BOM_ID}
+	     </if> -->
+	</update>
+	
+	<delete id="deletePrdtStatusCoating" parameterType="java.util.HashMap">
+	/* ProductionCoatingMapper.deletePrdtStatusCoating */
+		DELETE FROM hanadmin.prdt_status_prod
+		 WHERE 1=1 
+		 <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	    	 AND WORK_TYPE = #{WORK_TYPE}
+	     </if>
+	     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	 AND EQP_ID = #{EQP_ID}
+	     </if>
+	     <if test='AREA != null and !AREA.equals("")'>
+	    	 AND AREA = #{AREA}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	</delete>
+	
+	<delete id="deletePrdtMtrlsUsage" parameterType="java.util.HashMap">
+	/* ProductionCoatingMapper.deletePrdtMtrlsUsage */
+		<!-- DELETE FROM hanadmin.mtrls_usage
+		 WHERE 1=1
+		 <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
+	    	 AND WORK_TYPE = #{WORK_TYPE}
+	     </if>
+	     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	 AND EQP_ID = #{EQP_ID}
+	     </if>
+	     <if test='AREA != null and !AREA.equals("")'>
+	    	 AND AREA = #{AREA}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	     <if test='BOM_ID != null and !BOM_ID.equals("")'>
+	    	 AND BOM_ID = #{BOM_ID}
+	     </if> -->
+	</delete>
+	
+	<!-- <update id="mergePrdtStock" parameterType="java.util.HashMap">
+	/* ProductionCoatingMapper.mergePrdtStock */
+		MERGE INTO hanadmin.prdt_stock S
+	    USING DUAL
+	       ON (S.PROD_ID = #{PROD_ID})
+	    WHEN MATCHED THEN
+	        UPDATE SET S.COUNT = S.COUNT - (#{BOX_PER_COUNT}*-1)
+			   	 , S.BOX_COUNT = S.BOX_COUNT - (#{BOX_COUNT}*-1)
+				 , S.UPDATE_DATE = SYSDATE
+				 , S.UPDATE_USER = #{UPDATE_USER}
+	    WHEN NOT MATCHED THEN
+	        INSERT (S.INOUT_DATE , S.KIND, S.PRODUCT_GUBUN, S.PROD_ID, S.COUNT, S.BOX_COUNT, S.PRICE, S.CREATE_DATE, S.CREATE_USER) 
+	        VALUES (#{INOUT_DATE}, #{KIND}, #{PRODUCT_GUBUN}, #{PROD_ID}, #{BOX_PER_COUNT}, #{BOX_COUNT}, #{PRICE}, SYSDATE, #{CREATE_USER})
+	</update>
+	
+	<update id="deletePrdtStock" parameterType="java.util.HashMap">
+	/* ProductionCoatingMapper.deletePrdtStock */
+		UPDATE hanadmin.prdt_stock  
+		   SET COUNT = COUNT - (#{BOX_PER_COUNT})
+			   , BOX_COUNT = BOX_COUNT - (#{BOX_COUNT})
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	AND PROD_ID = #{PROD_ID} 
+	    </if>		 
+	</update> -->
+	
+	<insert id="insertToMtrlsInOut" parameterType="java.util.HashMap" >
+	/* MtrlsInOutMapper.insertToMtrlsInOut */
+		INSERT INTO hanadmin.mtrls_inout
+		(	
+			IDX
+			, STTL_MON 
+			, RAW_GUBUN
+			, KIND 
+			, PROD_ID 
+			, LOT_NUM 
+			, WEIGHT 
+			, CLIENT 
+			, IN_DATE 
+			, MAN 
+			, PRICE 
+			, BIGO
+			, IS_CHECK
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			hanadmin.mtrls_inout_seq.nextval
+			, NULL
+			, 'raw02' 
+			, '原材料'  
+			, #{PROD_ID}
+			, NULL
+			, #{WEIGHT} 
+			, 'BOGO'
+			, '20'||#{PRDT_DATE}
+			, 'SYSTEM' 
+			, 0
+			, #{BIGO}
+			, 'NO'
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+	</insert>
+
+</mapper>
