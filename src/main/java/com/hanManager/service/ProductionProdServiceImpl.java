@@ -34,15 +34,16 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 		int upCnt = 0;
 		int dpCnt = 0;
 		
-		/*int iuCnt = 0;
+		int iuCnt = 0;
 		int uuCnt = 0;
-		int duCnt = 0;*/
+		int duCnt = 0;
 		
 		if(ilist.size() > 0){
 			for(int i=0; i<ilist.size();i++){
 				ilist.get(i).put("CREATE_USER", params.get("loginUser"));
 				ilist.get(i).put("UPDATE_USER", params.get("loginUser"));
 				ipCnt += insertPrdtStatusProd(ilist.get(i));
+				
 				//iuCnt += insertPrdtMtrlsUsage(ilist.get(i));
 			}
 		}
@@ -53,12 +54,13 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 				ulist.get(i).put("CREATE_USER", params.get("loginUser"));
 				ulist.get(i).put("UPDATE_USER", params.get("loginUser"));
 				
-				if("OK".equals(ulist.get(i).get("IS_CHECK"))){
+				/*if("OK".equals(ulist.get(i).get("IS_CHECK"))){
 					// 입출고 작업 후 OK 로 업데이트.
 					upCnt += insertToMtrlsInOut(ulist.get(i));
 				}else{
 					upCnt += updatePrdtStatusProd(ulist.get(i));
-				}
+				}*/
+				upCnt += updatePrdtStatusProd(ulist.get(i));
 			}
 			
 		}
@@ -98,6 +100,8 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 		try {
 	        int retCode = 1;
 	        productionProdMapper.insertPrdtStatusProd(params);
+	        // 원부자재 출입고에서 차감용
+			insertToMtrlsInOut(params);
 	        
 	        // 재고 테이블 merge
 	        /*if("product02".equals(params.get("PRODUCT_GUBUN")) || "product05".equals(params.get("PRODUCT_GUBUN"))){
@@ -260,7 +264,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 	        	productionProdMapper.insertToMtrlsInOut(insertMap);
 	        }
 	        
-	        productionProdMapper.updatePrdtStatusProd(params);
+	        //productionProdMapper.updatePrdtStatusProd(params);
 	        
 			return retCode;
 		}catch (Exception e) {

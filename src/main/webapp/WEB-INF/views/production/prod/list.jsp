@@ -145,7 +145,7 @@ var gridView = new tui.Grid({
 		{header: '工作时间',  	  name: 'WORK_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
 		{header: '休息时间',  	  name: 'REST_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
 		{header: '流失时间',  	  name: 'STOPPING_TIME',  filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) {
-			return "<div onclick=searchCombo.popup("+v.rowKey+")>"+v.value+"</div>";
+			return v.value != null && v.value != '' ? "<div onclick=searchCombo.popup("+v.rowKey+")>"+v.value+"</div>" : null;
 		}},
 		{header: '生产数量',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
 		      return v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -173,7 +173,7 @@ var gridView = new tui.Grid({
 		{header: '3.8',    		  name: 'THICKNESS_5',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
 		{header: '추가두께',   	  name: 'THICKNESS_6',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
 		{header: '备注',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:250},
-		{header: '完了',      name: 'IS_CHECK',     filter:{type:'text'},         sortable:true,            align:'center', width:80},
+		/* {header: '完了',      name: 'IS_CHECK',     filter:{type:'text'},         sortable:true,            align:'center', width:80}, */
 		{header: '생성일자',      name: 'CREATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
 		{header: '생성자',    	  name: 'CREATE_USER',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
 		{header: '수정일자',      name: 'UPDATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
@@ -353,7 +353,7 @@ var gridEdit = new tui.Grid({
 		{header: '生产数量',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:100, validation:{required:true}, editor:'text', formatter:function(v) { // 추가
 		      return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
-		{header: '不良数量',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, validation:{required:true}, editor:'text', formatter:function(v) { // 추가
+		{header: '不良数量',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text', formatter:function(v) { // 추가
 		      return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '良品数量',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text', disabled:true, formatter:function(v) { // 추가
@@ -376,11 +376,11 @@ var gridEdit = new tui.Grid({
 		{header: '3.8',    		  name: 'THICKNESS_5',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
 		{header: '추가두께',      name: 'THICKNESS_6',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', disabled:true, hidden:true},
 		{header: '备注',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:250, editor:'text'},
-		{header: '完了',    name: 'IS_CHECK',	filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', 	width:100, formatter:'listItemText',        
+		/* {header: '完了',    name: 'IS_CHECK',	filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', 	width:100, formatter:'listItemText',        
 			editor:{type:'select',
 			options:{
         		listItems:[{text:'NO', value:'NO'}, {text:'OK', value:'OK'}]
-       		}}},
+       		}}}, */
 		{header: '생성일자',      name: 'CREATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
 		{header: '생성자',    	  name: 'CREATE_USER',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
 		{header: '수정일자',      name: 'UPDATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true}, 
@@ -458,7 +458,6 @@ var gridEdit = new tui.Grid({
      	{header: '상세품명',    name: 'PROD_DTL_NM',  filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text'}
      ]);
 }); */
-
 
 var dataSet;
 var comboSet;
@@ -626,7 +625,9 @@ var prdtProd = {
 	        return v['PROD_ID'] != null && v['PROD_ID'] != '';
 	    }); */
 		
+	    /*
 	    var stopFlag = false;
+	    
 		if(saveData.updatedRows.length > 0){
 			$.each(saveData.updatedRows, function(i, v){
 				var orgRowKey = saveData.updatedRows[i]["rowKey"];
@@ -641,7 +642,31 @@ var prdtProd = {
 		
 		if(stopFlag){
 			return;
-		}
+		} */
+		
+		var resultArray = []; // 카운팅해서 반환할 결과값 배열
+	    gridEdit.getData().map(function(item) {
+	      //for each item in arrayOfObjects check if the object exists in the resulting array
+	      if(resultArray.find(function(object) {
+	          if(object.PRDT_DATE === item.PRDT_DATE && object.WORK_TYPE === item.WORK_TYPE && object.EQP_ID === item.EQP_ID && object.AREA === item.AREA && object.PROD_ID === item.PROD_ID) {
+	              //if the object exists iterate times
+	              object.cnt++;
+	              return true;
+	              //if it does not return false
+	          } else {
+	              return false;
+	          }
+	      })){
+	      } else {
+	          //if the object does not exists push it to the resulting array and set the times count to 1
+	          //item.cnt = 1;
+	          resultArray.push(item);
+	      }
+	    });
+	    
+	    if(resultArray.length > 0){
+	    	alert("No." + (resultArray[0].rowKey + 1) + " 이미 등록된 데이터가 존재합니다.");
+	    }
 		
 		let chkLen = saveData.createdRows.length + saveData.updatedRows.length + saveData.deletedRows.length;
 		
@@ -672,7 +697,8 @@ var prdtProd = {
 		}
 	},
 	add:function(){
-		gridEdit.prependRow({IS_CHECK:'NO'});
+		//gridEdit.prependRow({IS_CHECK:'NO'});
+		//gridEdit.prependRow({FAULTY_CNT:0});
 	}
 }
 
