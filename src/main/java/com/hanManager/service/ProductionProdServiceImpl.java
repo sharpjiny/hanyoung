@@ -43,7 +43,15 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 				ilist.get(i).put("CREATE_USER", params.get("loginUser"));
 				ilist.get(i).put("UPDATE_USER", params.get("loginUser"));
 				ipCnt += insertPrdtStatusProd(ilist.get(i));
-				List<HashMap<String, Object>> tmpList = productionProdMapper.selectPrdtProdList(ilist.get(i));
+				
+				HashMap paramMap = new HashMap();
+				paramMap.put("PRDT_DATE", ilist.get(i).get("PRDT_DATE"));
+				paramMap.put("WORK_TYPE", ilist.get(i).get("WORK_TYPE"));
+				paramMap.put("EQP_ID", ilist.get(i).get("EQP_ID"));
+				paramMap.put("AREA", ilist.get(i).get("AREA"));
+				paramMap.put("PROD_ID", ilist.get(i).get("PROD_ID"));
+				
+				List<HashMap<String, Object>> tmpList = productionProdMapper.selectPrdtProdList(paramMap);
 		        // 원부자재 출입고에서 차감용
 				insertToMtrlsInOut(tmpList.get(0));
 				//iuCnt += insertPrdtMtrlsUsage(ilist.get(i));

@@ -644,63 +644,31 @@ var prdtProd = {
 			return;
 		} */
 		
-		/* var resultArray = []; // 카운팅해서 반환할 결과값 배열
-	    gridEdit.getData().map(function(item) {
-	      //for each item in arrayOfObjects check if the object exists in the resulting array
-	      if(resultArray.find(function(object) {
-	          if(object.PRDT_DATE === item.PRDT_DATE && object.WORK_TYPE === item.WORK_TYPE && object.EQP_ID === item.EQP_ID && object.AREA === item.AREA && object.PROD_ID === item.PROD_ID) {
-	              //if the object exists iterate times
-	              object.cnt++;
-	              return true;
-	              //if it does not return false
-	          } else {
-	              return false;
-	          }
-	      })){
-	      } else {
-	          //if the object does not exists push it to the resulting array and set the times count to 1
-	          item.cnt = 1;
-	          resultArray.push(item);
-	      }
-	    }); */
+		/* 
+		var resultArr = [];
+		var flag = false;
+		for(var i = 0; i < gridEdit.getData().length; i++){
+	        if(i=0) resultArr.push(gridEdit.getData()[i]);
+			for(value in resultArr){
+				if(resultArr[value].PRDT_DATE === gridEdit.getData()[i].PRDT_DATE
+					&& resultArr[value].WORK_TYPE === gridEdit.getData()[i].WORK_TYPE
+					&& resultArr[value].EQP_ID === gridEdit.getData()[i].EQP_ID
+					&& resultArr[value].AREA === gridEdit.getData()[i].AREA
+					&& resultArr[value].PROD_ID === gridEdit.getData()[i].PROD_ID){
+					flag = true;
+					alert("No." + (gridEdit.getData()[i]["rowKey"]) + " 이미 등록된 데이터입니다.");
+					break;
+				}
+			}
+			
+			if(flag){
+				//alert("No." + (gridEdit.getData()[i]["rowKey"]) + " 이미 등록된 데이터입니다.");
+				break;
+			}
+			
+		}
 		
-		
-	    /* const resultArray = gridEdit.getData().filter(function(item, i){
-	    	  return (
-	    			  gridEdit.getData().findIndex(function(item2, j){
-	    	      return item.PRDT_DATE === item2.PRDT_DATE && item.WORK_TYPE === item2.WORK_TYPE && item.EQP_ID === item2.EQP_ID && item.AREA === item2.AREA && item.PROD_ID === item2.PROD_ID;
-	    	    }) === i
-	    	  );
-	    	}); */
-	    	
-    	/* const filteredArr = gridEdit.getData().reduce(function(acc, current){
-    		  const x = acc.find(function(item){item.PRDT_DATE === current.PRDT_DATE && item.WORK_TYPE === current.WORK_TYPE && item.EQP_ID === current.EQP_ID && item.AREA === current.AREA && item.PROD_ID === current.PROD_ID});
-    		  if (x) {
-    		    return acc.concat([current]);
-    		  } else {
-    		    return acc;
-    		  }
-    		}, []); */
-	    
-	    	
-   		/* const uniqueObjArr = gridEdit.getData().reduce(function(acc, curr) {
-   			const idx = acc.findIndex(
-					function(obj){ 
-						obj["PRDT_DATE"] === curr["PRDT_DATE"]
-					}
-   			)
-   		    if (idx === -1) acc.push(curr);
-   		  	return acc;
-   		}, []); */
-    		
-    		const newArray = gridEdit.getData().filter(
-    				  function(arr, index, callback){  index === callback.findIndex(function(t){  t.PRDT_DATE === arr.PRDT_DATE})}
-    				);	
-		
-		return;
-	    if(resultArray.length > 0){
-	    	alert("No." + (resultArray[0].rowKey + 1) + " 이미 등록된 데이터가 존재합니다.");
-	    }
+		return; */
 		
 		let chkLen = saveData.createdRows.length + saveData.updatedRows.length + saveData.deletedRows.length;
 		

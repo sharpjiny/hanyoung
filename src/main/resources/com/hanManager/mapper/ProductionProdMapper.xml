@@ -118,6 +118,9 @@
      <if test='KIND != null and !KIND.equals("")'>
 	   AND info.KIND = #{KIND}
      </if>
+     <if test='AREA != null and !AREA.equals("")'>
+	   AND AREA = #{AREA}
+     </if>
      <if test='PROD_NM != null and !PROD_NM.equals("")'>
        AND info.PROD_NM = #{PROD_NM}
      </if>
