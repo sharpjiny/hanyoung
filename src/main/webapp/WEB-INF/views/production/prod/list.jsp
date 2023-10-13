@@ -148,13 +148,13 @@ var gridView = new tui.Grid({
 			return v.value != null && v.value != '' ? "<div onclick=searchCombo.popup("+v.rowKey+")>"+v.value+"</div>" : null;
 		}},
 		{header: '生产数量',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-		      return v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '不良数量',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-		      return v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '良品数量',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-		      return v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '达成率',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
 		      return v.value+'%';
@@ -644,7 +644,7 @@ var prdtProd = {
 			return;
 		} */
 		
-		var resultArray = []; // 카운팅해서 반환할 결과값 배열
+		/* var resultArray = []; // 카운팅해서 반환할 결과값 배열
 	    gridEdit.getData().map(function(item) {
 	      //for each item in arrayOfObjects check if the object exists in the resulting array
 	      if(resultArray.find(function(object) {
@@ -659,11 +659,45 @@ var prdtProd = {
 	      })){
 	      } else {
 	          //if the object does not exists push it to the resulting array and set the times count to 1
-	          //item.cnt = 1;
+	          item.cnt = 1;
 	          resultArray.push(item);
 	      }
-	    });
+	    }); */
+		
+		
+	    /* const resultArray = gridEdit.getData().filter(function(item, i){
+	    	  return (
+	    			  gridEdit.getData().findIndex(function(item2, j){
+	    	      return item.PRDT_DATE === item2.PRDT_DATE && item.WORK_TYPE === item2.WORK_TYPE && item.EQP_ID === item2.EQP_ID && item.AREA === item2.AREA && item.PROD_ID === item2.PROD_ID;
+	    	    }) === i
+	    	  );
+	    	}); */
+	    	
+    	/* const filteredArr = gridEdit.getData().reduce(function(acc, current){
+    		  const x = acc.find(function(item){item.PRDT_DATE === current.PRDT_DATE && item.WORK_TYPE === current.WORK_TYPE && item.EQP_ID === current.EQP_ID && item.AREA === current.AREA && item.PROD_ID === current.PROD_ID});
+    		  if (x) {
+    		    return acc.concat([current]);
+    		  } else {
+    		    return acc;
+    		  }
+    		}, []); */
 	    
+	    	
+   		/* const uniqueObjArr = gridEdit.getData().reduce(function(acc, curr) {
+   			const idx = acc.findIndex(
+					function(obj){ 
+						obj["PRDT_DATE"] === curr["PRDT_DATE"]
+					}
+   			)
+   		    if (idx === -1) acc.push(curr);
+   		  	return acc;
+   		}, []); */
+    		
+    		const newArray = gridEdit.getData().filter(
+    				  function(arr, index, callback){  index === callback.findIndex(function(t){  t.PRDT_DATE === arr.PRDT_DATE})}
+    				);	
+		
+		return;
 	    if(resultArray.length > 0){
 	    	alert("No." + (resultArray[0].rowKey + 1) + " 이미 등록된 데이터가 존재합니다.");
 	    }
@@ -697,6 +731,7 @@ var prdtProd = {
 		}
 	},
 	add:function(){
+		gridEdit.prependRow();
 		//gridEdit.prependRow({IS_CHECK:'NO'});
 		//gridEdit.prependRow({FAULTY_CNT:0});
 	}

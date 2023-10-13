@@ -43,7 +43,9 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 				ilist.get(i).put("CREATE_USER", params.get("loginUser"));
 				ilist.get(i).put("UPDATE_USER", params.get("loginUser"));
 				ipCnt += insertPrdtStatusProd(ilist.get(i));
-				
+				List<HashMap<String, Object>> tmpList = productionProdMapper.selectPrdtProdList(ilist.get(i));
+		        // 원부자재 출입고에서 차감용
+				insertToMtrlsInOut(tmpList.get(0));
 				//iuCnt += insertPrdtMtrlsUsage(ilist.get(i));
 			}
 		}
@@ -100,9 +102,6 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 		try {
 	        int retCode = 1;
 	        productionProdMapper.insertPrdtStatusProd(params);
-	        // 원부자재 출입고에서 차감용
-			insertToMtrlsInOut(params);
-	        
 	        // 재고 테이블 merge
 	        /*if("product02".equals(params.get("PRODUCT_GUBUN")) || "product05".equals(params.get("PRODUCT_GUBUN"))){
 	        	if(params.get("PROD_ID") == null || "".equals(params.get("PROD_ID"))){
