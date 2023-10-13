@@ -38,7 +38,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 		int uuCnt = 0;
 		int duCnt = 0;
 		
-		if(ilist.size() > 0){
+		if(ilist.size() > 0){ 
 			for(int i=0; i<ilist.size();i++){
 				ilist.get(i).put("CREATE_USER", params.get("loginUser"));
 				ilist.get(i).put("UPDATE_USER", params.get("loginUser"));
