@@ -101,4 +101,93 @@ public class BomInfoServiceImpl implements BomInfoService {
 			throw new Exception(e.getMessage());
 		}
 	}
+	
+	@Override
+	public List<HashMap<String, Object>> selectBomInfoPackingList(HashMap<String, Object> params) throws Exception {
+		
+		return bomInfoMapper.selectBomInfoPackingList(params);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public HashMap<String, Object> bomInfoPackingSave(HashMap<String, Object> params) throws Exception {
+		
+		List<HashMap<String, Object>> ilist = (List<HashMap<String, Object>>) params.get("createdRows");
+		List<HashMap<String, Object>> ulist = (List<HashMap<String, Object>>) params.get("updatedRows");
+		List<HashMap<String, Object>> dlist = (List<HashMap<String, Object>>) params.get("deletedRows");
+		HashMap<String, Object> rtnMap = new HashMap<String, Object>();
+		
+		int icnt = 0;
+		int ucnt = 0;
+		int dcnt = 0;
+		
+		if(ilist.size() > 0){
+			for(int i=0; i<ilist.size();i++){
+				ilist.get(i).put("CREATE_USER", params.get("loginUser"));
+				ilist.get(i).put("UPDATE_USER", params.get("loginUser"));
+				icnt += insertPacking(ilist.get(i));
+			}
+		}
+		
+		if(ulist.size() > 0){
+			for(int i=0; i<ulist.size();i++){
+				ulist.get(i).put("CREATE_USER", params.get("loginUser"));
+				ulist.get(i).put("UPDATE_USER", params.get("loginUser"));
+				ucnt += updatePacking(ulist.get(i));
+			}
+		}
+		
+		if(dlist.size() > 0){
+			for(int  i=0; i<dlist.size();i++){
+				dlist.get(i).put("CREATE_USER", params.get("loginUser"));
+				dlist.get(i).put("UPDATE_USER", params.get("loginUser"));
+				dcnt += deletePacking(dlist.get(i));
+			}
+		}
+		
+		rtnMap.put("insert", icnt);
+		rtnMap.put("update", ucnt);
+		rtnMap.put("delete", dcnt);
+		
+		return rtnMap;
+	}
+	
+	@Override
+	@Transactional(rollbackFor={Exception.class}, propagation = Propagation.REQUIRED)
+	public Integer insertPacking(HashMap<String, Object> params) throws Exception {
+		try {
+	        int retCode = 1;
+	        bomInfoMapper.insertBomInfoPacking(params);
+			return retCode;
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	@Override
+	@Transactional(rollbackFor={Exception.class}, propagation = Propagation.REQUIRED)
+	public Integer updatePacking(HashMap<String, Object> params) throws Exception {
+		try {
+			int retCode = 1;
+	        bomInfoMapper.updateBomInfoPacking(params);
+			return retCode;
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception(e.getMessage());
+		}
+	}
+
+	@Override
+	@Transactional(rollbackFor={Exception.class}, propagation = Propagation.REQUIRED)
+	public Integer deletePacking(HashMap<String, Object> params) throws Exception {
+		try {
+			int retCode = 1;
+	        bomInfoMapper.deleteBomInfoPacking(params);
+			return retCode;
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception(e.getMessage());
+		}
+	}
 }

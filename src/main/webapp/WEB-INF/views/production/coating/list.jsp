@@ -10,7 +10,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">생산관리 > 생산</div>
+            <div class="muted pull-left">생산관리 > 코팅</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">
@@ -145,33 +145,23 @@ var gridView = new tui.Grid({
 		{header: '工作时间',  	  name: 'WORK_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
 		{header: '休息时间',  	  name: 'REST_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
 		{header: '流失时间',  	  name: 'STOPPING_TIME',  filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) {
-			return "<div onclick=searchCombo.popup("+v.rowKey+")>"+v.value+"</div>";
+			return v.value != null && v.value != '' ? "<div onclick=searchCombo.popup("+v.rowKey+")>"+v.value+"</div>" : null;
 		}},
 		{header: '生产数量',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-		      return v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '不良数量',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-		      return v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '良品数量',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-		      return v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '达成率',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
 		      return v.value+'%';
 	    }},
-	    {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
+	    /* {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
 		      return v.value+'%';
-	    }},
-		{header: '工人1',    	  name: 'MAN1',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '工人2',    	  name: 'MAN2',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '工人3',    	  name: 'MAN3',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '工人4',    	  name: 'MAN4',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '1.45',    	  name: 'THICKNESS_1',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '2.0',    		  name: 'THICKNESS_2',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '2.5',    		  name: 'THICKNESS_3',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '2.9',    		  name: 'THICKNESS_4',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '3.8',    		  name: 'THICKNESS_5',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '추가두께',   	  name: 'THICKNESS_6',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
+	    }}, */
 		{header: '备注',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:250},
 		{header: '完了',      name: 'IS_CHECK',     filter:{type:'text'},         sortable:true,            align:'center', width:80},
 		{header: '생성일자',      name: 'CREATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
@@ -210,37 +200,12 @@ var gridView = new tui.Grid({
                template: function(valueMap) {
                  return valueMap.avg.toFixed(2) +'%';
                }
-           },
+           }/* ,
            MAN_CMPLT_PER: {
                template: function(valueMap) {
                  return valueMap.avg.toFixed(2) +'%';
                }
-           },
-           THICKNESS_1: {
-           	template: function(valueMap) {
-           		return valueMap.sum;
-           	}
-           },
-           THICKNESS_2: {
-           	template: function(valueMap) {
-           		return valueMap.sum;
-           	}
-           },
-           THICKNESS_3: {
-           	template: function(valueMap) {
-           		return valueMap.sum;
-           	}
-           },
-           THICKNESS_4: {
-           	template: function(valueMap) {
-           		return valueMap.sum;
-           	}
-           },
-           THICKNESS_5: {
-           	template: function(valueMap) {
-           		return valueMap.sum;
-           	}
-           }
+           } */
        }
     }
 });
@@ -362,19 +327,9 @@ var gridEdit = new tui.Grid({
 		{header: '达成率',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
 		      return v.value != null && v.value != '' ? v.value+'%' : null;
 	    }},
-	    {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
+	    /* {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
 		      return v.value != null && v.value != '' ? v.value+'%' : null;
-	    }},
-		{header: '工人1',    	  name: 'MAN1',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '工人2',    	  name: 'MAN2',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '工人3',    	  name: 'MAN3',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '工人4',    	  name: 'MAN4',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '1.45',    	  name: 'THICKNESS_1',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '2.0',    		  name: 'THICKNESS_2',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '2.5',    		  name: 'THICKNESS_3',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '2.9',    		  name: 'THICKNESS_4',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '3.8',    		  name: 'THICKNESS_5',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '추가두께',      name: 'THICKNESS_6',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', disabled:true, hidden:true},
+	    }}, */
 		{header: '备注',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:250, editor:'text'},
 		{header: '完了',    name: 'IS_CHECK',	filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', 	width:100, formatter:'listItemText',        
 			editor:{type:'select',
@@ -417,37 +372,12 @@ var gridEdit = new tui.Grid({
                 template: function(valueMap) {
                   return valueMap.avg.toFixed(2) + '%';
                 }
-            },
+            }/* ,
             MAN_CMPLT_PER: {
                 template: function(valueMap) {
                   return valueMap.avg.toFixed(2) +'%';
                 }
-            },
-            THICKNESS_1: {
-            	template: function(valueMap) {
-            		return valueMap.sum;
-            	}
-            },
-            THICKNESS_2: {
-            	template: function(valueMap) {
-            		return valueMap.sum;
-            	}
-            },
-            THICKNESS_3: {
-            	template: function(valueMap) {
-            		return valueMap.sum;
-            	}
-            },
-            THICKNESS_4: {
-            	template: function(valueMap) {
-            		return valueMap.sum;
-            	}
-            },
-            THICKNESS_5: {
-            	template: function(valueMap) {
-            		return valueMap.sum;
-            	}
-            }
+            } */
        }
     }
 });
@@ -494,7 +424,7 @@ var prdtProd = {
 	kindSets:function(){
 		var params = {"code_group":"product_kind"};
 		$.ajax({
-		    url : "/production/prod/kindSets",
+		    url : "/production/coating/kindSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -509,7 +439,7 @@ var prdtProd = {
 	eqpIdSets:function(){
 		var params = {"code_group":"eqp_id"};
 		$.ajax({
-		    url : "/production/prod/eqpIdSets",
+		    url : "/production/coating/eqpIdSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -524,7 +454,7 @@ var prdtProd = {
 	areaTypeSets:function(){
 		var params = {"code_group":"area_type"};
 		$.ajax({
-		    url : "/production/prod/areaTypeSets",
+		    url : "/production/coating/areaTypeSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -564,7 +494,7 @@ var prdtProd = {
 			'dateEnd':$('#dateEnd').val()
 		};
 		$.ajax({
-		    url : "/production/prod/list",
+		    url : "/production/coating/list",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -647,7 +577,7 @@ var prdtProd = {
 		
 		if(chkLen > 0){
 			$.ajax({
-			    url : "/production/prod/save", 
+			    url : "/production/coating/save", 
 			    contentType : "application/json",
 			    method :"POST",
 			    data:JSON.stringify(saveData)
@@ -680,7 +610,7 @@ var searchCombo = {
 	getProdNm:function(e){
 		var params = {"kind":$(this).val()};
 		$.ajax({
-		    url : "/production/prod/prodNmList",
+		    url : "/production/coating/prodNmList",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -697,7 +627,7 @@ var searchCombo = {
 	getProdDtlNm:function(){
 		var params = {"kind":$('#KIND').val(), "prodNm":$(this).val()};
 		$.ajax({
-		    url : "/production/prod/prodDtlNmList",
+		    url : "/production/coating/prodDtlNmList",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -733,7 +663,7 @@ var searchCombo = {
 		}else{
 			params = {"kind":kind, "prodNm":prodNm, "prodDtlNm":prodDtlNm};
 			$.ajax({
-			    url : "/production/prod/prodIdList",
+			    url : "/production/coating/prodIdList",
 			    method :"POST",
 			    data:params
 			}).success(function(result) {
@@ -797,7 +727,7 @@ var searchCombo = {
 		params = {"kind":kind, "prodNm":prodNm, "prodDtlNm":prodDtlNm};
 
 		$.ajax({
-		    url : "/production/prod/getPrice",
+		    url : "/production/coating/getPrice",
 		    method :"POST",
 		    async: false,
 		    data:params

@@ -81,6 +81,22 @@ public class BomInfoController extends DefaultController{
 	}
 	
 	/**
+	 * 리스트
+	 * @return 
+	 * @return
+	 * @throws Exception 
+	 */
+	@RequestMapping(value={"listPacking"})
+	public @ResponseBody List<HashMap<String, Object>> listPacking(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
+		
+		List<HashMap<String, Object>> result = null;
+		
+		result = bomInfoMapper.selectBomInfoPackingList(params);
+		
+		return result;
+	}
+	
+	/**
 	 * 저장(추가, 수정, 삭제)
 	 * @return 
 	 * @return
@@ -95,6 +111,25 @@ public class BomInfoController extends DefaultController{
 		params.put("loginUser", loginUser.getId());
 		
 	    result = bomInfoService.bomInfoSave(params);
+
+		return result;
+	}
+	
+	/**
+	 * 포장 저장(추가, 수정, 삭제)
+	 * @return 
+	 * @return
+	 * @throws Exception 
+	 */
+	@RequestMapping(value={"savePacking"})
+	public @ResponseBody HashMap<String, Object> savePacking(Model model, @RequestBody HashMap<String, Object> params) throws Exception{
+		
+		HashMap<String, Object> result = null;
+		
+		LoginUsers loginUser = LoginManager.getInstance().getSession(request);
+		params.put("loginUser", loginUser.getId());
+		
+	    result = bomInfoService.bomInfoPackingSave(params);
 
 		return result;
 	}

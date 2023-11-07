@@ -44,7 +44,8 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 				ilist.get(i).put("UPDATE_USER", params.get("loginUser"));
 				ipCnt += insertPrdtStatusProd(ilist.get(i));
 				
-				HashMap paramMap = new HashMap();
+				/*
+				 * HashMap paramMap = new HashMap();
 				paramMap.put("PRDT_DATE", ilist.get(i).get("PRDT_DATE"));
 				paramMap.put("WORK_TYPE", ilist.get(i).get("WORK_TYPE"));
 				paramMap.put("EQP_ID", ilist.get(i).get("EQP_ID"));
@@ -54,23 +55,23 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 				List<HashMap<String, Object>> tmpList = productionProdMapper.selectPrdtProdList(paramMap);
 		        // 원부자재 출입고에서 차감용
 				insertToMtrlsInOut(tmpList.get(0));
+				*/
 				//iuCnt += insertPrdtMtrlsUsage(ilist.get(i));
 			}
 		}
-		
 		
 		if(ulist.size() > 0){
 			for(int i=0; i<ulist.size();i++){
 				ulist.get(i).put("CREATE_USER", params.get("loginUser"));
 				ulist.get(i).put("UPDATE_USER", params.get("loginUser"));
 				
-				/*if("OK".equals(ulist.get(i).get("IS_CHECK"))){
-					// 입출고 작업 후 OK 로 업데이트.
-					upCnt += insertToMtrlsInOut(ulist.get(i));
-				}else{
+				if("NO".equals(ulist.get(i).get("IS_CHECK"))){
 					upCnt += updatePrdtStatusProd(ulist.get(i));
-				}*/
-				upCnt += updatePrdtStatusProd(ulist.get(i));
+				}else{
+					// 입출고 작업 후 OK 로 업데이트.
+					insertToMtrlsInOut(ulist.get(i));
+					upCnt += updatePrdtStatusProd(ulist.get(i));
+				}
 			}
 			
 		}
@@ -88,6 +89,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 			for(int  i=0; i<dlist.size();i++){
 				dlist.get(i).put("CREATE_USER", params.get("loginUser"));
 				dlist.get(i).put("UPDATE_USER", params.get("loginUser"));
+				
 				dpCnt += deletePrdtStatusProd(dlist.get(i));
 				//duCnt += deletePrdtMtrlsUsage(dlist.get(i));
 			}
@@ -268,6 +270,11 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 	        if(!"".equals(insertMap.get("THICKNESS_6")) && insertMap.get("THICKNESS_6") != null){
 	        	insertMap.put("PROD_ID", "Y106");
 	        	insertMap.put("WEIGHT", params.get("THICKNESS_6"));
+	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        }
+	        if(!"".equals(insertMap.get("MESH")) && insertMap.get("MESH") != null){
+	        	insertMap.put("PROD_ID", "Y301");
+	        	insertMap.put("WEIGHT", params.get("MESH"));
 	        	productionProdMapper.insertToMtrlsInOut(insertMap);
 	        }
 	        

@@ -45,7 +45,7 @@
                        <li><a tabindex="-1" href="/plan/export/page">수출계획표</a></li>
                        <li><a tabindex="-1" href="/production/prod/page">생산일보</a></li>
                        <li><a tabindex="-1" href="/production/coating/page">코팅일보</a></li>
-                       <li><a tabindex="-1" href="/production/welding/page">용접일보</a></li>
+                       <!-- <li><a tabindex="-1" href="/production/welding/page">용접일보</a></li> -->
                        <li><a tabindex="-1" href="/production/packing/page">포장일보</a></li>
                        <li><a tabindex="-1" href="/production/repair/page">수리일보</a></li>
                        <li><a tabindex="-1" href="/inout/prdt/page">완제품 입출고</a></li>

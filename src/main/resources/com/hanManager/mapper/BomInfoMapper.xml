@@ -54,6 +54,7 @@
 			, THICKNESS_4
 			, THICKNESS_5
 			, THICKNESS_6
+			, MESH
 			, BIGO
 			, to_char(CREATE_DATE, 'YYYY.MM.DD') CREATE_DATE
 			, CREATE_USER
@@ -90,6 +91,7 @@
 			, THICKNESS_4
 			, THICKNESS_5
 			, THICKNESS_6
+			, MESH
 			, BIGO
 			, CREATE_DATE
 			, CREATE_USER
@@ -108,6 +110,7 @@
 			, #{THICKNESS_4}
 			, #{THICKNESS_5}
 			, #{THICKNESS_6}
+			, #{MESH}
 			, #{BIGO}
 			, SYSDATE
 			, #{CREATE_USER}
@@ -129,6 +132,7 @@
 			   , THICKNESS_4 = #{THICKNESS_4}
 			   , THICKNESS_5 = #{THICKNESS_5}
 			   , THICKNESS_6 = #{THICKNESS_6}
+			   , MESH = #{MESH}
 			   , BIGO = #{BIGO}
 			   , CREATE_DATE = SYSDATE
 			   , CREATE_USER = #{CREATE_USER}
@@ -143,6 +147,114 @@
 	<delete id="deleteBomInfo" parameterType="java.util.HashMap">
 	/* BomInfoMapper.deleteBomInfo */
 		DELETE FROM hanadmin.bom_info 
+		 WHERE 1=1 
+		 <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	</delete>
+	
+	
+	<select id="selectBomInfoPackingList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* BomInfoMapper.selectBomInfoPackingList */
+		SELECT PROD_ID
+			, KIND
+			, PROD_NM
+			, PROD_DTL_NM
+			, POP_NM
+			, POP_ID
+			, POP_CNT
+			, BOX_NM
+			, BOX_ID
+			, BOX_CNT
+			, BIGO
+			, to_char(CREATE_DATE, 'YYYY.MM.DD') CREATE_DATE
+			, CREATE_USER
+			, to_char(UPDATE_DATE, 'YYYY.MM.DD') UPDATE_DATE
+			, UPDATE_USER
+		FROM hanadmin.bom_info_packing
+	   WHERE 1=1
+	   <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	   	   AND PROD_ID = #{PROD_ID}
+	   </if>
+	   <if test='KIND != null and !KIND.equals("")'>
+	   	   AND KIND = #{KIND}
+	   </if>
+	   <if test='PROD_NM != null and !PROD_NM.equals("")'>
+	   	   AND PROD_NM = #{PROD_NM}
+	   </if>
+	   <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+	   	   AND PROD_DTL_NM = #{PROD_DTL_NM}
+	   </if>
+	   ORDER BY PROD_ID
+	</select>
+	
+	<insert id="insertBomInfoPacking" parameterType="java.util.HashMap" >
+	/* BomInfoMapper.insertBomInfoPacking */
+		INSERT INTO hanadmin.bom_info_packing 
+		(	
+			PROD_ID
+			, KIND
+			, PROD_NM
+			, PROD_DTL_NM
+			, POP_NM
+			, POP_ID
+			, POP_CNT
+			, BOX_NM
+			, BOX_ID
+			, BOX_CNT
+			, BIGO
+			, CREATE_DATE
+			, CREATE_USER
+			, UPDATE_DATE
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			#{PROD_ID}
+			, #{KIND}
+			, #{PROD_NM}
+			, #{PROD_DTL_NM}
+			, #{POP_NM}
+			, #{POP_ID}
+			, #{POP_CNT}
+			, #{BOX_NM}
+			, #{BOX_ID}
+			, #{BOX_CNT}
+			, #{BIGO}
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+		
+	</insert>
+	
+	<update id="updateBomInfoPacking" parameterType="java.util.HashMap">
+	/* BomInfoMapper.updateBomInfoPacking */
+		UPDATE hanadmin.bom_info_packing 
+		   SET KIND = #{KIND}
+			   , PROD_NM = #{PROD_NM}
+			   , PROD_DTL_NM = #{PROD_DTL_NM}
+			   , POP_NM = #{POP_NM}
+			   , POP_ID = #{POP_ID}
+			   , POP_CNT = #{POP_CNT}
+			   , BOX_NM = #{BOX_NM}
+			   , BOX_ID = #{BOX_ID}
+			   , BOX_CNT = #{BOX_CNT}
+			   , BIGO = #{BIGO}
+			   , CREATE_DATE = SYSDATE
+			   , CREATE_USER = #{CREATE_USER}
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	AND PROD_ID = #{PROD_ID}
+	    </if>
+	</update>
+	
+	<delete id="deleteBomInfoPacking" parameterType="java.util.HashMap">
+	/* BomInfoMapper.deleteBomInfoPacking */
+		DELETE FROM hanadmin.bom_info_packing 
 		 WHERE 1=1 
 		 <if test='PROD_ID != null and !PROD_ID.equals("")'>
 	    	 AND PROD_ID = #{PROD_ID}

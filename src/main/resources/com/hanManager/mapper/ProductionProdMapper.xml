@@ -82,6 +82,8 @@
 		 , info.PROD_DTL_NM
 		 , s.PROD_ID
 		 , s.UPH
+		 <!-- , substr(s.ST_TIME, 4) ST_TIME
+		 , substr(s.ED_TIME, 4) ED_TIME -->
 		 , s.ST_TIME
 		 , s.ED_TIME
 		 , s.STOPPING_TIME
@@ -105,6 +107,7 @@
 		 , DECODE(ROUND(s.THICKNESS_4/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_4/1000, 2), 'FM99990.00')) THICKNESS_4
 		 , DECODE(ROUND(s.THICKNESS_5/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_5/1000, 2), 'FM99990.00')) THICKNESS_5
 		 , DECODE(ROUND(s.THICKNESS_6/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_6/1000, 2), 'FM99990.00')) THICKNESS_6
+		 , DECODE(ROUND(s.MESH/1000, 2), 0, null, TO_CHAR(ROUND(s.MESH/1000, 2), 'FM99990.00')) MESH
 	 	 , s.IS_CHECK
 		 <!-- , u.BOM_ID -->
       FROM HANADMIN.PRDT_STATUS_PROD s, HANADMIN.PRDT_INFO info<!-- , HANADMIN.MTRLS_USAGE u --> 
@@ -181,6 +184,7 @@
 			, THICKNESS_4
 			, THICKNESS_5
 			, THICKNESS_6
+			, MESH
 			, BIGO
 			, IS_CHECK
 			, CREATE_DATE 
@@ -218,6 +222,7 @@
 			, NVL((SELECT THICKNESS_4 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
 			, NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
 			, NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, NVL((SELECT MESH FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
 			, #{BIGO}
 			, #{IS_CHECK}
 			, SYSDATE
@@ -278,12 +283,13 @@
 			, MAN2 = #{MAN2}
 			, MAN3 = #{MAN3}
 			, MAN4 = #{MAN4}
-			, THICKNESS_1 = NVL((SELECT THICKNESS_1 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, THICKNESS_2 = NVL((SELECT THICKNESS_2 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, THICKNESS_3 = NVL((SELECT THICKNESS_3 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, THICKNESS_4 = NVL((SELECT THICKNESS_4 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, THICKNESS_5 = NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, THICKNESS_6 = NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, THICKNESS_1 = NVL((SELECT THICKNESS_1 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, THICKNESS_2 = NVL((SELECT THICKNESS_2 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, THICKNESS_3 = NVL((SELECT THICKNESS_3 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, THICKNESS_4 = NVL((SELECT THICKNESS_4 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, THICKNESS_5 = NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, THICKNESS_6 = NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, MESH = NVL((SELECT MESH FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
 			, BIGO = #{BIGO}
 			, IS_CHECK = #{IS_CHECK}
 			, CREATE_DATE = SYSDATE

@@ -95,19 +95,13 @@
 		 <!-- , ROUND((s.FINISHED_CNT / s.PRDT_CNT) * 100, 2) || '%' CMPLT_PER -->
 		 , TRUNC(NVL((s.PRDT_CNT - s.FAULTY_CNT)/(UPH*(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME))*100, 0), 2) CMPLT_PER
 		 , TRUNC(NVL((s.PRDT_CNT - s.FAULTY_CNT)/(UPH*(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME - STOPPING_TIME))*100, 0), 2) MAN_CMPLT_PER
-		 , s.MAN1
-		 , s.MAN2
-		 , s.MAN3
-		 , s.MAN4
-		 , DECODE(ROUND(s.THICKNESS_1/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_1/1000, 2), 'FM99990.00')) THICKNESS_1
-		 , DECODE(ROUND(s.THICKNESS_2/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_2/1000, 2), 'FM99990.00')) THICKNESS_2
-		 , DECODE(ROUND(s.THICKNESS_3/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_3/1000, 2), 'FM99990.00')) THICKNESS_3
-		 , DECODE(ROUND(s.THICKNESS_4/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_4/1000, 2), 'FM99990.00')) THICKNESS_4
-		 , DECODE(ROUND(s.THICKNESS_5/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_5/1000, 2), 'FM99990.00')) THICKNESS_5
-		 , DECODE(ROUND(s.THICKNESS_6/1000, 2), 0, null, TO_CHAR(ROUND(s.THICKNESS_6/1000, 2), 'FM99990.00')) THICKNESS_6
+		 , POP_NM
+		 , POP_CNT
+		 , BOX_NM
+		 , BOX_CNT
 	 	 , s.IS_CHECK
 		 <!-- , u.BOM_ID -->
-      FROM HANADMIN.PRDT_STATUS_PROD s, HANADMIN.PRDT_INFO info<!-- , HANADMIN.MTRLS_USAGE u --> 
+      FROM HANADMIN.PRDT_STATUS_PACKING s, HANADMIN.PRDT_INFO info<!-- , HANADMIN.MTRLS_USAGE u --> 
      WHERE s.PROD_ID = info.PROD_ID
      <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
 	   AND WORK_TYPE = #{WORK_TYPE}
@@ -126,12 +120,6 @@
      </if>
      <if test='PROD_ID != null and !PROD_ID.equals("")'>
        AND s.PROD_ID = #{PROD_ID}
-     </if>
-     <if test='PRODUCT_MAN != null and !PRODUCT_MAN.equals("")'>
-       AND (s.MAN1 = #{PRODUCT_MAN} 
-       	OR s.MAN2 = #{PRODUCT_MAN}
-       	OR s.MAN3 = #{PRODUCT_MAN}
-       	OR s.MAN4 = #{PRODUCT_MAN})
      </if>
      <choose>
           <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
@@ -154,7 +142,7 @@
 	
 	<insert id="insertPrdtStatusPacking" parameterType="java.util.HashMap" >
 	/* ProductionPackingMapper.insertPrdtStatusPacking */
-		INSERT INTO hanadmin.prdt_status_prod
+		INSERT INTO hanadmin.prdt_status_packing
 		(	
 			PRDT_DATE 
 			, WORK_TYPE
@@ -168,16 +156,10 @@
 			, REST_TIME
 			, PRDT_CNT
 			, FAULTY_CNT
-			, MAN1
-		 	, MAN2
-		 	, MAN3
-		 	, MAN4
-			, THICKNESS_1
-			, THICKNESS_2
-			, THICKNESS_3
-			, THICKNESS_4
-			, THICKNESS_5
-			, THICKNESS_6
+			, POP_NM
+			, POP_CNT
+			, BOX_NM
+			, BOX_CNT
 			, BIGO
 			, IS_CHECK
 			, CREATE_DATE 
@@ -198,17 +180,11 @@
 			, #{STOPPING_TIME} 
 			, #{REST_TIME} 
 			, #{PRDT_CNT} 
-			, #{FAULTY_CNT} 
-			, #{MAN1} 
-			, #{MAN2} 
-			, #{MAN3} 
-			, #{MAN4} 
-			, NVL((SELECT THICKNESS_1 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, NVL((SELECT THICKNESS_2 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, NVL((SELECT THICKNESS_3 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
-			, NVL((SELECT THICKNESS_4 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
-			, NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
-			, NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT} 
+			, #{FAULTY_CNT}
+			, (SELECT POP_NM FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
+			, NVL((SELECT POP_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, (SELECT BOX_NM FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
+			, NVL((SELECT BOX_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
 			, #{BIGO}
 			, #{IS_CHECK}
 			, SYSDATE
@@ -252,7 +228,7 @@
 	
 	<update id="updatePrdtStatusPacking" parameterType="java.util.HashMap">
 	/* ProductionPackingMapper.updatePrdtStatusPacking */
-		UPDATE hanadmin.prdt_status_prod
+		UPDATE hanadmin.prdt_status_packing
 		   SET PRDT_DATE = #{PRDT_DATE}
 			, WORK_TYPE = #{WORK_TYPE}
 			, EQP_ID = #{EQP_ID}
@@ -265,16 +241,10 @@
 			, REST_TIME = #{REST_TIME}
 			, PRDT_CNT = #{PRDT_CNT}
 			, FAULTY_CNT = #{FAULTY_CNT}
-			, MAN1 = #{MAN1}
-			, MAN2 = #{MAN2}
-			, MAN3 = #{MAN3}
-			, MAN4 = #{MAN4}
-			, THICKNESS_1 = NVL((SELECT THICKNESS_1 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, THICKNESS_2 = NVL((SELECT THICKNESS_2 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, THICKNESS_3 = NVL((SELECT THICKNESS_3 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, THICKNESS_4 = NVL((SELECT THICKNESS_4 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, THICKNESS_5 = NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
-			, THICKNESS_6 = NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}),0) * #{PRDT_CNT}
+			, (SELECT POP_NM FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
+			, NVL((SELECT POP_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, (SELECT BOX_NM FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
+			, NVL((SELECT BOX_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
 			, BIGO = #{BIGO}
 			, IS_CHECK = #{IS_CHECK}
 			, CREATE_DATE = SYSDATE
@@ -343,7 +313,7 @@
 	
 	<delete id="deletePrdtStatusPacking" parameterType="java.util.HashMap">
 	/* ProductionPackingMapper.deletePrdtStatusPacking */
-		DELETE FROM hanadmin.prdt_status_prod
+		DELETE FROM hanadmin.prdt_status_packing
 		 WHERE 1=1 
 		 <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
 	    	 AND PRDT_DATE = #{PRDT_DATE}
