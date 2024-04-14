@@ -98,7 +98,7 @@
 		 , POP_NM
 		 , POP_CNT
 		 , BOX_NM
-		 , BOX_CNT
+		 , FLOOR(BOX_CNT) BOX_CNT
 	 	 , s.IS_CHECK
 		 <!-- , u.BOM_ID -->
       FROM HANADMIN.PRDT_STATUS_PACKING s, HANADMIN.PRDT_INFO info<!-- , HANADMIN.MTRLS_USAGE u --> 
@@ -132,12 +132,17 @@
             AND '20'||PRDT_DATE BETWEEN '00-00-00' AND #{dateEnd}
           </when>
       </choose>
-     ORDER BY s.PRDT_DATE desc
+     ORDER BY s.PRDT_DATE desc, PROD_ID, PROD_DTL_NM 
        <!-- AND s.PROD_ID = u.PROD_ID(+) -->
        <!-- AND s.WORK_TYPE = u.WORK_TYPE(+)
        AND s.EQP_ID = u.EQP_ID(+)
        AND s.AREA = u.AREA(+)
        AND s.PROD_ID = u.PROD_ID(+) -->
+	</select>
+	
+	<select id="selectPrdtNmCnt" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	<!-- /* ProductionPackingMapper.selectPrdtNmCnt */
+	SELECT count(PROD_NM) row_cnt FROM BOM_INFO_PACKING WHERE PROD_NM = #{PROD_NM} -->
 	</select>
 	
 	<insert id="insertPrdtStatusPacking" parameterType="java.util.HashMap" >
@@ -184,7 +189,7 @@
 			, (SELECT POP_NM FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
 			, NVL((SELECT POP_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
 			, (SELECT BOX_NM FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
-			, NVL((SELECT BOX_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, NVL(#{PRDT_CNT} / DECODE((SELECT BOX_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID}), 0, NULL, (SELECT BOX_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})), 0)
 			, #{BIGO}
 			, #{IS_CHECK}
 			, SYSDATE
@@ -241,10 +246,10 @@
 			, REST_TIME = #{REST_TIME}
 			, PRDT_CNT = #{PRDT_CNT}
 			, FAULTY_CNT = #{FAULTY_CNT}
-			, (SELECT POP_NM FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
-			, NVL((SELECT POP_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
-			, (SELECT BOX_NM FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
-			, NVL((SELECT BOX_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, POP_NM = (SELECT POP_NM FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
+			, POP_CNT = NVL((SELECT POP_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, BOX_NM = (SELECT BOX_NM FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
+			, BOX_CNT = NVL(#{PRDT_CNT} / DECODE((SELECT BOX_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID}), 0, NULL, (SELECT BOX_CNT FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})), 0) 
 			, BIGO = #{BIGO}
 			, IS_CHECK = #{IS_CHECK}
 			, CREATE_DATE = SYSDATE
@@ -384,8 +389,56 @@
 	    </if>		 
 	</update> -->
 	
+	<insert id="insertToPrdtInOut" parameterType="java.util.HashMap" >
+	/* ProductionPackingMapper.insertToPrdtInOut */
+		INSERT INTO hanadmin.prdt_inout
+		(	
+			IDX
+			, PRODUCT_GUBUN
+			, KIND 
+			, PROD_ID 
+			, OUT_NUM
+			, TO_PLACE 
+			, CLIENT 
+			, INOUT_DATE
+			, BOX_COUNT
+			, BOX_PER_COUNT
+			, OUT_METHOD 
+			, MAN 
+			, PRICE 
+			, BIGO
+			, IS_CHECK
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			hanadmin.prdt_inout_seq.nextval
+			, 'product02' 
+			, '完成品'  
+			, #{PROD_ID}
+			, NULL 
+			, NULL
+			, 'HY'
+			, '20'||#{PRDT_DATE} 
+			, #{BOX_CNT} 
+			, #{POP_CNT} 
+			, NULL 
+			, 'SYSTEM' 
+			, 0
+			, NULL
+			, 'NO'
+			, SYSDATE
+			, 'hanadmin'
+			, NULL
+			, NULL
+		)
+	</insert>
+	
 	<insert id="insertToMtrlsInOut" parameterType="java.util.HashMap" >
-	/* MtrlsInOutMapper.insertToMtrlsInOut */
+	/* ProductionPackingMapper.insertToMtrlsInOut */
 		INSERT INTO hanadmin.mtrls_inout
 		(	
 			IDX
@@ -409,22 +462,22 @@
 		VALUES
 		(
 			hanadmin.mtrls_inout_seq.nextval
-			, NULL
+			, NULL 
 			, 'raw02' 
-			, '原材料'  
-			, #{PROD_ID}
-			, NULL
-			, #{WEIGHT} 
-			, 'BOGO'
-			, '20'||#{PRDT_DATE}
+			, '主要副资材'  
+			, (SELECT PROD_ID FROM hanadmin.mtrls_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			, NULL 
+			, #{CNT}
+			, 'HY'
+			, '20'||#{PRDT_DATE} 
 			, 'SYSTEM' 
 			, 0
-			, #{BIGO}
+			, NULL
 			, 'NO'
 			, SYSDATE
-			, #{CREATE_USER}
-			, SYSDATE
-			, #{UPDATE_USER}
+			, 'hanadmin'
+			, NULL
+			, NULL
 		)
 	</insert>
 

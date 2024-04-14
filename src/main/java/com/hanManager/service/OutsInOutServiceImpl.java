@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.hanManager.mapper.ProductionProdMapper;
+import com.hanManager.mapper.OutsInOutMapper;
 
 @Service
-public class ProductionProdServiceImpl implements ProductionProdService {
-	@Autowired ProductionProdMapper productionProdMapper;
+public class OutsInOutServiceImpl implements OutsInOutService {
+	@Autowired OutsInOutMapper outsInOutMapper;
 	@Override
 	public List<HashMap<String, Object>> selectPrdtProdList(HashMap<String, Object> params) throws Exception {
 		
-		return productionProdMapper.selectPrdtProdList(params);
+		return outsInOutMapper.selectPrdtProdList(params);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -52,7 +52,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 				paramMap.put("AREA", ilist.get(i).get("AREA"));
 				paramMap.put("PROD_ID", ilist.get(i).get("PROD_ID"));
 				
-				List<HashMap<String, Object>> tmpList = productionProdMapper.selectPrdtProdList(paramMap);
+				List<HashMap<String, Object>> tmpList = outsInOutMapper.selectPrdtProdList(paramMap);
 		        // 원부자재 출입고에서 차감용
 				insertToMtrlsInOut(tmpList.get(0));
 				*/
@@ -111,7 +111,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 	public Integer insertPrdtStatusProd(HashMap<String, Object> params) throws Exception {
 		try {
 	        int retCode = 1;
-	        productionProdMapper.insertPrdtStatusProd(params);
+	        outsInOutMapper.insertPrdtStatusProd(params);
 	        // 재고 테이블 merge
 	        /*if("product02".equals(params.get("PRODUCT_GUBUN")) || "product05".equals(params.get("PRODUCT_GUBUN"))){
 	        	if(params.get("PROD_ID") == null || "".equals(params.get("PROD_ID"))){
@@ -136,7 +136,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 	public Integer updatePrdtStatusProd(HashMap<String, Object> params) throws Exception {
 		try {
 			int retCode = 1;
-			productionProdMapper.updatePrdtStatusProd(params);
+			outsInOutMapper.updatePrdtStatusProd(params);
 	        
 	        // 재고 테이블 merge
 	        /*if("product02".equals(params.get("PRODUCT_GUBUN")) || "product05".equals(params.get("PRODUCT_GUBUN"))){
@@ -156,7 +156,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 	public Integer deletePrdtStatusProd(HashMap<String, Object> params) throws Exception {
 		try {
 			int retCode = 1;
-			productionProdMapper.deletePrdtStatusProd(params);
+			outsInOutMapper.deletePrdtStatusProd(params);
 	        
 	        // 재고 테이블 update
 	        /*if("product02".equals(params.get("PRODUCT_GUBUN")) || "product05".equals(params.get("PRODUCT_GUBUN"))){
@@ -174,7 +174,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 	public Integer insertPrdtMtrlsUsage(HashMap<String, Object> params) throws Exception {
 		try {
 	        int retCode = 1;
-	        productionProdMapper.insertPrdtMtrlsUsage(params);
+	        outsInOutMapper.insertPrdtMtrlsUsage(params);
 	        
 	        // 재고 테이블 merge
 	        /*if("product02".equals(params.get("PRODUCT_GUBUN")) || "product05".equals(params.get("PRODUCT_GUBUN"))){
@@ -200,7 +200,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 	public Integer updatePrdtMtrlsUsage(HashMap<String, Object> params) throws Exception {
 		try {
 			int retCode = 1;
-			productionProdMapper.updatePrdtMtrlsUsage(params);
+			outsInOutMapper.updatePrdtMtrlsUsage(params);
 	        
 	        // 재고 테이블 merge
 	        /*if("product02".equals(params.get("PRODUCT_GUBUN")) || "product05".equals(params.get("PRODUCT_GUBUN"))){
@@ -220,7 +220,7 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 	public Integer deletePrdtMtrlsUsage(HashMap<String, Object> params) throws Exception {
 		try {
 			int retCode = 1;
-			productionProdMapper.deletePrdtMtrlsUsage(params);
+			outsInOutMapper.deletePrdtMtrlsUsage(params);
 	        
 	        // 재고 테이블 update
 	        /*if("product02".equals(params.get("PRODUCT_GUBUN")) || "product05".equals(params.get("PRODUCT_GUBUN"))){
@@ -245,45 +245,45 @@ public class ProductionProdServiceImpl implements ProductionProdService {
 	        if(!"".equals(insertMap.get("THICKNESS_1")) && insertMap.get("THICKNESS_1") != null){
 	        	insertMap.put("PROD_ID", "Y101");
 	        	insertMap.put("WEIGHT", insertMap.get("THICKNESS_1"));
-	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        	outsInOutMapper.insertToMtrlsInOut(insertMap);
 	        }
 	        if(!"".equals(insertMap.get("THICKNESS_2")) && insertMap.get("THICKNESS_2") != null){
 	        	insertMap.put("PROD_ID", "Y102");
 	        	insertMap.put("WEIGHT", insertMap.get("THICKNESS_2"));
-	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        	outsInOutMapper.insertToMtrlsInOut(insertMap);
 	        }
 	        if(!"".equals(insertMap.get("THICKNESS_3")) && insertMap.get("THICKNESS_3") != null){
 	        	insertMap.put("PROD_ID", "Y103");
 	        	insertMap.put("WEIGHT", params.get("THICKNESS_3"));
-	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        	outsInOutMapper.insertToMtrlsInOut(insertMap);
 	        }
 	        if(!"".equals(insertMap.get("THICKNESS_4")) && insertMap.get("THICKNESS_4") != null){
 	        	insertMap.put("PROD_ID", "Y104");
 	        	insertMap.put("WEIGHT", params.get("THICKNESS_4"));
-	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        	outsInOutMapper.insertToMtrlsInOut(insertMap);
 	        }
 	        if(!"".equals(insertMap.get("THICKNESS_5")) && insertMap.get("THICKNESS_5") != null){
 	        	insertMap.put("PROD_ID", "Y105");
 	        	insertMap.put("WEIGHT", params.get("THICKNESS_5"));
-	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        	outsInOutMapper.insertToMtrlsInOut(insertMap);
 	        }
 	        if(!"".equals(insertMap.get("THICKNESS_6")) && insertMap.get("THICKNESS_6") != null){
 	        	insertMap.put("PROD_ID", "Y106");
 	        	insertMap.put("WEIGHT", params.get("THICKNESS_6"));
-	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        	outsInOutMapper.insertToMtrlsInOut(insertMap);
 	        }
 	        if(!"".equals(insertMap.get("MESH")) && insertMap.get("MESH") != null){
 	        	insertMap.put("PROD_ID", "Y301");
 	        	insertMap.put("WEIGHT", params.get("MESH"));
-	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        	outsInOutMapper.insertToMtrlsInOut(insertMap);
 	        }
 	        if(!"".equals(insertMap.get("MESH_OUT")) && insertMap.get("MESH_OUT") != null){
 	        	insertMap.put("PROD_ID", "Y302");
 	        	insertMap.put("WEIGHT", params.get("MESH_OUT"));
-	        	productionProdMapper.insertToMtrlsInOut(insertMap);
+	        	outsInOutMapper.insertToMtrlsInOut(insertMap);
 	        }
 	        
-	        //productionProdMapper.updatePrdtStatusProd(params);
+	        //outsInOutMapper.updatePrdtStatusProd(params);
 	        
 			return retCode;
 		}catch (Exception e) {

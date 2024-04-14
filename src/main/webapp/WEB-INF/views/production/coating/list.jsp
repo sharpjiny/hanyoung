@@ -139,7 +139,9 @@ var gridView = new tui.Grid({
 		{header: '产品',       	  name: 'PROD_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
 		{header: '品名',      name: 'PROD_DTL_NM',    filter:{type:'text'},          sortable:true,            align:'center', width:120},
 		{header: '品号 ',    	  name: 'PROD_ID',        filter:{type:'text'},          sortable:true,            align:'center', width:100},
-		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center'},
+		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center', formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : v.value;
+	    }},
 		{header: '开始时间',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:110},
 		{header: '结束时间',      name: 'ED_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:110},
 		{header: '工作时间',  	  name: 'WORK_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
@@ -159,9 +161,22 @@ var gridView = new tui.Grid({
 		{header: '达成率',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
 		      return v.value+'%';
 	    }},
+	    {header: '产品重量',      name: 'POWDER_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
+		      return v.value != null && v.value != '' ? Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+	    }},
+	    {header: '粉沫',  	  name: 'POWDER_COLOR',  	  filter:{type:'text'},          sortable:true,            align:'center', width:90},
 	    /* {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
 		      return v.value+'%';
 	    }}, */
+	    {header: '铁丝重量',      name: 'SUM_WEIGHT',     filter:{type:'text'},          sortable:true,            align:'center', width:100},
+	    {header: '粉沫總使用量',      name: 'TOTAL_POWDER_USAGE',     filter:{type:'text'},          sortable:true,            align:'center', width:130, formatter:function(v) { // 추가
+		      return v.value != null && v.value != '' ? Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+	    }},
+	    {header: '粉沫使用量',      name: 'POWDER_USAGE',     filter:{type:'text'},          sortable:true,            align:'center', width:115},
+	    {header: '粉沫重量',      name: 'PWD_WEIGHT',     filter:{type:'text'},          sortable:true,            align:'center', width:100},
+	    {header: '差异',      name: 'DIFF',     filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
+		      return (v.value != null && v.value != '' && Number(v.value) > 0) ? "<div style='background-color: red'>"+ v.value+"</div>"  : null;
+	    }},
 		{header: '备注',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:250},
 		{header: '完了',      name: 'IS_CHECK',     filter:{type:'text'},         sortable:true,            align:'center', width:80},
 		{header: '생성일자',      name: 'CREATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
@@ -176,6 +191,16 @@ var gridView = new tui.Grid({
         height: 10,
         position: 'bottom', // or 'top'
         columnContent: {
+        	WORK_TIME: {
+        		template: function(valueMap) {
+        			return valueMap.sum.toFixed(2);
+             	}
+    		},
+    		REST_TIME: {
+        		template: function(valueMap) {
+        			return valueMap.sum.toFixed(1);
+             	}
+    		},
         	STOPPING_TIME: {
         		template: function(valueMap) {
         			return valueMap.sum;
@@ -200,12 +225,17 @@ var gridView = new tui.Grid({
                template: function(valueMap) {
                  return valueMap.avg.toFixed(2) +'%';
                }
-           }/* ,
-           MAN_CMPLT_PER: {
+           },
+           POWDER_CNT: {
                template: function(valueMap) {
-                 return valueMap.avg.toFixed(2) +'%';
+            	   return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                }
-           } */
+           },
+           TOTAL_POWDER_USAGE : {
+               template: function(valueMap) {
+            	   return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+               }
+           }
        }
     }
 });
@@ -286,7 +316,9 @@ var gridEdit = new tui.Grid({
         		listItems:[{value:'', text:'-선택-'}]
        		}}},
 		{header: '品号 ',    	  name: 'PROD_ID',        filter:{type:'text'},          sortable:true,            align:'center', width:100, className:'clickable',        editor:'text', disabled:true},
-		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor:'text'},
+		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor:'text', formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : v.value;
+	    }},
 		{header: '开始时间',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:110, className:'clickable', validation:{required:true}, editor:{
             type: 'datePicker',
             options: {
@@ -327,6 +359,23 @@ var gridEdit = new tui.Grid({
 		{header: '达成率',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
 		      return v.value != null && v.value != '' ? v.value+'%' : null;
 	    }},
+	    {header: '产品重量',      name: 'POWDER_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, validation:{required:true}, editor:'text', formatter:function(v) { // 추가
+		      return v.value != null && v.value != '' ? Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+	    }},
+	    {header: '粉沫',    name: 'POWDER_COLOR',	filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', width:90, formatter:'listItemText',        
+			editor:{type:'select',
+			options:{
+        		listItems:[{text:'白色', value:'白色'}, {text:'黑色', value:'黑色'}]
+       		}}},
+   		{header: '铁丝 重量',      name: 'SUM_WEIGHT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true},
+   		{header: '粉沫總使用量',      name: 'TOTAL_POWDER_USAGE',     filter:{type:'text'},          sortable:true,            align:'center', width:130, disabled:true, formatter:function(v) { // 추가
+		      return v.value != null && v.value != '' ? Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+	    }},
+   		{header: '粉沫使用量',      name: 'POWDER_USAGE',     filter:{type:'text'},          sortable:true,            align:'center', width:115, disabled:true},
+	    {header: '粉沫 重量',      name: 'PWD_WEIGHT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true},
+   		{header: '差异',      name: 'DIFF',     filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) {
+	    	return (v.value != null && v.value != '' && Number(v.value) > 0) ? "<div style='background-color: red'>"+ v.value+"</div>"  : null;
+   		}},
 	    /* {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
 		      return v.value != null && v.value != '' ? v.value+'%' : null;
 	    }}, */
@@ -348,6 +397,16 @@ var gridEdit = new tui.Grid({
         height: 10,
         position: 'bottom', // or 'top'
         columnContent: {
+        	WORK_TIME: {
+        		template: function(valueMap) {
+        			return valueMap.sum.toFixed(2);
+             	}
+    		},
+    		REST_TIME: {
+        		template: function(valueMap) {
+        			return valueMap.sum.toFixed(1);
+             	}
+    		},
         	STOPPING_TIME: {
         		template: function(valueMap) {
         			return valueMap.sum;
@@ -372,12 +431,17 @@ var gridEdit = new tui.Grid({
                 template: function(valueMap) {
                   return valueMap.avg.toFixed(2) + '%';
                 }
-            }/* ,
-            MAN_CMPLT_PER: {
+            },
+            POWDER_CNT: {
                 template: function(valueMap) {
-                  return valueMap.avg.toFixed(2) +'%';
+             	   return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
                 }
-            } */
+            },           
+            TOTAL_POWDER_USAGE : {
+                template: function(valueMap) {
+             	   return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                }
+            }
        }
     }
 });
@@ -602,7 +666,7 @@ var prdtProd = {
 		}
 	},
 	add:function(){
-		gridEdit.prependRow({IS_CHECK:'NO'});
+		gridEdit.prependRow({POWDER_COLOR:'白色', IS_CHECK:'NO'});
 	}
 }
 

@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.OutsInOutMapper">
+	
+	<select id="selectPrdtProdNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* OutsInOutMapper.selectPrdtProdNm */
+		SELECT DISTINCT info.PROD_NM CODE, info.PROD_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* OutsInOutMapper.selectPrdtProdDtlNm */
+		SELECT DISTINCT info.PROD_DTL_NM CODE, info.PROD_DTL_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* OutsInOutMapper.selectPrdtProdId */
+		SELECT info.PROD_ID CODE, info.PROD_ID NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+	       AND PROD_DTL_NM = #{prodDtlNm}
+	     </if>
+	</select>
+	
+	<select id="getProdDtlList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* OutsInOutMapper.getProdDtlList */
+	SELECT kind
+		 , prod_nm
+		 , LISTAGG(prod_dtl_nm,',') WITHIN GROUP(ORDER BY  kind, prod_nm) AS prod_dtl_nm
+	  FROM HANADMIN.PRDT_INFO
+	 GROUP BY kind, prod_nm
+	</select>
+	
+	<select id="getPrice" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* OutsInOutMapper.getPrice */
+	SELECT info.OUT_PRICE CODE, info.OUT_PRICE NAME 
+	  FROM hanadmin.prdt_info info
+	 WHERE 1=1
+     <if test='kind != null and !kind.equals("")'>
+       AND KIND = #{kind}
+     </if>
+     <if test='prodNm != null and !prodNm.equals("")'>
+       AND PROD_NM = #{prodNm}
+     </if>
+     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+       AND PROD_DTL_NM = #{prodDtlNm}
+     </if>
+	</select>
+	
+	<select id="selectPrdtProdList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* OutsInOutMapper.selectPrdtProdList */
+	SELECT to_char(to_date(s.INOUT_DATE), 'YY-MM-DD') INOUT_DATE
+		 , s.PRODUCT_GUBUN
+		 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'product_gubun' AND CODE = s.PRODUCT_GUBUN) PRODUCT_GUBUN_NM
+		 , s.KIND
+		 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'product_kind' and CODE = info.KIND) AS KIND_NM
+		 , info.PROD_NM
+		 , info.PROD_DTL_NM
+		 <!-- , s.PROD_ID -->
+		 , s.BOX_PER_COUNT
+		 , s.POWDER_WHITE_CNT
+		 , s.POWDER_BLACK_CNT
+		 , (s.POWDER_WHITE_CNT * s.BOX_PER_COUNT) / 1000 WHITE_USED_CNT
+		 , (s.POWDER_BLACK_CNT * s.BOX_PER_COUNT) / 1000 BLACK_USED_CNT
+		 , s.BOX_PER_COUNT * DECODE(ROUND(bom.THICKNESS_1/1000, 2), 0, null, TO_CHAR(ROUND(bom.THICKNESS_1/1000, 2), 'FM99990.00')) THICKNESS_1
+		 , s.BOX_PER_COUNT * DECODE(ROUND(bom.THICKNESS_2/1000, 2), 0, null, TO_CHAR(ROUND(bom.THICKNESS_2/1000, 2), 'FM99990.00')) THICKNESS_2
+		 , s.BOX_PER_COUNT * DECODE(ROUND(bom.THICKNESS_3/1000, 2), 0, null, TO_CHAR(ROUND(bom.THICKNESS_3/1000, 2), 'FM99990.00')) THICKNESS_3
+		 , s.BOX_PER_COUNT * DECODE(ROUND(bom.THICKNESS_4/1000, 2), 0, null, TO_CHAR(ROUND(bom.THICKNESS_4/1000, 2), 'FM99990.00')) THICKNESS_4
+		 , s.BOX_PER_COUNT * DECODE(ROUND(bom.THICKNESS_5/1000, 2), 0, null, TO_CHAR(ROUND(bom.THICKNESS_5/1000, 2), 'FM99990.00')) THICKNESS_5
+		 , s.BOX_PER_COUNT * DECODE(ROUND(bom.THICKNESS_6/1000, 2), 0, null, TO_CHAR(ROUND(bom.THICKNESS_6/1000, 2), 'FM99990.00')) THICKNESS_6
+		 , s.BOX_PER_COUNT * DECODE(ROUND(bom.MESH/1000, 2), 0, null, TO_CHAR(ROUND(bom.MESH/1000, 2), 'FM99990.00')) MESH
+		 , s.BOX_PER_COUNT * DECODE(ROUND(bom.MESH_OUT/1000, 2), 0, null, TO_CHAR(ROUND(bom.MESH_OUT/1000, 2), 'FM99990.00')) MESH_OUT
+	 	 , s.IS_CHECK
+      FROM HANADMIN.PRDT_INOUT s, HANADMIN.PRDT_INFO info, hanadmin.bom_info bom 
+     WHERE s.PROD_ID = info.PROD_ID
+       AND s.PROD_ID = bom.PROD_ID(+)
+       AND s.PRODUCT_GUBUN in ('product08', 'product10', 'product11')
+     <if test='PRODUCT_GUBUN != null and !PRODUCT_GUBUN.equals("")'>
+	     AND s.PRODUCT_GUBUN = #{PRODUCT_GUBUN}
+	 </if>
+     <if test='KIND != null and !KIND.equals("")'>
+	   AND info.KIND = #{KIND}
+     </if>
+     <if test='PROD_NM != null and !PROD_NM.equals("")'>
+       AND info.PROD_NM = #{PROD_NM}
+     </if>
+     <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+       AND info.PROD_DTL_NM = #{PROD_DTL_NM}
+     </if>
+     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+       AND s.PROD_ID = #{PROD_ID}
+     </if>
+     <choose>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND INOUT_DATE BETWEEN #{dateStart} AND #{dateEnd}
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+            AND INOUT_DATE BETWEEN #{dateStart} AND '99-99-99'
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND INOUT_DATE BETWEEN '00-00-00' AND #{dateEnd}
+          </when>
+      </choose>
+     ORDER BY s.INOUT_DATE desc, s.PRODUCT_GUBUN
+	</select>
+	
+	<!-- <insert id="insertPrdtStatusProd" parameterType="java.util.HashMap" >
+	/* OutsInOutMapper.insertPrdtStatusProd */
+		INSERT INTO hanadmin.outs_mtrls_inout
+		(	
+			PRDT_DATE 
+			, EQP_ID
+			, PROD_ID
+			, PRDT_CNT
+			, POWDER_WHITE
+		 	, POWDER_BLACK
+		 	, POWDER_WHITE_CNT
+		 	, POWDER_BLACK_CNT
+			, THICKNESS_1
+			, THICKNESS_2
+			, THICKNESS_3
+			, THICKNESS_4
+			, THICKNESS_5
+			, THICKNESS_6
+			, MESH
+			, MESH_OUT
+			, BIGO
+			, IS_CHECK
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			#{PRDT_DATE}
+			, #{EQP_ID}  
+			, (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}) 
+			, #{PRDT_CNT} 
+			, #{POWDER_WHITE}
+		 	, #{POWDER_BLACK}
+		 	, #{POWDER_WHITE_CNT}
+		 	, #{POWDER_BLACK_CNT}
+			, NVL((SELECT THICKNESS_1 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, NVL((SELECT THICKNESS_2 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, NVL((SELECT THICKNESS_3 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, NVL((SELECT THICKNESS_4 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, NVL((SELECT MESH FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, NVL((SELECT MESH_OUT FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, #{BIGO}
+			, #{IS_CHECK}
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+		
+	</insert> -->
+	
+	<!-- <update id="updatePrdtStatusProd" parameterType="java.util.HashMap">
+	/* OutsInOutMapper.updatePrdtStatusProd */
+		UPDATE hanadmin.outs_mtrls_inout
+		   SET PRDT_DATE = #{PRDT_DATE}
+			, EQP_ID = #{EQP_ID}
+			, PROD_ID = #{PROD_ID}
+			, PRDT_CNT = #{PRDT_CNT}
+			, MAN1 = #{POWDER_WHITE}
+			, MAN2 = #{POWDER_BLACK}
+			, MAN3 = #{POWDER_WHITE_CNT}
+			, MAN4 = #{POWDER_BLACK_CNT}
+			, THICKNESS_1 = NVL((SELECT THICKNESS_1 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, THICKNESS_2 = NVL((SELECT THICKNESS_2 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, THICKNESS_3 = NVL((SELECT THICKNESS_3 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, THICKNESS_4 = NVL((SELECT THICKNESS_4 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, THICKNESS_5 = NVL((SELECT THICKNESS_5 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, THICKNESS_6 = NVL((SELECT THICKNESS_6 FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, MESH = NVL((SELECT MESH FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, MESH_OUT = NVL((SELECT MESH_OUT FROM hanadmin.bom_info WHERE prod_id = #{PROD_ID}),0) * #{PRDT_CNT}
+			, BIGO = #{BIGO}
+			, IS_CHECK = #{IS_CHECK}
+			, CREATE_DATE = SYSDATE
+			, CREATE_USER = #{CREATE_USER} 
+			, UPDATE_DATE = SYSDATE
+			, UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	 AND EQP_ID = #{EQP_ID}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	</update> -->
+	
+	<!-- <delete id="deletePrdtStatusProd" parameterType="java.util.HashMap">
+	/* OutsInOutMapper.deletePrdtStatusProd */
+		DELETE FROM hanadmin.outs_mtrls_inout
+		 WHERE 1=1 
+		 <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='EQP_ID != null and !EQP_ID.equals("")'>
+	    	 AND EQP_ID = #{EQP_ID}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	</delete> -->
+	
+	<!-- <insert id="insertToMtrlsInOut" parameterType="java.util.HashMap" >
+	/* MtrlsInOutMapper.insertToMtrlsInOut */
+		INSERT INTO hanadmin.mtrls_inout
+		(	
+			IDX
+			, STTL_MON 
+			, RAW_GUBUN
+			, KIND 
+			, PROD_ID 
+			, LOT_NUM 
+			, WEIGHT 
+			, CLIENT 
+			, IN_DATE 
+			, MAN 
+			, PRICE 
+			, BIGO
+			, IS_CHECK
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			hanadmin.mtrls_inout_seq.nextval
+			, NULL
+			, 'raw02' 
+			, '原材料'  
+			, #{PROD_ID}
+			, NULL
+			, #{WEIGHT} 
+			, 'HY'
+			, '20'||#{PRDT_DATE}
+			, 'SYSTEM' 
+			, 0
+			, #{BIGO}
+			, 'NO'
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+	</insert> -->
+
+</mapper>

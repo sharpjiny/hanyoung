@@ -11,6 +11,11 @@ public interface BomInfoMapper {
 	public void updateBomInfo(HashMap<String, Object> params) throws Exception;
 	public void deleteBomInfo(HashMap<String, Object> params) throws Exception;
 	
+	public List<HashMap<String, Object>> selectBomInfoCoatingList(HashMap<String, Object> params) throws Exception;
+	public void insertBomInfoCoating(HashMap<String, Object> params) throws Exception;
+	public void updateBomInfoCoating(HashMap<String, Object> params) throws Exception;
+	public void deleteBomInfoCoating(HashMap<String, Object> params) throws Exception;
+	
 	public List<HashMap<String, Object>> selectBomInfoPackingList(HashMap<String, Object> params) throws Exception;
 	public void insertBomInfoPacking(HashMap<String, Object> params) throws Exception;
 	public void updateBomInfoPacking(HashMap<String, Object> params) throws Exception;

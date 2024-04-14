@@ -15,7 +15,10 @@ public interface ProductionPackingMapper {
 	public void updatePrdtStatusPacking(HashMap<String, Object> params) throws Exception;
 	public void deletePrdtStatusPacking(HashMap<String, Object> params) throws Exception;
 	
-	public void insertToMtrlsInOut(HashMap<String, Object> params) throws Exception; //입출고 생산출고로~~
+	int selectPrdtNmCnt(HashMap<String, Object> map) throws Exception;
+	
+	public void insertToMtrlsInOut(HashMap<String, Object> params) throws Exception; //원부자재 사용량 차감~~
+	public void insertToPrdtInOut(HashMap<String, Object> params) throws Exception; //완제품 입출고 ~~
 	
 	public void insertPrdtMtrlsUsage(HashMap<String, Object> params) throws Exception;
 	public void updatePrdtMtrlsUsage(HashMap<String, Object> params) throws Exception;

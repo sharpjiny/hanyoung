@@ -175,6 +175,8 @@ var gridView = new tui.Grid({
 		{header: '박스수량',    name: 'BOX_COUNT',    filter:{type:'text'},         	sortable:true,            align:'center', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
+	    {header: '白粉',    	  name: 'POWDER_WHITE_CNT',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
+		{header: '黑粉',    	  name: 'POWDER_BLACK_CNT',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
 		/* {header: '수출방법',    name: 'OUT_METHOD',   filter:{type:'text'},         	sortable:true,            align:'center'}, */
 		/* {header: '단가',       	name: 'PRICE',        filter:{type:'text'},         	sortable:true,            align:'center', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -302,6 +304,8 @@ var gridEdit = new tui.Grid({
 		{header: '박스수량',    name: 'BOX_COUNT',    filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text', validation:{dataType:'number'}, formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
+	    {header: '白粉',    	  name: 'POWDER_WHITE_CNT',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
+		{header: '黑粉',    	  name: 'POWDER_BLACK_CNT',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
 		/* {header: '수출방법',    name: 'OUT_METHOD',   filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', formatter:'listItemText',        
 			editor:{type:'select',
 			options:{

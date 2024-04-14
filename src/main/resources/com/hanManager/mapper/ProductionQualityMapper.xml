@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanManager.mapper.ProductionQualityMapper">
+	
+	<select id="selectPrdtProdNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionQualityMapper.selectPrdtProdNm */
+		SELECT DISTINCT info.PROD_NM CODE, info.PROD_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionQualityMapper.selectPrdtProdDtlNm */
+		SELECT DISTINCT info.PROD_DTL_NM CODE, info.PROD_DTL_NM NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     ORDER BY CODE
+	</select>
+	
+	<select id="selectPrdtProdId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionQualityMapper.selectPrdtProdId */
+		SELECT info.PROD_ID CODE, info.PROD_ID NAME
+		  FROM hanadmin.prdt_info info
+	     WHERE 1=1
+	     <if test='kind != null and !kind.equals("")'>
+	       AND KIND = #{kind}
+	     </if>
+	     <if test='prodNm != null and !prodNm.equals("")'>
+	       AND PROD_NM = #{prodNm}
+	     </if>
+	     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+	       AND PROD_DTL_NM = #{prodDtlNm}
+	     </if>
+	</select>
+	
+	<select id="getProdDtlList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionQualityMapper.getProdDtlList */
+	SELECT kind
+		 , prod_nm
+		 , LISTAGG(prod_dtl_nm,',') WITHIN GROUP(ORDER BY  kind, prod_nm) AS prod_dtl_nm
+	  FROM HANADMIN.PRDT_INFO
+	 GROUP BY kind, prod_nm
+	</select>
+	
+	<select id="getPrice" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionQualityMapper.getPrice */
+	SELECT info.OUT_PRICE CODE, info.OUT_PRICE NAME 
+	  FROM hanadmin.prdt_info info
+	 WHERE 1=1
+     <if test='kind != null and !kind.equals("")'>
+       AND KIND = #{kind}
+     </if>
+     <if test='prodNm != null and !prodNm.equals("")'>
+       AND PROD_NM = #{prodNm}
+     </if>
+     <if test='prodDtlNm != null and !prodDtlNm.equals("")'>
+       AND PROD_DTL_NM = #{prodDtlNm}
+     </if>
+	</select>
+	
+	<select id="selectPrdtQualityList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionQualityMapper.selectPrdtQualityList */
+	SELECT to_char(to_date(s.PRDT_DATE), 'YY-MM-DD') PRDT_DATE
+		 , s.AREA
+		 , info.KIND
+		 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'product_kind' and CODE = info.KIND) AS KIND_NM
+		 , info.PROD_NM
+		 , info.PROD_DTL_NM
+		 , s.PROD_ID
+		 , s.CHECK_CNT
+		 , NVL(FAULTY_TYPE_1, 0) + NVL(FAULTY_TYPE_2, 0) + NVL(FAULTY_TYPE_3, 0) + NVL(FAULTY_TYPE_4, 0) + NVL(FAULTY_TYPE_5, 0) + NVL(FAULTY_TYPE_6, 0) + NVL(FAULTY_TYPE_7, 0) + NVL(FAULTY_TYPE_8, 0) AS SUM_CNT
+	     , ROUND((NVL(FAULTY_TYPE_1, 0) + NVL(FAULTY_TYPE_2, 0) + NVL(FAULTY_TYPE_3, 0) + NVL(FAULTY_TYPE_4, 0) + NVL(FAULTY_TYPE_5, 0) + NVL(FAULTY_TYPE_6, 0) + NVL(FAULTY_TYPE_7, 0) + NVL(FAULTY_TYPE_8, 0)) / DECODE(CHECK_CNT, 0, NULL, CHECK_CNT) * 100, 2) AS FAULTY_RATE
+		 , s.FAULTY_TYPE_1
+		 , s.FAULTY_TYPE_2
+		 , s.FAULTY_TYPE_3
+		 , s.FAULTY_TYPE_4
+		 , s.FAULTY_TYPE_5
+		 , s.FAULTY_TYPE_6
+		 , s.FAULTY_TYPE_7
+		 , s.FAULTY_TYPE_8
+		 , s.MAN
+		 , s.BIGO
+	 	 , s.IS_CHECK
+		 <!-- , u.BOM_ID -->
+      FROM HANADMIN.PRDT_STATUS_QUALITY s, HANADMIN.PRDT_INFO info<!-- , HANADMIN.MTRLS_USAGE u --> 
+     WHERE s.PROD_ID = info.PROD_ID
+     <if test='KIND != null and !KIND.equals("")'>
+	   AND info.KIND = #{KIND}
+     </if>
+     <if test='AREA != null and !AREA.equals("")'>
+	   AND AREA = #{AREA}
+     </if>
+     <if test='PROD_NM != null and !PROD_NM.equals("")'>
+       AND info.PROD_NM = #{PROD_NM}
+     </if>
+     <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+       AND info.PROD_DTL_NM = #{PROD_DTL_NM}
+     </if>
+     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+       AND s.PROD_ID = #{PROD_ID}
+     </if>
+     <choose>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart) and @com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND '20'||PRDT_DATE BETWEEN #{dateStart} AND #{dateEnd}
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateStart)">
+            AND '20'||PRDT_DATE BETWEEN #{dateStart} AND '99-99-99'
+          </when>
+          <when test="@com.hanManager.web.util.CommonUtil@isNotEmpty(dateEnd)">
+            AND '20'||PRDT_DATE BETWEEN '00-00-00' AND #{dateEnd}
+          </when>
+      </choose>
+     ORDER BY s.PRDT_DATE desc
+	</select>
+	
+	<insert id="insertPrdtStatusQuality" parameterType="java.util.HashMap" >
+	/* ProductionQualityMapper.insertPrdtStatusQuality */
+		INSERT INTO hanadmin.prdt_status_quality
+		(	
+			PRDT_DATE 
+			, AREA
+			, PROD_ID
+			, CHECK_CNT
+			, FAULTY_TYPE_1
+			, FAULTY_TYPE_2
+			, FAULTY_TYPE_3
+			, FAULTY_TYPE_4
+			, FAULTY_TYPE_5
+			, FAULTY_TYPE_6
+			, FAULTY_TYPE_7
+			, FAULTY_TYPE_8
+			, MAN
+			, BIGO
+			, IS_CHECK
+			, CREATE_DATE 
+			, CREATE_USER 
+			, UPDATE_DATE 
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			#{PRDT_DATE}
+			, #{AREA}
+			, (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+			, #{CHECK_CNT}
+			, #{FAULTY_TYPE_1}
+			, #{FAULTY_TYPE_2}
+			, #{FAULTY_TYPE_3}
+			, #{FAULTY_TYPE_4}
+			, #{FAULTY_TYPE_5}
+			, #{FAULTY_TYPE_6}
+			, #{FAULTY_TYPE_7}
+			, #{FAULTY_TYPE_8}
+			, #{MAN}
+			, #{BIGO}
+			, #{IS_CHECK}
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+	</insert>
+	
+	<update id="updatePrdtStatusQuality" parameterType="java.util.HashMap">
+	/* ProductionQualityMapper.updatePrdtStatusQuality */
+		UPDATE hanadmin.prdt_status_quality
+		   SET PRDT_DATE = #{PRDT_DATE}
+			, AREA = #{AREA}
+			, PROD_ID = #{PROD_ID}
+			, CHECK_CNT = #{CHECK_CNT}
+			, FAULTY_TYPE_1 = #{FAULTY_TYPE_1}
+			, FAULTY_TYPE_2 = #{FAULTY_TYPE_2}
+			, FAULTY_TYPE_3 = #{FAULTY_TYPE_3}
+			, FAULTY_TYPE_4 = #{FAULTY_TYPE_4}
+			, FAULTY_TYPE_5 = #{FAULTY_TYPE_5}
+			, FAULTY_TYPE_6 = #{FAULTY_TYPE_6}
+			, FAULTY_TYPE_7 = #{FAULTY_TYPE_7}
+			, FAULTY_TYPE_8 = #{FAULTY_TYPE_8}
+			, MAN = #{MAN}
+			, BIGO = #{BIGO}
+			, IS_CHECK = #{IS_CHECK}
+			, CREATE_DATE = SYSDATE
+			, CREATE_USER = #{CREATE_USER} 
+			, UPDATE_DATE = SYSDATE
+			, UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='AREA != null and !AREA.equals("")'>
+	    	 AND AREA = #{AREA}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	</update>
+	
+	<delete id="deletePrdtStatusQuality" parameterType="java.util.HashMap">
+	/* ProductionQualityMapper.deletePrdtStatusQuality */
+		DELETE FROM hanadmin.prdt_status_quality
+		 WHERE 1=1 
+		 <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
+	    	 AND PRDT_DATE = #{PRDT_DATE}
+	     </if>
+	     <if test='AREA != null and !AREA.equals("")'>
+	    	 AND AREA = #{AREA}
+	     </if>
+	     <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	</delete>
+	
+</mapper>

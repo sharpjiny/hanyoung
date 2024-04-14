@@ -10,7 +10,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">생산관리 > 생산</div>
+            <div class="muted pull-left">생산관리 > 품질</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">
@@ -96,8 +96,8 @@
             </div>
         </div>
         <div style="height:525px;">
-			<div id="prdtProdGridView" ></div>
-			<div id="prdtProdGridEdit" style="display:none"></div>
+			<div id="prdtQualityGridView" ></div>
+			<div id="prdtQualityGridEdit" style="display:none"></div>
 		</div>
     </div>
     <!-- /block -->
@@ -115,66 +115,69 @@ tui.Grid.applyTheme('default', {
 	  }
 	});
 
-var workTypeList = [{value:'', text:'-선택-'}];
 var productGubunList = [{value:'', text:'-선택-'}];
 var kindList = [{value:'', text:'-선택-'}];
-var eqpIdList = [{value:'', text:'-선택-'}];
 var areaTypeList = [{value:'', text:'-선택-'}];
 var prodDtlList = [{value:'', text:'-선택-'}];
-
+var chk_tmp = 0;
+var sum_tmp = 0;
 var gridView = new tui.Grid({
-    el: document.getElementById('prdtProdGridView'),
+    el: document.getElementById('prdtQualityGridView'),
     data: [],
     rowHeaders: ['rowNum'],//'checkbox', 'rowNum'
     header:{
-    	height: 40
+    	height: 60,
+    	complexColumns:[
+  					  {
+  					    header: '不良类型',
+  					    name: 'faultyType',
+  					  childNames: ['FAULTY_TYPE_1', 'FAULTY_TYPE_2', 'FAULTY_TYPE_3', 'FAULTY_TYPE_4', 'FAULTY_TYPE_5', 'FAULTY_TYPE_6', 'FAULTY_TYPE_7', 'FAULTY_TYPE_8']
+  					  }
+  	        	]
     },
     bodyHeight: 500,
     columns: [
 		{header: '日期',      name: 'PRDT_DATE',      filter:{type:'text'},          sortable:true,            align:'center', width:100},
-		{header: '白班/夜班',    	  name: 'WORK_TYPE',      filter:{type:'text'},          sortable:true,            align:'center', width:100},
-		{header: '设备',    	  name: 'EQP_ID',      	  filter:{type:'text'},          sortable:true,            align:'center', width:120},
 		{header: '工程',    	  name: 'AREA',           filter:{type:'text'},          sortable:true,            align:'center', width:120},
-		{header: '种类',     	  name: 'KIND_NM',   	  filter:{type:'text'},          sortable:true,            align:'center', width:120},
-		{header: '产品',       	  name: 'PROD_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
+		{header: '种类',      name: 'KIND_NM',   	  filter:{type:'text'},          sortable:true,            align:'center', width:120},
+		{header: '产品',      name: 'PROD_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
 		{header: '品名',      name: 'PROD_DTL_NM',    filter:{type:'text'},          sortable:true,            align:'center', width:120},
 		{header: '品号 ',    	  name: 'PROD_ID',        filter:{type:'text'},          sortable:true,            align:'center', width:100},
-		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center'},
-		{header: '开始时间',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:110},
-		{header: '结束时间',      name: 'ED_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:110},
-		{header: '工作时间',  	  name: 'WORK_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
-		{header: '休息时间',  	  name: 'REST_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
-		{header: '流失时间',  	  name: 'STOPPING_TIME',  filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) {
-			return v.value != null && v.value != '' ? "<div onclick=searchCombo.popup("+v.rowKey+")>"+v.value+"</div>" : null;
-		}},
-		{header: '生产数量' ,      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
+		{header: '检查数量',    	  name: 'CHECK_CNT',    filter:{type:'text'},          sortable:true,            align:'center', width:80, formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : 0;
+	    }},
+		{header: '合计' ,      name: 'SUM_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:80, formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : 0;
+	    }},
+	    {header: '不良率' ,      name: 'FAULTY_RATE',       filter:{type:'text'},          sortable:true,            align:'center', width:80, formatter:function(v) { // 추가
+	    	return v.value != null && v.value != '' ? v.value.toFixed(2)+'%' : 0+'%';
+	    }},
+	    {header: '上面毛刺',    	  name: 'FAULTY_TYPE_1',    filter:{type:'text'},          sortable:true,            align:'center', width:80, formatter:function(v) { // 추가
 			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
-		{header: '不良数量',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
+		{header: '下面毛刺',    	  name: 'FAULTY_TYPE_2',    filter:{type:'text'},          sortable:true,            align:'center', width:80, formatter:function(v) { // 추가
 			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
-		{header: '良品数量',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
+		{header: '浸塑不良',    	  name: 'FAULTY_TYPE_3',    filter:{type:'text'},          sortable:true,            align:'center', width:80, formatter:function(v) { // 추가
 			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
-		{header: '达成率',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-		      return v.value+'%';
+		{header: '变形',    		  name: 'FAULTY_TYPE_4',    filter:{type:'text'},          sortable:true,            align:'center', width:80, formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
-	    /* {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-		      return v.value+'%';
+		{header: '掉焊',    		  name: 'FAULTY_TYPE_5',    filter:{type:'text'},          sortable:true,            align:'center', width:80, formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
-		{header: '工人1',    	  name: 'MAN1',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '工人2',    	  name: 'MAN2',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '工人3',    	  name: 'MAN3',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '工人4',    	  name: 'MAN4',      filter:{type:'text'},          sortable:true,            align:'center', width:80}, */
-		{header: '1.45',    	  name: 'THICKNESS_1',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '2.0',    		  name: 'THICKNESS_2',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '2.5',    		  name: 'THICKNESS_3',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '2.9',    		  name: 'THICKNESS_4',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '3.8',    		  name: 'THICKNESS_5',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '筛网',    		  name: 'MESH',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		/* {header: '底面筛网',    		  name: 'MESH_OUT',    filter:{type:'text'},          sortable:true,            align:'center', width:80}, */
-		{header: '추가두께',   	  name: 'THICKNESS_6',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
-		{header: '备注',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:250},
+		{header: '没有切边',      name: 'FAULTY_TYPE_6',    filter:{type:'text'},          sortable:true,            align:'center', width:80, formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+	    }},
+		{header: '麻点',      	  name: 'FAULTY_TYPE_7',    filter:{type:'text'},          sortable:true,            align:'center', width:80, formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+	    }},
+		{header: '其他',      	  name: 'FAULTY_TYPE_8',    filter:{type:'text'},          sortable:true,            align:'center', width:80, formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+	    }},
+	    {header: '담당자',    	  name: 'MAN',      	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
+		{header: '备注',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:200},
 		{header: '完了',      name: 'IS_CHECK',     filter:{type:'text'},         sortable:true,            align:'center', width:80},
 		{header: '생성일자',      name: 'CREATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
 		{header: '생성자',    	  name: 'CREATE_USER',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
@@ -188,100 +191,85 @@ var gridView = new tui.Grid({
         height: 10,
         position: 'bottom', // or 'top'
         columnContent: {
-        	STOPPING_TIME: {
-        		template: function(valueMap) {
-        			return valueMap.sum;
-             	}
-    		},
-        	PRDT_CNT: {
+           CHECK_CNT: {
+              template: function(valueMap) {
+            	  chk_tmp = valueMap.sum;
+            	  return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              }
+            },
+           SUM_CNT: {
              template: function(valueMap) {
-               return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            	 sum_tmp = valueMap.sum;
+            	 return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
              }
            },
-           FAULTY_CNT: {
-             template: function(valueMap) {
-               return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+           FAULTY_RATE: {
+             template: function() {
+               return (sum_tmp/chk_tmp*100).toFixed(2)+'%';
              }
            },
-           FINISHED_CNT: {
-             template: function(valueMap) {
-               return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-             }
-           },
-           CMPLT_PER: {
-               template: function(valueMap) {
-                 return valueMap.avg.toFixed(2) +'%';
-               }
-           },
-           MAN_CMPLT_PER: {
-               template: function(valueMap) {
-                 return valueMap.avg.toFixed(2) +'%';
-               }
-           },
-           THICKNESS_1: {
+           FAULTY_TYPE_1: {
            	template: function(valueMap) {
-           		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+           		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
            	}
            },
-           THICKNESS_2: {
+           FAULTY_TYPE_2: {
            	template: function(valueMap) {
-           		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+           		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
            	}
            },
-           THICKNESS_3: {
+           FAULTY_TYPE_3: {
            	template: function(valueMap) {
-           		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+           		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
            	}
            },
-           THICKNESS_4: {
+           FAULTY_TYPE_4: {
            	template: function(valueMap) {
-           		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+           		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
            	}
            },
-           THICKNESS_5: {
+           FAULTY_TYPE_5: {
            	template: function(valueMap) {
-           		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+           		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
            	}
            },
-           MESH: {
+           FAULTY_TYPE_6: {
            	template: function(valueMap) {
-           		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+           		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
            	}
-           }/* ,
-           MESH_OUT: {
+           },
+           FAULTY_TYPE_7: {
            	template: function(valueMap) {
-           		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+           		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
            	}
-           } */
+           },
+           FAULTY_TYPE_8: {
+           	template: function(valueMap) {
+           		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+           	}
+           }
        }
     }
 });
 
 var gridEdit = new tui.Grid({
-    el: document.getElementById('prdtProdGridEdit'),
+    el: document.getElementById('prdtQualityGridEdit'),
     //scrollY: true,
     data: [],
     rowHeaders: ['checkbox', 'rowNum'],//'checkbox', 'rowNum'
     header:{
-    	height: 40
+    	height: 60,
+    	complexColumns:[
+    					  {
+    					    header: '不良类型',
+    					    name: 'faultyType',
+    					    childNames: ['FAULTY_TYPE_1', 'FAULTY_TYPE_2', 'FAULTY_TYPE_3', 'FAULTY_TYPE_4', 'FAULTY_TYPE_5', 'FAULTY_TYPE_6', 'FAULTY_TYPE_7', 'FAULTY_TYPE_8']
+    					  }
+    	        	]
     },
     bodyHeight: 500,
     columns: [
 		{header: '日期',      name: 'PRDT_DATE',      filter:{type:'text'},          sortable:true,            align:'center', width:100, className:'clickable', validation:{required:true}, editor:{type:'datePicker', options:{language: 'ko', format: 'yy-MM-dd'}}},
-		{header: '白班/夜班',    	  name: 'WORK_TYPE',      filter:{type:'text'},          sortable:true,            align:'center', width:100, className:'clickable', validation:{required:true}, formatter:'listItemText',
-	        editor:{
-	        	type:'select', // checkbox, select
-	        	options:{
-	        		listItems:workTypeList
-	       		}
-        }},
-		{header: '设备',    	  name: 'EQP_ID',      	  filter:{type:'text'},          sortable:true,            align:'center', width:120, className:'clickable', validation:{required:true}, formatter:'listItemText',
-	        editor:{
-	        	type:'select', // checkbox, select
-	        	options:{
-	        		listItems:eqpIdList
-	       		}
-        }},
 		{header: '工程',    	  name: 'AREA',           filter:{type:'text'},          sortable:true,            align:'center', width:120, className:'clickable', validation:{required:true}, formatter:'listItemText',
 	        editor:{
 	        	type:'select', // checkbox, select
@@ -333,63 +321,24 @@ var gridEdit = new tui.Grid({
         		listItems:[{value:'', text:'-선택-'}]
        		}}},
 		{header: '品号 ',    	  name: 'PROD_ID',        filter:{type:'text'},          sortable:true,            align:'center', width:100, className:'clickable',        editor:'text', disabled:true},
-		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor:'text'},
-		{header: '开始时间',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:110, className:'clickable', validation:{required:true}, editor:{
-            type: 'datePicker',
-            options: {
-            	language: 'ko',
-            	format: 'yy-MM-dd HH:mm',
-            	timepicker: {
-            		//layoutType: 'tab',
-            		showMeridiem:false,
-            		inputType: 'selectbox'
-                }
-            }
-          }},
-		{header: '结束时间',      name: 'ED_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:110, className:'clickable', validation:{required:true}, editor:{
-            type: 'datePicker',
-            options: {
-            	language: 'ko',
-            	format: 'yy-MM-dd HH:mm',
-            	timepicker: {
-            		//layoutType: 'tab',
-            		//inputType: 'spinbox'
-            		showMeridiem:false,
-            		inputType: 'selectbox'
-                }
-            }
-          }},
-		{header: '工作时间',  	  name: 'WORK_TIME',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true},
-		{header: '休息时间',  	  name: 'REST_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text'},
-		{header: '流失时间',  	  name: 'STOPPING_TIME',  filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text'},
-		{header: '生产数量',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:100, validation:{required:true}, editor:'text', formatter:function(v) { // 추가
-		      return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+		{header: '检查数量',    	  name: 'CHECK_CNT',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, validation: {
+	        dataType: 'number',
+	        required: true
+	      }},
+		{header: '合计',      name: 'SUM_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text', disabled:true},
+		{header: '不良率',      name: 'FAULTY_RATE',       filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text', disabled:true, formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? v.value.toFixed(2)+'%' : 0+'%';
 	    }},
-		{header: '不良数量',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text', formatter:function(v) { // 추가
-		      return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
-	    }},
-		{header: '良品数量',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text', disabled:true, formatter:function(v) { // 추가
-		      return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
-	    }},
-		{header: '达成率',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
-		      return v.value != null && v.value != '' ? v.value+'%' : null;
-	    }},
-	    /* {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
-		      return v.value != null && v.value != '' ? v.value+'%' : null;
-	    }},
-		{header: '工人1',    	  name: 'MAN1',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '工人2',    	  name: 'MAN2',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '工人3',    	  name: 'MAN3',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '工人4',    	  name: 'MAN4',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80}, */
-		{header: '1.45',    	  name: 'THICKNESS_1',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '2.0',    		  name: 'THICKNESS_2',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '2.5',    		  name: 'THICKNESS_3',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '2.9',    		  name: 'THICKNESS_4',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '3.8',    		  name: 'THICKNESS_5',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '筛网',    		  name: 'MESH',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		/* {header: '底面筛网',    		  name: 'MESH_OUT',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true}, */
-		{header: '추가두께',      name: 'THICKNESS_6',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', disabled:true, hidden:true},
-		{header: '备注',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:250, editor:'text'},
+		{header: '上面毛刺',    	  name: 'FAULTY_TYPE_1',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
+		{header: '下面毛刺',    	  name: 'FAULTY_TYPE_2',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
+		{header: '浸塑不良',    	  name: 'FAULTY_TYPE_3',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
+		{header: '变形',    		  name: 'FAULTY_TYPE_4',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
+		{header: '掉焊',    		  name: 'FAULTY_TYPE_5',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
+		{header: '没有切边',      name: 'FAULTY_TYPE_6',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text'},
+		{header: '麻点',      	  name: 'FAULTY_TYPE_7',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text'},
+		{header: '其他',      	  name: 'FAULTY_TYPE_8',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text'},
+	    {header: '담당자',    	  name: 'MAN',      	  filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text'},
+		{header: '备注',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:200, editor:'text'},
 		{header: '完了',    name: 'IS_CHECK',	filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', 	width:100, formatter:'listItemText',        
 			editor:{type:'select',
 			options:{
@@ -407,117 +356,78 @@ var gridEdit = new tui.Grid({
         height: 10,
         position: 'bottom', // or 'top'
         columnContent: {
-        	STOPPING_TIME: {
-        		template: function(valueMap) {
-        			return valueMap.sum;
-             	}
-    		},
-        	PRDT_CNT: {
-        		template: function(valueMap) {
-        			return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-             	}
-    		},
-    		FAULTY_CNT: {
-                template: function(valueMap) {
-                	return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-                }
+        	CHECK_CNT: {
+              template: function(valueMap) {
+                return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              }
             },
-            FINISHED_CNT: {
+        	SUM_CNT: {
+              template: function(valueMap) {
+                return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              }
+            },
+            FAULTY_RATE: {
+                template: function(valueMap) {
+                	return (sum_tmp/chk_tmp*100).toFixed(2)+'%';
+                }
+              },
+            FAULTY_TYPE_1: {
             	template: function(valueMap) {
             		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             	}
             },
-            CMPLT_PER: {
-                template: function(valueMap) {
-                  return valueMap.avg.toFixed(2) + '%';
-                }
-            },
-            MAN_CMPLT_PER: {
-                template: function(valueMap) {
-                  return valueMap.avg.toFixed(2) +'%';
-                }
-            },
-            THICKNESS_1: {
+            FAULTY_TYPE_2: {
             	template: function(valueMap) {
-            		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             	}
             },
-            THICKNESS_2: {
+            FAULTY_TYPE_3: {
             	template: function(valueMap) {
-            		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             	}
             },
-            THICKNESS_3: {
+            FAULTY_TYPE_4: {
             	template: function(valueMap) {
-            		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             	}
             },
-            THICKNESS_4: {
+            FAULTY_TYPE_5: {
             	template: function(valueMap) {
-            		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             	}
             },
-            THICKNESS_5: {
+            FAULTY_TYPE_6: {
             	template: function(valueMap) {
-            		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             	}
             },
-            MESH: {
+            FAULTY_TYPE_7: {
             	template: function(valueMap) {
-            		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             	}
-            }/* ,
-            MESH_OUT: {
+            },
+            FAULTY_TYPE_8: {
             	template: function(valueMap) {
-            		return valueMap.sum.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            		return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
             	}
-            } */
+            }
        }
     }
 });
 
-/* gridEdit.on('afterChange', function(ev){
-	gridEdit.setValue(0, 'PROD_NM', [{text:'test', value:'test'}]);
-	gridEdit.setColumns([
-     	{header: '상세품명',    name: 'PROD_DTL_NM',  filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text'}
-     ]);
-}); */
-
 var dataSet;
 var comboSet;
 
-var prdtProd = {
+var prdtQuality = {
 	init:function(){
-		//this.productGubunSets();
 		this.kindSets();
-		this.eqpIdSets();
 		this.areaTypeSets();
-		this.workTypeSets();
 		searchCombo.getProdDtlList();
 	},
-	/* productGubunSets:function(){
-		var params = {"code_group":"product_gubun"};
-		$.ajax({
-		    url : "/production/prod/productGubunSets",
-		    method :"POST",
-		    data:params
-		}).success(function(result) {
-			$.each(result["PRODUCT_GUBUN"], function(i, item){
-				$('#PRODUCT_GUBUN').append($('<option/>').val(item.CODE).text(item.NAME));
-				productGubunList.push({value:item.CODE, text:item.NAME});
-			});
-			
-			//dataSet = result;
-			//gridView.resetData(result);
-			//prdtProd.view();
-		}).fail(function(ev) {
-	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
-	    });
-	}, */
 	kindSets:function(){
 		var params = {"code_group":"product_kind"};
 		$.ajax({
-		    url : "/production/prod/kindSets",
+		    url : "/production/quality/kindSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -529,25 +439,10 @@ var prdtProd = {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
 	},
-	eqpIdSets:function(){
-		var params = {"code_group":"eqp_id"};
-		$.ajax({
-		    url : "/production/prod/eqpIdSets",
-		    method :"POST",
-		    data:params
-		}).success(function(result) {
-			$.each(result["EQP_ID"], function(i, item){
-				$('#EQP_ID').append($('<option/>').val(item.CODE).text(item.NAME));
-				eqpIdList.push({value:item.CODE, text:item.NAME});
-			});
-		}).fail(function(ev) {
-	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
-	    });
-	},
 	areaTypeSets:function(){
 		var params = {"code_group":"area_type"};
 		$.ajax({
-		    url : "/production/prod/areaTypeSets",
+		    url : "/production/quality/areaTypeSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -559,26 +454,9 @@ var prdtProd = {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
 	},
-	workTypeSets:function(){
-		var params = {"code_group":"work_type"};
-		$.ajax({
-		    url : "/production/repair/workTypeSets",
-		    method :"POST",
-		    data:params
-		}).success(function(result) {
-			$.each(result["WORK_TYPE"], function(i, item){
-				$('#WORK_TYPE').append($('<option/>').val(item.CODE).text(item.NAME));
-				workTypeList.push({value:item.CODE, text:item.NAME});
-			});
-		}).fail(function(ev) {
-	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
-	    });
-	},
 	search:function(p){
 		var params = {
-			'WORK_TYPE':$('#WORK_TYPE option:selected').val(),
-			'PRODUCT_MAN':$('#PRODUCT_MAN').val(),
-			'EQP_ID':$('#EQP_ID option:selected').val(),
+			'MAN':$('#PRODUCT_MAN').val(),
 			'KIND':$('#KIND option:selected').val(),
 			'PROD_NM':$('#PROD_NM option:selected').val(),
 			'PROD_DTL_NM':$('#PROD_DTL_NM option:selected').val(),
@@ -587,7 +465,7 @@ var prdtProd = {
 			'dateEnd':$('#dateEnd').val()
 		};
 		$.ajax({
-		    url : "/production/prod/list",
+		    url : "/production/quality/list",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -600,16 +478,14 @@ var prdtProd = {
 			
 			dataSet = result;
 			gridView.resetData(result);
-			prdtProd.view();
+			prdtQuality.view();
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
-	    })/* .error(function(ev){
-	    	alert('오류 : ' + ev);
-	    }) */;
+	    });
 	},
 	view:function(){
-		$('#prdtProdGridEdit').hide();
-		$('#prdtProdGridView').show();
+		$('#prdtQualityGridEdit').hide();
+		$('#prdtQualityGridView').show();
 		$('#editBtn').show();
 		$('#saveBtn').hide();
 		$('#delBtn').hide();
@@ -617,8 +493,8 @@ var prdtProd = {
 		$('#viewBtn').hide();
 	},
 	edit:function(){
-		$('#prdtProdGridView').hide();
-		$('#prdtProdGridEdit').show();
+		$('#prdtQualityGridView').hide();
+		$('#prdtQualityGridEdit').show();
 		$('#viewBtn').show();
 		$('#editBtn').hide();
 		$('#saveBtn').show();
@@ -650,9 +526,9 @@ var prdtProd = {
 		
 		try{
 			allData.forEach(function(f_item, index){
-				let org = f_item.PRDT_DATE + f_item.WORK_TYPE + f_item.EQP_ID+ f_item.AREA +f_item.PROD_ID;
+				let org = f_item.PRDT_DATE + f_item.AREA + f_item.PROD_ID;
 				dup = allData.filter(function(s_item){
-					let com = s_item.PRDT_DATE + s_item.WORK_TYPE + s_item.EQP_ID+ s_item.AREA +s_item.PROD_ID;
+					let com = s_item.PRDT_DATE + s_item.AREA +s_item.PROD_ID;
 					return org === com;
 				});
 				
@@ -668,11 +544,6 @@ var prdtProd = {
 			console.log("루프문을 빠지긴 위한 강제 에러 처리");
 		}
 		
-		// 빈값 제거..
-		/* saveData.createdRows = saveData.createdRows.filter(function(v){
-	        return v['PROD_ID'] != null && v['PROD_ID'] != '';
-	    }); */
-	    
 	    if(saveData.updatedRows.length > 0){
 			$.each(saveData.updatedRows, function(i, v){
 				var orgRowKey = saveData.updatedRows[i]["rowKey"];
@@ -693,13 +564,13 @@ var prdtProd = {
 		
 		if(chkLen > 0){
 			$.ajax({
-			    url : "/production/prod/save", 
+			    url : "/production/quality/save", 
 			    contentType : "application/json",
 			    method :"POST",
 			    data:JSON.stringify(saveData)
 			}).success(function(result) {
 				alert(" ㅇ 추가 : " + result["insert"] + "건\n" + " ㅇ 수정 : " + result["update"] + "건\n" + " ㅇ 삭제 : " + result["delete"] + "건");
-				prdtProd.search();
+				prdtQuality.search();
 			}).fail(function(ev) {
 		    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 		    });
@@ -732,7 +603,6 @@ var prdtProd = {
 	},
 	add:function(){
 		gridEdit.prependRow({IS_CHECK:'NO'});
-		//gridEdit.prependRow({FAULTY_CNT:0});
 	}
 }
 
@@ -881,12 +751,12 @@ var searchCombo = {
 
 $(function(){
 	// 그리드 제어용
-	$('#searchBtn').click(prdtProd.search);
-	$('#viewBtn').click(prdtProd.view);
-	$('#editBtn').click(prdtProd.edit);
-	$('#saveBtn').click(prdtProd.save);
-	$('#addBtn').click(prdtProd.add);
-	$('#delBtn').click(prdtProd.del);
+	$('#searchBtn').click(prdtQuality.search);
+	$('#viewBtn').click(prdtQuality.view);
+	$('#editBtn').click(prdtQuality.edit);
+	$('#saveBtn').click(prdtQuality.save);
+	$('#addBtn').click(prdtQuality.add);
+	$('#delBtn').click(prdtQuality.del);
 	
 	// 조회 콤보박스 제어용(품명, 상세품명 선택을 통해 품호를 구하기만 있음)
 	$('#KIND').change(searchCombo.getProdNm);
@@ -894,8 +764,8 @@ $(function(){
 	$('#PROD_DTL_NM').change(searchCombo.getProdId);
 	
 	dateUtil.init();
-	prdtProd.init();
-	prdtProd.search('init');
+	prdtQuality.init();
+	prdtQuality.search('init');
 	
 });
 </script>

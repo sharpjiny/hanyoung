@@ -86,6 +86,22 @@ public class BomInfoController extends DefaultController{
 	 * @return
 	 * @throws Exception 
 	 */
+	@RequestMapping(value={"listCoating"})
+	public @ResponseBody List<HashMap<String, Object>> listCoating(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
+		
+		List<HashMap<String, Object>> result = null;
+		
+		result = bomInfoMapper.selectBomInfoCoatingList(params);
+		
+		return result;
+	}
+	
+	/**
+	 * 리스트
+	 * @return 
+	 * @return
+	 * @throws Exception 
+	 */
 	@RequestMapping(value={"listPacking"})
 	public @ResponseBody List<HashMap<String, Object>> listPacking(Model model, @RequestParam HashMap<String, Object> params) throws Exception{
 		
@@ -111,6 +127,25 @@ public class BomInfoController extends DefaultController{
 		params.put("loginUser", loginUser.getId());
 		
 	    result = bomInfoService.bomInfoSave(params);
+
+		return result;
+	}
+	
+	/**
+	 * 코팅 저장(추가, 수정, 삭제)
+	 * @return 
+	 * @return
+	 * @throws Exception 
+	 */
+	@RequestMapping(value={"saveCoating"})
+	public @ResponseBody HashMap<String, Object> saveCoating(Model model, @RequestBody HashMap<String, Object> params) throws Exception{
+		
+		HashMap<String, Object> result = null;
+		
+		LoginUsers loginUser = LoginManager.getInstance().getSession(request);
+		params.put("loginUser", loginUser.getId());
+		
+	    result = bomInfoService.bomInfoCoatingSave(params);
 
 		return result;
 	}

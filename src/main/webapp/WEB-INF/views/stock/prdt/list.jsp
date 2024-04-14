@@ -116,13 +116,13 @@ var gridView = new tui.Grid({
 	    }},
 		{header: '박스수량',  	name: 'BOX_COUNT',filter:{type:'text'},         	sortable:true,            align:'center', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    }},
+	    }}/* ,
 		{header: '단가',       	name: 'PRICE',        filter:{type:'text'},         	sortable:true,            align:'center', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
 		{header: '총액',       	name: 'TOT_PRICE',    filter:{type:'text'},         	sortable:true,            align:'center', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    }}
+	    }} */
     ],
     columnOptions: {
     	resizable: true
@@ -184,12 +184,14 @@ var prdtStock = {
 		$.ajax({
 		    url : "/stock/prdt/kindSets",
 		    method :"POST",
+		    async:false,
 		    data:params
 		}).success(function(result) {
 			$.each(result["KIND"], function(i, item){
 				$('#KIND').append($('<option/>').val(item.CODE).text(item.NAME));
 				kindList.push({value:item.CODE, text:item.NAME});
 			});
+			$("#KIND").val('完成品').prop("selected", true);
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });

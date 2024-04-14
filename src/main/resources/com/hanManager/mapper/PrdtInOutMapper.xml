@@ -87,7 +87,9 @@
 			 , inout.INOUT_DATE 
 			 , inout.BOX_COUNT 
 			 , inout.BOX_PER_COUNT 
-			 , inout.OUT_METHOD 
+			 , inout.OUT_METHOD
+			 , inout.POWDER_WHITE_CNT 
+			 , inout.POWDER_BLACK_CNT  
 			 , inout.MAN 
 			 , inout.PRICE AS PRICE
 			 , (inout.BOX_COUNT * inout.BOX_PER_COUNT) AS TOT_COUNT
@@ -150,6 +152,8 @@
 			, BOX_COUNT
 			, BOX_PER_COUNT
 			, OUT_METHOD 
+			, POWDER_WHITE_CNT
+			, POWDER_BLACK_CNT
 			, MAN 
 			, PRICE 
 			, BIGO
@@ -172,6 +176,8 @@
 			, #{BOX_COUNT} 
 			, #{BOX_PER_COUNT} 
 			, #{OUT_METHOD} 
+			, #{POWDER_WHITE_CNT}
+			, #{POWDER_BLACK_CNT}
 			, #{MAN} 
 			, (SELECT OUT_PRICE FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM} and KIND = #{KIND})
 			, #{BIGO}
@@ -196,7 +202,9 @@
 			   , INOUT_DATE = #{INOUT_DATE} 
 			   , BOX_COUNT = #{BOX_COUNT} 
 			   , BOX_PER_COUNT = #{BOX_PER_COUNT} 
-			   , OUT_METHOD = #{OUT_METHOD} 
+			   , OUT_METHOD = #{OUT_METHOD}
+			   , POWDER_WHITE_CNT = #{POWDER_WHITE_CNT}
+			   , POWDER_BLACK_CNT = #{POWDER_BLACK_CNT} 
 			   , MAN = #{MAN} 
 			   , PRICE = #{PRICE}
 			   , BIGO = #{BIGO}

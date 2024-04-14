@@ -151,21 +151,21 @@ var gridView = new tui.Grid({
 			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '不良数量',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '良品数量',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '达成率',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
 		      return v.value+'%';
 	    }},
 	    {header: 'POP产品',       	  name: 'POP_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
 	    {header: 'POP사용량',      name: 'POP_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 	    {header: 'BOX产品',       	  name: 'BOX_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
 	    {header: 'BOX사용량',      name: 'BOX_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},/*
 	    {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
 		      return v.value+'%';
@@ -194,7 +194,17 @@ var gridView = new tui.Grid({
         height: 10,
         position: 'bottom', // or 'top'
         columnContent: {
-        	STOPPING_TIME: {
+        	WORK_TIME: {
+        		template: function(valueMap) {
+        			return valueMap.sum.toFixed(2);
+             	}
+    		},
+    		REST_TIME: {
+        		template: function(valueMap) {
+        			return valueMap.sum.toFixed(1);
+             	}
+    		},
+    		STOPPING_TIME: {
         		template: function(valueMap) {
         			return valueMap.sum;
              	}
@@ -218,6 +228,16 @@ var gridView = new tui.Grid({
                template: function(valueMap) {
                  return valueMap.avg.toFixed(2) +'%';
                }
+           },
+           POP_CNT: {
+	            template: function(valueMap) {
+                	return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              	}
+           },
+           BOX_CNT: {
+	            template: function(valueMap) {
+                	return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              	}
            }/* ,
            MAN_CMPLT_PER: {
                template: function(valueMap) {
@@ -365,18 +385,18 @@ var gridEdit = new tui.Grid({
 		      return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '良品数量',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text', disabled:true, formatter:function(v) { // 추가
-		      return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+		      return v.value !== null && v.value !== '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '达成率',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
-		      return v.value != null && v.value != '' ? v.value+'%' : null;
+		      return v.value !== null && v.value !== '' ? v.value+'%' : null;
 	    }},
 	    {header: 'POP产品',       	  name: 'POP_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
 	    {header: 'POP사용량',      name: 'POP_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 	    {header: 'BOX产品',       	  name: 'BOX_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
 	    {header: 'BOX사용량',      name: 'BOX_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 	    /*
 	    {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
@@ -410,7 +430,17 @@ var gridEdit = new tui.Grid({
         height: 10,
         position: 'bottom', // or 'top'
         columnContent: {
-        	STOPPING_TIME: {
+        	WORK_TIME: {
+        		template: function(valueMap) {
+        			return valueMap.sum.toFixed(2);
+             	}
+    		},
+    		REST_TIME: {
+        		template: function(valueMap) {
+        			return valueMap.sum.toFixed(1);
+             	}
+    		},
+    		STOPPING_TIME: {
         		template: function(valueMap) {
         			return valueMap.sum;
              	}
@@ -434,6 +464,16 @@ var gridEdit = new tui.Grid({
                 template: function(valueMap) {
                   return valueMap.avg.toFixed(2) + '%';
                 }
+            },
+            POP_CNT: {
+	            template: function(valueMap) {
+                	return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              	}
+            },
+            BOX_CNT: {
+	            template: function(valueMap) {
+                	return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+              	}
             }/* ,
             MAN_CMPLT_PER: {
                 template: function(valueMap) {
@@ -638,12 +678,35 @@ var prdtProd = {
 		
 		let saveData = gridEdit.getModifiedRows();
 		
+		let allData = gridEdit.getData();
+		let dup = [];
+		let stopFlag = false;
+		
+		try{
+			allData.forEach(function(f_item, index){
+				let org = f_item.PRDT_DATE + f_item.WORK_TYPE + f_item.EQP_ID+ f_item.AREA +f_item.PROD_ID;
+				dup = allData.filter(function(s_item){
+					let com = s_item.PRDT_DATE + s_item.WORK_TYPE + s_item.EQP_ID+ s_item.AREA +s_item.PROD_ID;
+					return org === com;
+				});
+				
+				let chk = false ;
+				if(dup.length > 1) {
+					let rowKey = dup.length;
+					alert("No. "+(dup[rowKey-1]["rowKey"]+1) + " 중복된 데이터가 있습니다.");
+					stopFlag = true;
+					throw new Error();
+				}
+			});
+		}catch(e){
+			console.log("루프문을 빠지긴 위한 강제 에러 처리");
+		}
+		
 		// 빈값 제거..
 		/* saveData.createdRows = saveData.createdRows.filter(function(v){
 	        return v['PROD_ID'] != null && v['PROD_ID'] != '';
 	    }); */
 		
-	    var stopFlag = false;
 		if(saveData.updatedRows.length > 0){
 			$.each(saveData.updatedRows, function(i, v){
 				var orgRowKey = saveData.updatedRows[i]["rowKey"];

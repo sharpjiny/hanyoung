@@ -162,6 +162,7 @@ var mtrlsStock = {
 	init:function(){
 		//this.productGubunSets();
 		this.kindSets();
+		searchCombo.getProdNm("原材料");
 		searchCombo.getProdIdRowList();
 	},
 	/* productGubunSets:function(){
@@ -184,12 +185,14 @@ var mtrlsStock = {
 		$.ajax({
 		    url : "/stock/mtrls/kindSets",
 		    method :"POST",
+		    async:false,
 		    data:params
 		}).success(function(result) {
 			$.each(result["KIND"], function(i, item){
 				$('#KIND').append($('<option/>').val(item.CODE).text(item.NAME));
 				kindList.push({value:item.CODE, text:item.NAME});
 			});
+			$("#KIND").val('原材料').prop("selected", true);
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
@@ -218,8 +221,8 @@ var mtrlsStock = {
 }
 
 var searchCombo = {
-	getProdNm:function(e){
-		var params = {"kind":$(this).val()};
+	getProdNm:function(p){
+		var params = (p != null && p != '') ? {"kind":p} :{"kind":$(this).val()};
 		$.ajax({
 		    url : "/stock/mtrls/prodNmList",
 		    method :"POST",

@@ -10,6 +10,12 @@ public interface BomInfoService {
 	public Integer update(HashMap<String, Object> params) throws Exception;
 	public Integer delete(HashMap<String, Object> params) throws Exception;
 	
+	public List<HashMap<String, Object>> selectBomInfoCoatingList(HashMap<String, Object> params) throws Exception;
+	public HashMap<String, Object> bomInfoCoatingSave(HashMap<String, Object> params) throws Exception;
+	public Integer insertCoating(HashMap<String, Object> params) throws Exception;
+	public Integer updateCoating(HashMap<String, Object> params) throws Exception;
+	public Integer deleteCoating(HashMap<String, Object> params) throws Exception;
+	
 	public List<HashMap<String, Object>> selectBomInfoPackingList(HashMap<String, Object> params) throws Exception;
 	public HashMap<String, Object> bomInfoPackingSave(HashMap<String, Object> params) throws Exception;
 	public Integer insertPacking(HashMap<String, Object> params) throws Exception;

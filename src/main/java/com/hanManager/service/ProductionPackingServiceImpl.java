@@ -42,6 +42,10 @@ public class ProductionPackingServiceImpl implements ProductionPackingService {
 			for(int i=0; i<ilist.size();i++){
 				ilist.get(i).put("CREATE_USER", params.get("loginUser"));
 				ilist.get(i).put("UPDATE_USER", params.get("loginUser"));
+				/*int cnt = productionPackingMapper.selectPrdtNmCnt(params);//대중소 세트 만들어 놓을려다가 필요없어짐.
+				for(){
+					
+				}*/
 				ipCnt += insertPrdtStatusPacking(ilist.get(i));
 				//iuCnt += insertPrdtMtrlsUsage(ilist.get(i));
 			}
@@ -53,10 +57,13 @@ public class ProductionPackingServiceImpl implements ProductionPackingService {
 				ulist.get(i).put("CREATE_USER", params.get("loginUser"));
 				ulist.get(i).put("UPDATE_USER", params.get("loginUser"));
 				
-				if("OK".equals(ulist.get(i).get("IS_CHECK"))){
-					// 입출고 작업 후 OK 로 업데이트.
-					upCnt += insertToMtrlsInOut(ulist.get(i));
+				if("NO".equals(ulist.get(i).get("IS_CHECK"))){
+					// NO 인 경우만 수정이 가능.
+					upCnt += updatePrdtStatusPacking(ulist.get(i));
 				}else{
+					// 1. 입출고 추가, 2. 원부자재 차감, 3. OK 로 수정 
+					insertToMtrlsInOut(ulist.get(i));
+					insertToPrdtInOut(ulist.get(i));
 					upCnt += updatePrdtStatusPacking(ulist.get(i));
 				}
 			}
@@ -229,38 +236,40 @@ public class ProductionPackingServiceImpl implements ProductionPackingService {
 	        HashMap insertMap = new HashMap();
 	        insertMap.putAll(params);
 	        
-	        if(!"".equals(insertMap.get("THICKNESS_1")) && insertMap.get("THICKNESS_1") != null){
-	        	insertMap.put("PROD_ID", "Y101");
-	        	insertMap.put("WEIGHT", insertMap.get("THICKNESS_1"));
-	        	productionPackingMapper.insertToMtrlsInOut(insertMap);
-	        }
-	        if(!"".equals(insertMap.get("THICKNESS_2")) && insertMap.get("THICKNESS_2") != null){
-	        	insertMap.put("PROD_ID", "Y102");
-	        	insertMap.put("WEIGHT", insertMap.get("THICKNESS_2"));
-	        	productionPackingMapper.insertToMtrlsInOut(insertMap);
-	        }
-	        if(!"".equals(insertMap.get("THICKNESS_3")) && insertMap.get("THICKNESS_3") != null){
-	        	insertMap.put("PROD_ID", "Y103");
-	        	insertMap.put("WEIGHT", params.get("THICKNESS_3"));
-	        	productionPackingMapper.insertToMtrlsInOut(insertMap);
-	        }
-	        if(!"".equals(insertMap.get("THICKNESS_4")) && insertMap.get("THICKNESS_4") != null){
-	        	insertMap.put("PROD_ID", "Y104");
-	        	insertMap.put("WEIGHT", params.get("THICKNESS_4"));
-	        	productionPackingMapper.insertToMtrlsInOut(insertMap);
-	        }
-	        if(!"".equals(insertMap.get("THICKNESS_5")) && insertMap.get("THICKNESS_5") != null){
-	        	insertMap.put("PROD_ID", "Y105");
-	        	insertMap.put("WEIGHT", params.get("THICKNESS_5"));
-	        	productionPackingMapper.insertToMtrlsInOut(insertMap);
-	        }
-	        if(!"".equals(insertMap.get("THICKNESS_6")) && insertMap.get("THICKNESS_6") != null){
-	        	insertMap.put("PROD_ID", "Y106");
-	        	insertMap.put("WEIGHT", params.get("THICKNESS_6"));
+	        if(!"".equals(insertMap.get("POP_NM")) && insertMap.get("POP_NM") != null){
+	        	insertMap.put("PROD_NM", "POP");
+	        	insertMap.put("PROD_DTL_NM", insertMap.get("POP_NM"));
+	        	insertMap.put("CNT", insertMap.get("POP_CNT"));
 	        	productionPackingMapper.insertToMtrlsInOut(insertMap);
 	        }
 	        
-	        productionPackingMapper.updatePrdtStatusPacking(params);
+	        if(!insertMap.get("POP_NM").toString().contains("小") && !insertMap.get("POP_NM").toString().contains("中")){
+	        	if(!"".equals(insertMap.get("BOX_NM")) && insertMap.get("BOX_NM") != null){
+		        	insertMap.put("PROD_NM", "纸箱");
+		        	insertMap.put("PROD_DTL_NM", insertMap.get("BOX_NM"));
+		        	insertMap.put("CNT", insertMap.get("BOX_CNT"));
+		        	productionPackingMapper.insertToMtrlsInOut(insertMap);
+		        }
+	        }
+	        
+	        //productionPackingMapper.updatePrdtStatusPacking(params);
+	        
+			return retCode;
+		}catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception(e.getMessage());
+		}
+	}
+	
+	@Override
+	@Transactional(rollbackFor={Exception.class}, propagation = Propagation.REQUIRED)
+	public Integer insertToPrdtInOut(HashMap<String, Object> params) throws Exception {
+		try {
+	        int retCode = 1;
+	        
+	        productionPackingMapper.insertToPrdtInOut(params);
+	        
+	        //productionPackingMapper.updatePrdtStatusPacking(params);
 	        
 			return retCode;
 		}catch (Exception e) {

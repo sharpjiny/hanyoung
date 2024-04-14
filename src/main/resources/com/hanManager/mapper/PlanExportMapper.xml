@@ -352,7 +352,7 @@
 				 , BOX_COUNT
 				 , COUNT
 				 , NULL 
-				 , 'system'
+				 , 'SYSTEM'
 				 , PRICE
 				 , NULL
 				 , 'NO'

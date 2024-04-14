@@ -55,6 +55,7 @@
 			, THICKNESS_5
 			, THICKNESS_6
 			, MESH
+			, MESH_OUT
 			, BIGO
 			, to_char(CREATE_DATE, 'YYYY.MM.DD') CREATE_DATE
 			, CREATE_USER
@@ -92,6 +93,7 @@
 			, THICKNESS_5
 			, THICKNESS_6
 			, MESH
+			, MESH_OUT
 			, BIGO
 			, CREATE_DATE
 			, CREATE_USER
@@ -111,6 +113,7 @@
 			, #{THICKNESS_5}
 			, #{THICKNESS_6}
 			, #{MESH}
+			, #{MESH_OUT}
 			, #{BIGO}
 			, SYSDATE
 			, #{CREATE_USER}
@@ -133,6 +136,7 @@
 			   , THICKNESS_5 = #{THICKNESS_5}
 			   , THICKNESS_6 = #{THICKNESS_6}
 			   , MESH = #{MESH}
+			   , MESH_OUT = #{MESH_OUT}
 			   , BIGO = #{BIGO}
 			   , CREATE_DATE = SYSDATE
 			   , CREATE_USER = #{CREATE_USER}
@@ -147,6 +151,97 @@
 	<delete id="deleteBomInfo" parameterType="java.util.HashMap">
 	/* BomInfoMapper.deleteBomInfo */
 		DELETE FROM hanadmin.bom_info 
+		 WHERE 1=1 
+		 <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	 AND PROD_ID = #{PROD_ID}
+	     </if>
+	</delete>
+	
+	
+	<select id="selectBomInfoCoatingList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* BomInfoMapper.selectBomInfoCoatingList */
+		SELECT PROD_ID
+			, KIND
+			, PROD_NM
+			, PROD_DTL_NM
+			, SUM_WEIGHT
+			, PWD_WEIGHT
+			, BIGO
+			, to_char(CREATE_DATE, 'YYYY.MM.DD') CREATE_DATE
+			, CREATE_USER
+			, to_char(UPDATE_DATE, 'YYYY.MM.DD') UPDATE_DATE
+			, UPDATE_USER
+		FROM hanadmin.bom_info_coating
+	   WHERE 1=1
+	   <if test='PROD_ID != null and !PROD_ID.equals("")'>
+	   	   AND PROD_ID = #{PROD_ID}
+	   </if>
+	   <if test='KIND != null and !KIND.equals("")'>
+	   	   AND KIND = #{KIND}
+	   </if>
+	   <if test='PROD_NM != null and !PROD_NM.equals("")'>
+	   	   AND PROD_NM = #{PROD_NM}
+	   </if>
+	   <if test='PROD_DTL_NM != null and !PROD_DTL_NM.equals("")'>
+	   	   AND PROD_DTL_NM = #{PROD_DTL_NM}
+	   </if>
+	   ORDER BY PROD_ID
+	</select>
+	
+	<insert id="insertBomInfoCoating" parameterType="java.util.HashMap" >
+	/* BomInfoMapper.insertBomInfoCoating */
+		INSERT INTO hanadmin.bom_info_coating 
+		(	
+			PROD_ID
+			, KIND
+			, PROD_NM
+			, PROD_DTL_NM
+			, SUM_WEIGHT
+			, PWD_WEIGHT
+			, BIGO
+			, CREATE_DATE
+			, CREATE_USER
+			, UPDATE_DATE
+			, UPDATE_USER
+		)
+		VALUES
+		(
+			#{PROD_ID}
+			, #{KIND}
+			, #{PROD_NM}
+			, #{PROD_DTL_NM}
+			, #{SUM_WEIGHT}
+			, #{PWD_WEIGHT}
+			, #{BIGO}
+			, SYSDATE
+			, #{CREATE_USER}
+			, SYSDATE
+			, #{UPDATE_USER}
+		)
+	</insert>
+	
+	<update id="updateBomInfoCoating" parameterType="java.util.HashMap">
+	/* BomInfoMapper.updateBomInfoCoating */
+		UPDATE hanadmin.bom_info_coating 
+		   SET KIND = #{KIND}
+			   , PROD_NM = #{PROD_NM}
+			   , PROD_DTL_NM = #{PROD_DTL_NM}
+			   , SUM_WEIGHT = #{SUM_WEIGHT}
+			   , PWD_WEIGHT = #{PWD_WEIGHT}
+			   , BIGO = #{BIGO}
+			   , CREATE_DATE = SYSDATE
+			   , CREATE_USER = #{CREATE_USER}
+			   , UPDATE_DATE = SYSDATE
+			   , UPDATE_USER = #{UPDATE_USER}
+		WHERE 1=1
+		<if test='PROD_ID != null and !PROD_ID.equals("")'>
+	    	AND PROD_ID = #{PROD_ID}
+	    </if>
+	</update>
+	
+	<delete id="deleteBomInfoCoating" parameterType="java.util.HashMap">
+	/* BomInfoMapper.deleteBomInfoCoating */
+		DELETE FROM hanadmin.bom_info_coating 
 		 WHERE 1=1 
 		 <if test='PROD_ID != null and !PROD_ID.equals("")'>
 	    	 AND PROD_ID = #{PROD_ID}
