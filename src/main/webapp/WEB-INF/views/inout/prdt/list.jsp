@@ -175,8 +175,24 @@ var gridView = new tui.Grid({
 		{header: '박스수량',    name: 'BOX_COUNT',    filter:{type:'text'},         	sortable:true,            align:'center', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
-	    {header: '白粉',    	  name: 'POWDER_WHITE_CNT',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '黑粉',    	  name: 'POWDER_BLACK_CNT',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
+	    {header: '产品重量',      name: 'POWDER_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
+		      return v.value != null && v.value != '' ? Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+	    }},
+	    {header: '粉沫',  	  name: 'POWDER_COLOR',  	  filter:{type:'text'},          sortable:true,            align:'center', width:90},
+	    /* {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
+		      return v.value+'%';
+	    }}, */
+	    {header: '铁丝重量',      name: 'SUM_WEIGHT',     filter:{type:'text'},          sortable:true,            align:'center', width:100},
+	    {header: '粉沫總使用量',      name: 'TOTAL_POWDER_USAGE',     filter:{type:'text'},          sortable:true,            align:'center', width:130, formatter:function(v) { // 추가
+		      return v.value != null && v.value != '' ? Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+	    }},
+	    {header: '粉沫使用量',      name: 'POWDER_USAGE',     filter:{type:'text'},          sortable:true,            align:'center', width:115},
+	    {header: '粉沫重量',      name: 'PWD_WEIGHT',     filter:{type:'text'},          sortable:true,            align:'center', width:100},
+	    {header: '差异',      name: 'DIFF',     filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
+		      return (v.value != null && v.value != '' && Number(v.value) > 0) ? "<div style='background-color: red'>"+ v.value+"</div>"  : null;
+	    }},
+	    /* {header: '白粉',    	  name: 'POWDER_WHITE_CNT',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
+		{header: '黑粉',    	  name: 'POWDER_BLACK_CNT',    filter:{type:'text'},          sortable:true,            align:'center', width:80}, */
 		/* {header: '수출방법',    name: 'OUT_METHOD',   filter:{type:'text'},         	sortable:true,            align:'center'}, */
 		/* {header: '단가',       	name: 'PRICE',        filter:{type:'text'},         	sortable:true,            align:'center', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -304,8 +320,25 @@ var gridEdit = new tui.Grid({
 		{header: '박스수량',    name: 'BOX_COUNT',    filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text', validation:{dataType:'number'}, formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
-	    {header: '白粉',    	  name: 'POWDER_WHITE_CNT',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '黑粉',    	  name: 'POWDER_BLACK_CNT',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
+	    {header: '产品重量',      name: 'POWDER_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, validation:{required:true}, editor:'text', formatter:function(v) { // 추가
+		      return v.value != null && v.value != '' ? Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+	    }},
+	    {header: '粉沫',    name: 'POWDER_COLOR',	filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', width:90, formatter:'listItemText',        
+			editor:{type:'select',
+			options:{
+        		listItems:[{text:'白色', value:'白色'}, {text:'黑色', value:'黑色'}]
+       		}}},
+        {header: '铁丝 重量',      name: 'SUM_WEIGHT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true},
+        {header: '粉沫總使用量',      name: 'TOTAL_POWDER_USAGE',     filter:{type:'text'},          sortable:true,            align:'center', width:130, disabled:true, formatter:function(v) { // 추가
+		      return v.value != null && v.value != '' ? Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+	    }},
+ 		{header: '粉沫使用量',      name: 'POWDER_USAGE',     filter:{type:'text'},          sortable:true,            align:'center', width:115, disabled:true},
+	    {header: '粉沫 重量',      name: 'PWD_WEIGHT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true},
+ 		{header: '差异',      name: 'DIFF',     filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) {
+	    	return (v.value != null && v.value != '' && Number(v.value) > 0) ? "<div style='background-color: red'>"+ v.value+"</div>"  : null;
+ 		}},
+	    /* {header: '白粉',    	  name: 'POWDER_WHITE_CNT',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
+		{header: '黑粉',    	  name: 'POWDER_BLACK_CNT',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80}, */
 		/* {header: '수출방법',    name: 'OUT_METHOD',   filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', formatter:'listItemText',        
 			editor:{type:'select',
 			options:{
@@ -541,7 +574,7 @@ var prdtInOut = {
 		}
 	},
 	add:function(){
-		gridEdit.prependRow({PRODUCT_GUBUN:'', KIND:'', CLIENT:'', IS_CHECK:'NO'});
+		gridEdit.prependRow({PRODUCT_GUBUN:'', KIND:'', CLIENT:'', POWDER_COLOR:'白色', IS_CHECK:'NO'});
 	}
 }
 

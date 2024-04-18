@@ -90,6 +90,13 @@
 			 , inout.OUT_METHOD
 			 , inout.POWDER_WHITE_CNT 
 			 , inout.POWDER_BLACK_CNT  
+			 , inout.POWDER_COLOR
+			 , inout.POWDER_CNT
+			 , inout.SUM_WEIGHT
+			 , inout.PWD_WEIGHT
+			 , inout.POWDER_CNT - inout.SUM_WEIGHT POWDER_USAGE
+			 , inout.POWDER_CNT - inout.SUM_WEIGHT - inout.PWD_WEIGHT DIFF
+			 , inout.BOX_PER_COUNT * (inout.POWDER_CNT - inout.SUM_WEIGHT) / 1000 TOTAL_POWDER_USAGE
 			 , inout.MAN 
 			 , inout.PRICE AS PRICE
 			 , (inout.BOX_COUNT * inout.BOX_PER_COUNT) AS TOT_COUNT
@@ -152,8 +159,12 @@
 			, BOX_COUNT
 			, BOX_PER_COUNT
 			, OUT_METHOD 
-			, POWDER_WHITE_CNT
-			, POWDER_BLACK_CNT
+			<!-- , POWDER_WHITE_CNT
+			, POWDER_BLACK_CNT -->
+			, POWDER_COLOR
+		    , POWDER_CNT
+		    , SUM_WEIGHT
+		    , PWD_WEIGHT
 			, MAN 
 			, PRICE 
 			, BIGO
@@ -176,8 +187,12 @@
 			, #{BOX_COUNT} 
 			, #{BOX_PER_COUNT} 
 			, #{OUT_METHOD} 
-			, #{POWDER_WHITE_CNT}
-			, #{POWDER_BLACK_CNT}
+			<!-- , #{POWDER_WHITE_CNT}
+			, #{POWDER_BLACK_CNT} -->
+			, #{POWDER_COLOR}
+		    , #{POWDER_CNT}
+		    , (SELECT SUM_WEIGHT FROM hanadmin.bom_info_coating WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
+		    , (SELECT PWD_WEIGHT FROM hanadmin.bom_info_coating WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}) 
 			, #{MAN} 
 			, (SELECT OUT_PRICE FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM} and KIND = #{KIND})
 			, #{BIGO}
@@ -203,8 +218,12 @@
 			   , BOX_COUNT = #{BOX_COUNT} 
 			   , BOX_PER_COUNT = #{BOX_PER_COUNT} 
 			   , OUT_METHOD = #{OUT_METHOD}
-			   , POWDER_WHITE_CNT = #{POWDER_WHITE_CNT}
-			   , POWDER_BLACK_CNT = #{POWDER_BLACK_CNT} 
+			  <!--  , POWDER_WHITE_CNT = #{POWDER_WHITE_CNT}
+			   , POWDER_BLACK_CNT = #{POWDER_BLACK_CNT}  -->
+			   , POWDER_COLOR = #{POWDER_COLOR}
+			   , POWDER_CNT = #{POWDER_CNT}
+			   , SUM_WEIGHT = #{SUM_WEIGHT}
+			   , PWD_WEIGHT = #{PWD_WEIGHT}
 			   , MAN = #{MAN} 
 			   , PRICE = #{PRICE}
 			   , BIGO = #{BIGO}

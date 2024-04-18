@@ -2,6 +2,8 @@ package com.hanManager.web.util;
 
 import java.io.PrintWriter;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,14 +46,37 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
 
     public void afterCompletion(HttpServletRequest arg0, HttpServletResponse arg1, Object arg2, Exception arg3) throws Exception {
     }
-
+    
     public void postHandle(HttpServletRequest arg0, HttpServletResponse arg1, Object arg2, ModelAndView arg3) throws Exception {
     }
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-//		final String servletPath = request.getServletPath();
     	LoginUsers loginUser = LoginManager.getInstance().getSession(request);
+    	List<String> list = new ArrayList<String>();
+        list.add("49.69.204.243");
+        logger.info("ip ==============> "+request.getRemoteAddr());
+        logger.info("loginUser ==============> "+loginUser);
+        
+        if((loginUser != null && !"hanadmin".equals(loginUser.getId())) && (loginUser != null && !"han00".equals(loginUser.getId()))){
+        	boolean flag = true;
+        	for(String li : list){
+        		if(request.getRemoteAddr().matches(li)){
+        			flag = false;
+        			break;
+        		}
+            }
+        	
+        	if(flag){
+        		logger.info("ALERT_ PART");
+            	response.setContentType("text/html; charset=UTF-8");
+        		PrintWriter out = response.getWriter();
+        		out.println("<script>alert('Unauthorized access');</script>");
+        		out.flush();
+        		return false;
+            }
+        }
+        
         final String requestUri = getRequestUri(request);
 
         final boolean isLogin = LoginManager.getInstance().isLogin(request);
@@ -151,4 +176,6 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
 
         return uri;
     }
+    
+    
 }
