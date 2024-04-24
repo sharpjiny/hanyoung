@@ -71,7 +71,8 @@
 	
 	<select id="selectPlanExportListV" parameterType="java.util.HashMap" resultType="java.util.HashMap">
 	/* PlanExportMapper.selectPlanExportListV */
-		SELECT explan.ORDER_NO
+		SELECT explan.INVOICE_NO
+ 			 , explan.ORDER_NO
  			 , explan.ORDER_DATE
  			 , MAX(explan.HY_DATE) AS HY_DATE 
  			 , CASE WHEN MAX(explan.SH_DATE) IS NOT NULL THEN 
@@ -142,13 +143,14 @@
             AND REPLACE(explan.HY_DATE, '-', '') BETWEEN '00000000' AND REPLACE(#{hyDateEnd}, '-', '')
           </when>
       </choose>
-		GROUP BY explan.ORDER_NO, explan.ORDER_DATE, explan.CLIENT, explan.FROM_PLACE, explan.TO_PLACE
-		ORDER BY explan.ORDER_DATE desc, explan.ORDER_NO
+		GROUP BY explan.INVOICE_NO, explan.ORDER_NO, explan.ORDER_DATE, explan.CLIENT, explan.FROM_PLACE, explan.TO_PLACE
+		ORDER BY explan.INVOICE_NO, explan.ORDER_DATE desc, explan.ORDER_NO
 	</select>
 	
 	<select id="selectPlanExportListE" parameterType="java.util.HashMap" resultType="java.util.HashMap">
 	/* PlanExportMapper.selectPlanExportListE */
 		SELECT IDX
+			 , explan.INVOICE_NO
 			 , explan.ORDER_NO
 			 , explan.ORDER_DATE
 			 , info.CLIENT
@@ -219,6 +221,7 @@
 		INSERT INTO hanadmin.export_plan
 		(	
 			IDX
+			, INVOICE_NO
 			, ORDER_NO 
 			, ORDER_DATE
 			, CLIENT
@@ -244,6 +247,7 @@
 		VALUES
 		(			
 			hanadmin.export_plan_seq.nextval
+			, #{INVOICE_NO} 
 			, #{ORDER_NO} 
 			, #{ORDER_DATE}
 			, #{CLIENT}
@@ -273,6 +277,7 @@
 	/* PlanExportMapper.updatePlanExport */
 		UPDATE hanadmin.export_plan
 		   SET ORDER_NO = #{ORDER_NO}
+		   	   , INVOICE_NO = #{INVOICE_NO}
 		   	   , ORDER_DATE = #{ORDER_DATE}
 			   , CLIENT = #{CLIENT}
 			   , HY_DATE = #{HY_DATE}

@@ -74,6 +74,8 @@
 	/* ProductionQualityMapper.selectPrdtQualityList */
 	SELECT to_char(to_date(s.PRDT_DATE), 'YY-MM-DD') PRDT_DATE
 		 , s.AREA
+		 , s.WORK_TYPE
+		 , s.EQP_ID
 		 , info.KIND
 		 , (SELECT CODE_NAME FROM hanadmin.common_code WHERE CODE_GROUP = 'product_kind' and CODE = info.KIND) AS KIND_NM
 		 , info.PROD_NM
@@ -131,6 +133,8 @@
 		(	
 			PRDT_DATE 
 			, AREA
+			, EQP_ID
+			, WORK_TYPE
 			, PROD_ID
 			, CHECK_CNT
 			, FAULTY_TYPE_1
@@ -153,6 +157,8 @@
 		(
 			#{PRDT_DATE}
 			, #{AREA}
+			, #{EQP_ID}
+			, #{WORK_TYPE}
 			, (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
 			, #{CHECK_CNT}
 			, #{FAULTY_TYPE_1}
@@ -178,6 +184,8 @@
 		UPDATE hanadmin.prdt_status_quality
 		   SET PRDT_DATE = #{PRDT_DATE}
 			, AREA = #{AREA}
+			, EQP_ID = #{EQP_ID}
+			, WORK_TYPE = #{WORK_TYPE}
 			, PROD_ID = #{PROD_ID}
 			, CHECK_CNT = #{CHECK_CNT}
 			, FAULTY_TYPE_1 = #{FAULTY_TYPE_1}

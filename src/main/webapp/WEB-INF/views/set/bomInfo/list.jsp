@@ -6,7 +6,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">BOM 기준정보 리스트</div>
+            <div class="muted pull-left">설정 > BOM 설정</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">
@@ -198,6 +198,7 @@ var gridViewPacking = new tui.Grid({
         {header: '상자',		    name: 'BOX_NM',           filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '상자품호',		name: 'BOX_ID',           filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '상자사용량',		name: 'BOX_CNT',           filter:{type:'text'},          	sortable:true,            align:'center'        },
+        {header: 'UPH',       		name: 'UPH',           	   filter:{type:'text'},          	sortable:true,            align:'center'},
         {header: '비고',       	name: 'BIGO',           	   filter:{type:'text'},          	sortable:true,            align:'center'        },
         {header: '생성일자',        name: 'CREATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true        },
         {header: '생성자',         name: 'CREATE_USER',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true        },
@@ -397,6 +398,7 @@ var gridEditPacking = new tui.Grid({
 		{header: '상자',		    name: 'BOX_NM',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '상자품호',		    name: 'BOX_ID',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '상자사용량',		    name: 'BOX_CNT',           filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
+		{header: 'UPH',       		name: 'UPH',           	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '비고',       		name: 'BIGO',           	   filter:{type:'text'},          	sortable:true,            align:'center', 		className:'clickable',        editor:'text'},
 		{header: '생성일자',        name: 'CREATE_DATE',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true },
 		{header: '생성자',          name: 'CREATE_USER',           filter:{type:'text'},            sortable:true,            align:'center',       hidden: true        },

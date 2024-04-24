@@ -6,7 +6,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">코드 리스트</div>
+            <div class="muted pull-left">설정 > Codes 설정</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">

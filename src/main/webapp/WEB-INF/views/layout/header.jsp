@@ -22,12 +22,12 @@
            <ul class="nav">
            	   <c:if test="${userSession.id == 'hanadmin'}"> 
                <li class="dropdown">
-                   <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">設定 <i class="caret"></i></a>
+                   <a href="#" role="button" class="dropdown-toggle" data-toggle="dropdown">설정 <i class="caret"></i></a>
                    <ul class="dropdown-menu">
-                   	   <li><a tabindex="-1" href="/set/mtrlsInfo/page">원부자재 설정</a></li>
+                   	   <li><a tabindex="-1" href="/set/mtrlsInfo/page">원자재/부자재 설정</a></li>
                    	   <li><a tabindex="-1" href="/set/prdtInfo/page">제품 설정</a></li>
                    	   <li><a tabindex="-1" href="/set/bomInfo/page">BOM 설정</a></li>
-                   	   <li><a tabindex="-1" href="/set/codesInfo/page">Codes Info.</a></li>
+                   	   <li><a tabindex="-1" href="/set/codesInfo/page">Codes 설정</a></li>
                    	   <!-- <li><a tabindex="-1" href="/toastGrid/search">Grid Sample</a></li> -->
                    </ul>
                </li>
@@ -47,7 +47,8 @@
                        <!-- <li><a tabindex="-1" href="/production/welding/page">용접일보</a></li> -->
                        <li><a tabindex="-1" href="/production/packing/page">포장일보</a></li>
                        <li><a tabindex="-1" href="/production/quality/page">품질일보</a></li>
-                       <li><a tabindex="-1" href="/production/repair/page">수리일보</a></li>
+                       <li><a tabindex="-1" href="/production/prdtRepair/page">제품수리일보</a></li>
+                       <li><a tabindex="-1" href="/production/repair/page">설비수리일보</a></li>
                        <!-- <li><a tabindex="-1" href="/set/hgoodsUsage/page">반제품/완성품 생산량</a></li> --> 
                    </ul>
                </li>
@@ -61,9 +62,9 @@
                    <a href="/stock/search" role="button" class="dropdown-toggle" data-toggle="dropdown">재고관리<i class="caret"></i></a>
                    <ul class="dropdown-menu">
                        <li><a tabindex="-1" href="/inout/prdt/page">제품 입출고 현황</a></li>
-                       <li><a tabindex="-1" href="/inout/outs/page">외주원부자재 관리</a></li>
+                       <li><a tabindex="-1" href="/inout/outs/page">외주원부자재</a></li>
                        <li><a tabindex="-1" href="/stock/prdt/page">완성품/반성품</a></li>
-                       <li><a tabindex="-1" href="/stock/mtrls/page">원부자재</a></li>
+                       <li><a tabindex="-1" href="/stock/mtrls/page">원자재/부자재</a></li>
                        <!-- <li><a tabindex="-1" href="/set/hgoodsOutStock/page">반제품(외주)</a></li> -->
                    </ul>
                </li>

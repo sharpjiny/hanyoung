@@ -10,7 +10,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">생산관리 > 품질</div>
+            <div class="muted pull-left">생산관리 > 품질일보</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">
@@ -115,9 +115,11 @@ tui.Grid.applyTheme('default', {
 	  }
 	});
 
+var workTypeList = [{value:'', text:'-선택-'}];
 var productGubunList = [{value:'', text:'-선택-'}];
 var kindList = [{value:'', text:'-선택-'}];
 var areaTypeList = [{value:'', text:'-선택-'}];
+var eqpIdList = [{value:'', text:'-선택-'}];
 var prodDtlList = [{value:'', text:'-선택-'}];
 var chk_tmp = 0;
 var sum_tmp = 0;
@@ -138,6 +140,8 @@ var gridView = new tui.Grid({
     bodyHeight: 500,
     columns: [
 		{header: '日期',      name: 'PRDT_DATE',      filter:{type:'text'},          sortable:true,            align:'center', width:100},
+		{header: '白班/夜班',    	  name: 'WORK_TYPE',      filter:{type:'text'},          sortable:true,            align:'center', width:100},
+		{header: '设备',    	  name: 'EQP_ID',      	  filter:{type:'text'},          sortable:true,            align:'center', width:120},
 		{header: '工程',    	  name: 'AREA',           filter:{type:'text'},          sortable:true,            align:'center', width:120},
 		{header: '种类',      name: 'KIND_NM',   	  filter:{type:'text'},          sortable:true,            align:'center', width:120},
 		{header: '产品',      name: 'PROD_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
@@ -270,6 +274,20 @@ var gridEdit = new tui.Grid({
     bodyHeight: 500,
     columns: [
 		{header: '日期',      name: 'PRDT_DATE',      filter:{type:'text'},          sortable:true,            align:'center', width:100, className:'clickable', validation:{required:true}, editor:{type:'datePicker', options:{language: 'ko', format: 'yy-MM-dd'}}},
+		{header: '白班/夜班',    	  name: 'WORK_TYPE',      filter:{type:'text'},          sortable:true,            align:'center', width:100, className:'clickable', validation:{required:true}, formatter:'listItemText',
+	        editor:{
+	        	type:'select', // checkbox, select
+	        	options:{
+	        		listItems:workTypeList
+	       		}
+        }},
+		{header: '设备',    	  name: 'EQP_ID',      	  filter:{type:'text'},          sortable:true,            align:'center', width:120, className:'clickable', validation:{required:true}, formatter:'listItemText',
+	        editor:{
+	        	type:'select', // checkbox, select
+	        	options:{
+	        		listItems:eqpIdList
+	       		}
+        }},
 		{header: '工程',    	  name: 'AREA',           filter:{type:'text'},          sortable:true,            align:'center', width:120, className:'clickable', validation:{required:true}, formatter:'listItemText',
 	        editor:{
 	        	type:'select', // checkbox, select
@@ -421,6 +439,8 @@ var comboSet;
 var prdtQuality = {
 	init:function(){
 		this.kindSets();
+		this.eqpIdSets();
+		this.workTypeSets();
 		this.areaTypeSets();
 		searchCombo.getProdDtlList();
 	},
@@ -439,6 +459,21 @@ var prdtQuality = {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
 	},
+	eqpIdSets:function(){
+		var params = {"code_group":"eqp_id"};
+		$.ajax({
+		    url : "/production/quality/eqpIdSets",
+		    method :"POST",
+		    data:params
+		}).success(function(result) {
+			$.each(result["EQP_ID"], function(i, item){
+				$('#EQP_ID').append($('<option/>').val(item.CODE).text(item.NAME));
+				eqpIdList.push({value:item.CODE, text:item.NAME});
+			});
+		}).fail(function(ev) {
+	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
+	    });
+	},
 	areaTypeSets:function(){
 		var params = {"code_group":"area_type"};
 		$.ajax({
@@ -449,6 +484,21 @@ var prdtQuality = {
 			$.each(result["AREA_TYPE"], function(i, item){
 				$('#AREA_TYPE').append($('<option/>').val(item.CODE).text(item.NAME));
 				areaTypeList.push({value:item.CODE, text:item.NAME});
+			});
+		}).fail(function(ev) {
+	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
+	    });
+	},
+	workTypeSets:function(){
+		var params = {"code_group":"work_type"};
+		$.ajax({
+		    url : "/production/repair/workTypeSets",
+		    method :"POST",
+		    data:params
+		}).success(function(result) {
+			$.each(result["WORK_TYPE"], function(i, item){
+				$('#WORK_TYPE').append($('<option/>').val(item.CODE).text(item.NAME));
+				workTypeList.push({value:item.CODE, text:item.NAME});
 			});
 		}).fail(function(ev) {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');

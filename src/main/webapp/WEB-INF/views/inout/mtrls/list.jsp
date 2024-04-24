@@ -6,7 +6,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">원부자재 입출고</div>
+            <div class="muted pull-left">구매관리 > 원부자재 입출고</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">
@@ -162,7 +162,7 @@ var gridView = new tui.Grid({
 		{header: '입고일자',    name: 'IN_DATE',      filter:{type:'text'},         sortable:true,            align:'center'},
         /* {header: '결산년월',    name: 'STTL_MON',     filter:{type:'text'},         sortable:true,            align:'center'}, */
 		{header: '구분',     	name: 'RAW_GUBUN_NM', filter:{type:'text'},         sortable:true,            align:'center'},
-		{header: '입고사',      name: 'RAW_CLIENT_NM',    filter:{type:'text'},         sortable:true,            align:'center'},
+		{header: '입고사',      name: 'RAW_CLIENT_NM',    filter:{type:'text'},         sortable:true,            align:'center', width:130},
 		{header: '종류',     	name: 'KIND_NM',   	  filter:{type:'text'},         sortable:true,            align:'center'},
 		{header: '품명',       	name: 'PROD_NM',      filter:{type:'text'},         sortable:true,            align:'center'},
 		{header: '상세품명',    name: 'PROD_DTL_NM',  filter:{type:'text'},         sortable:true,            align:'center', width:150},
@@ -234,7 +234,7 @@ var gridEdit = new tui.Grid({
 	        		listItems:rawGubunList
 	       		}
         }},
-        {header: '입고사',      name: 'RAW_CLIENT',       filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', validation:{required:true},        editor:'text', formatter:'listItemText',
+        {header: '입고사',      name: 'RAW_CLIENT',       filter:{type:'text'},         sortable:true,            align:'center', 		className:'clickable', width:130, validation:{required:true},        editor:'text', formatter:'listItemText',
 			editor:{
 	        	type:'select', // checkbox, select
 	        	options:{
@@ -411,7 +411,7 @@ var mtrlsInOut = {
 	    	alert('조회를 실패했습니다.(오류 : ' + ev + ' )');
 	    });
 	},
-	search:function(){
+	search:function(p){
 		var params = {
 			'STTL_MON':$('#STTL_MON option:selected').val(),
 			'RAW_GUBUN':$('#RAW_GUBUN option:selected').val(),
@@ -428,6 +428,12 @@ var mtrlsInOut = {
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
+			if(p == "init"){
+				$(".tui-grid-summary-area").hide();
+			}else{
+				$(".tui-grid-summary-area").show();
+			}
+			
 			dataSet = result;
 			gridView.resetData(result);
 			mtrlsInOut.view();
@@ -644,7 +650,7 @@ $(function(){
 	
 	dateUtil.init();
 	mtrlsInOut.init();
-	mtrlsInOut.search();
+	mtrlsInOut.search('init');
 	
 });
 </script>

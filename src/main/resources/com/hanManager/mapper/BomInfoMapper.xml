@@ -261,6 +261,7 @@
 			, BOX_NM
 			, BOX_ID
 			, BOX_CNT
+			, UPH
 			, BIGO
 			, to_char(CREATE_DATE, 'YYYY.MM.DD') CREATE_DATE
 			, CREATE_USER
@@ -297,6 +298,7 @@
 			, BOX_NM
 			, BOX_ID
 			, BOX_CNT
+			, UPH
 			, BIGO
 			, CREATE_DATE
 			, CREATE_USER
@@ -315,6 +317,7 @@
 			, #{BOX_NM}
 			, #{BOX_ID}
 			, #{BOX_CNT}
+			, #{UPH}
 			, #{BIGO}
 			, SYSDATE
 			, #{CREATE_USER}
@@ -336,6 +339,7 @@
 			   , BOX_NM = #{BOX_NM}
 			   , BOX_ID = #{BOX_ID}
 			   , BOX_CNT = #{BOX_CNT}
+			   , UPH = #{UPH}
 			   , BIGO = #{BIGO}
 			   , CREATE_DATE = SYSDATE
 			   , CREATE_USER = #{CREATE_USER}

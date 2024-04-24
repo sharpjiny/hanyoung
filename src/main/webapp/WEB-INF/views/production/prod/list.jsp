@@ -10,7 +10,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">생산관리 > 생산</div>
+            <div class="muted pull-left">생산관리 > 용접일보</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">
@@ -562,7 +562,7 @@ var prdtProd = {
 	workTypeSets:function(){
 		var params = {"code_group":"work_type"};
 		$.ajax({
-		    url : "/production/repair/workTypeSets",
+		    url : "/production/prod/workTypeSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {

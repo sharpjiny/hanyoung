@@ -81,7 +81,7 @@
 		 , info.PROD_NM
 		 , info.PROD_DTL_NM
 		 , s.PROD_ID
-		 , s.UPH
+		 , s.UPH AS STD_UPH
 		 , s.ST_TIME
 		 , s.ED_TIME
 		 , s.STOPPING_TIME
@@ -93,7 +93,8 @@
 		 , s.FAULTY_CNT
 		 , s.PRDT_CNT - s.FAULTY_CNT FINISHED_CNT
 		 <!-- , ROUND((s.FINISHED_CNT / s.PRDT_CNT) * 100, 2) || '%' CMPLT_PER -->
-		 , TRUNC(NVL((s.PRDT_CNT - s.FAULTY_CNT)/(UPH*(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME))*100, 0), 2) CMPLT_PER
+		 <!-- , TRUNC(NVL((s.PRDT_CNT - s.FAULTY_CNT)/(UPH*(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME))*100, 0), 2) CMPLT_PER -->
+		 , TRUNC(NVL(UPH/(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME)*100, 0), 2) CMPLT_PER
 		 , TRUNC(NVL((s.PRDT_CNT - s.FAULTY_CNT)/(UPH*(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME - STOPPING_TIME))*100, 0), 2) MAN_CMPLT_PER
 		 , POP_NM
 		 , POP_CNT
@@ -179,7 +180,7 @@
 			, #{EQP_ID}  
 			, #{AREA}
 			, (SELECT PROD_ID FROM hanadmin.prdt_info WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}) 
-			, #{UPH}
+			, (SELECT UPH FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
 			, #{ST_TIME}
 			, #{ED_TIME} 
 			, #{STOPPING_TIME} 
@@ -239,7 +240,7 @@
 			, EQP_ID = #{EQP_ID}
 			, AREA = #{AREA}
 			, PROD_ID = #{PROD_ID}
-			, UPH = #{UPH}
+			, UPH = (SELECT UPH FROM hanadmin.bom_info_packing WHERE prod_id = #{PROD_ID})
 			, ST_TIME = #{ST_TIME}
 			, ED_TIME = #{ED_TIME}
 			, STOPPING_TIME = #{STOPPING_TIME}

@@ -11,7 +11,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">수출계획표</div>
+            <div class="muted pull-left">수출 > 수출계획표</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">
@@ -142,6 +142,7 @@ var gridView = new tui.Grid({
     },
     bodyHeight: 500,
     columns: [
+		{header: 'INVOICE番号',    		  name: 'INVOICE_NO',     filter:{type:'text'},         sortable:true,            align:'center', width:160},
 		{header: '订货日期',    	  name: 'ORDER_DATE',   filter:{type:'text'},         sortable:true,            align:'center', width:120},
 		{header: '番号',    		  name: 'ORDER_NO',     filter:{type:'text'},         sortable:true,            align:'center', width:160},
 		{header: '韩荣订日期',   	  name: 'HY_DATE',      filter:{type:'text'},         sortable:true,            align:'center', width:120},
@@ -149,8 +150,8 @@ var gridView = new tui.Grid({
 		{header: '船期',    	  name: 'SH_DATE',      filter:{type:'text'},         sortable:true,            align:'center', width:150},
 		{header: '船名航次',      name: 'SHIP_NM',   	filter:{type:'text'},         sortable:true,            align:'center', width:230},
 		{header: '提单号',         name: 'EXPORT_NO',    filter:{type:'text'},         sortable:true,            align:'center', width:200},
-		{header: '出發地',        name: 'FROM_PLACE_NM',filter:{type:'text'},         sortable:true,            align:'center', width:130},
-		{header: '目的地',        name: 'TO_PLACE_NM',  filter:{type:'text'},         sortable:true,            align:'center', width:200},
+		{header: '出發地',        name: 'FROM_PLACE_NM',filter:{type:'text'},         sortable:true,            align:'center', width:135},
+		{header: '目的地',        name: 'TO_PLACE_NM',  filter:{type:'text'},         sortable:true,            align:'center', width:205},
 		{header: '顾客公司',    	  name: 'CLIENT_NM',    filter:{type:'text'},         sortable:true,            align:'center', width:120},
 		{header: '发货数量',     	  name: 'COUNT',    	filter:{type:'text'},         sortable:true,            align:'center', width:80, formatter :function(v) {
 		      return Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -161,10 +162,10 @@ var gridView = new tui.Grid({
 		{header: '合计金额(USD)',	  name: 'DAL_PRICE',    filter:{type:'text'},         sortable:true,            align:'center', width:140, formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},
-	    {header: '合计金额(RMB)',  name: 'RMB_PRICE',    filter:{type:'text'},         sortable:true,            align:'center', width:120, formatter :function(v) {
+	    /* {header: '合计金额(RMB)',  name: 'RMB_PRICE',    filter:{type:'text'},         sortable:true,            align:'center', width:120, formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    }},
-		{header: '出口完了',      name: 'IS_CHECK',     filter:{type:'text'},         sortable:true,            align:'center', width:80},
+	    }}, */
+		{header: '出口完了',      name: 'IS_CHECK',     filter:{type:'text'},         sortable:true,            align:'center', width:85},
 		{header: '생성일자',      name: 'CREATE_DATE',  filter:{type:'text'},         sortable:true,            align:'center',		hidden: true},
 		{header: '생성자',        name: 'CREATE_USER',  filter:{type:'text'},         sortable:true,            align:'center',		hidden: true},
 		{header: '수정일자',      name: 'UPDATE_DATE',  filter:{type:'text'},         sortable:true,            align:'center',		hidden: true},
@@ -173,7 +174,7 @@ var gridView = new tui.Grid({
     ],
     columnOptions: {
     	resizable: true,
-    	frozenCount: 4
+    	frozenCount: 6
     },
     summary: {
         height: 10,
@@ -213,6 +214,7 @@ var gridEdit = new tui.Grid({
     },
     bodyHeight: 500,
     columns: [
+		{header: 'INVOICE番号',    		name: 'INVOICE_NO',     filter:{type:'text'},     sortable:true,		align:'center', 	className:'clickable',      width:100, editor:'text'},
 		{header: '订货日期',    	name: 'ORDER_DATE',   filter:{type:'text'},		sortable:true,     align:'center', 		className:'clickable', 		width:100, validation:{required:true},        editor:{type:'datePicker', options:{format: 'yyyy-MM', language: 'ko', type: 'month'}}},
 		{header: '番号',    		name: 'ORDER_NO',     filter:{type:'text'},     sortable:true,		align:'center', 	className:'clickable',      width:100, editor:'text', validation:{required:true}},
 		{header: '韩荣订日期',   	name: 'HY_DATE',      filter:{type:'text'},     sortable:true,		align:'center', 	className:'clickable', 		width:100, editor:{type:'datePicker', options:{language: 'ko'}}},
@@ -220,14 +222,14 @@ var gridEdit = new tui.Grid({
 		{header: '船期',    	name: 'SH_DATE',      filter:{type:'text'},     sortable:true,		align:'center', 	className:'clickable',      width:100, editor:{type:'datePicker', options:{language: 'ko'}}},
 		{header: '船名航次',    name: 'SHIP_NM',   	  filter:{type:'text'},     sortable:true,		align:'center', 	className:'clickable',      width:180, editor:'text'},
 		{header: '提单号',       name: 'EXPORT_NO',    filter:{type:'text'},     sortable:true,		align:'center', 	className:'clickable',      width:150, editor:'text'},
-		{header: '出發地', 		name: 'FROM_PLACE',	  filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', 		width:80, formatter:'listItemText',
+		{header: '出發地', 		name: 'FROM_PLACE',	  filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', 		width:85, formatter:'listItemText',
 	        editor:{
 	        	type:'select', // checkbox, select
 	        	options:{
 	        		listItems:startCityList
 	       		}
         }},
-		{header: '目的地', 		name: 'TO_PLACE',	  filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', 		width:120, formatter:'listItemText',
+		{header: '目的地', 		name: 'TO_PLACE',	  filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', 		width:125, formatter:'listItemText',
 	        editor:{
 	        	type:'select', // checkbox, select
 	        	options:{
@@ -301,11 +303,11 @@ var gridEdit = new tui.Grid({
 		{header: '金额(USD)',    name: 'PRICE',		filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable',		width:120, editor:'text', validation:{dataType:'number'}, formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 	    }},   	
-		{header: '汇率',       	name: 'EXCHANGE',	filter:{type:'text'},       sortable:true,		align:'center',		className:'clickable',      editor:'text', formatter :function(v) {
+		/* {header: '汇率',       	name: 'EXCHANGE',	filter:{type:'text'},       sortable:true,		align:'center',		className:'clickable',      editor:'text', formatter :function(v) {
 		      return Number(v.value).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	    }},
+	    }}, */
 		{header: '备注',       	name: 'BIGO',		filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable',       width:200, editor:'text'},
-		{header: '出口完了',    name: 'IS_CHECK',	filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', 	width:100, formatter:'listItemText',        
+		{header: '出口完了',    name: 'IS_CHECK',	filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', 	width:105, formatter:'listItemText',        
 			editor:{type:'select',
 			options:{
         		listItems:[{text:'NO', value:'NO'}, {text:'OK', value:'OK'}]
@@ -318,7 +320,7 @@ var gridEdit = new tui.Grid({
     ],
     columnOptions: {
     	resizable: true,
-        frozenCount: 4, // 3개의 컬럼을 고정하고
+        frozenCount: 6, // 3개의 컬럼을 고정하고
         //frozenBorderWidth:2  // 고정 컬럼의 경계선 너비를 2px로 한다.
     }/* ,
     summary: {

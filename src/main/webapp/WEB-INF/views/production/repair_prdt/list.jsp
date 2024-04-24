@@ -10,7 +10,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">생산관리 > 포장일보</div>
+            <div class="muted pull-left">생산관리 > 제품수리일보</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">
@@ -139,7 +139,9 @@ var gridView = new tui.Grid({
 		{header: '产品',       	  name: 'PROD_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
 		{header: '品名',      name: 'PROD_DTL_NM',    filter:{type:'text'},          sortable:true,            align:'center', width:120},
 		{header: '品号 ',    	  name: 'PROD_ID',        filter:{type:'text'},          sortable:true,            align:'center', width:100},
-		{header: '标准UPH',    	      name: 'STD_UPH',      	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
+		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center', formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : v.value;
+	    }},
 		{header: '开始时间',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:110},
 		{header: '结束时间',      name: 'ED_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:110},
 		{header: '工作时间',  	  name: 'WORK_TIME',  	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
@@ -151,35 +153,15 @@ var gridView = new tui.Grid({
 			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '不良数量',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '良品数量',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+			return v.value != null && v.value != '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
-		{header: 'UPH',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
+		{header: '达成率',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
 		      return v.value+'%';
 	    }},
-	    {header: 'POP产品',       	  name: 'POP_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
-	    {header: 'POP사용량',      name: 'POP_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
-	    }},
-	    {header: 'BOX产品',       	  name: 'BOX_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
-	    {header: 'BOX사용량',      name: 'BOX_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
-	    }},/*
-	    {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-		      return v.value+'%';
-	    }},
-		{header: '工人1',    	  name: 'MAN1',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '工人2',    	  name: 'MAN2',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '工人3',    	  name: 'MAN3',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '工人4',    	  name: 'MAN4',      filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '1.45',    	  name: 'THICKNESS_1',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '2.0',    		  name: 'THICKNESS_2',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '2.5',    		  name: 'THICKNESS_3',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '2.9',    		  name: 'THICKNESS_4',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '3.8',    		  name: 'THICKNESS_5',    filter:{type:'text'},          sortable:true,            align:'center', width:80},
-		{header: '추가두께',   	  name: 'THICKNESS_6',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true}, */
+	    {header: '담당자',    	  name: 'MAN',      	  filter:{type:'text'},          sortable:true,            align:'center', width:100},
 		{header: '备注',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:250},
 		{header: '完了',      name: 'IS_CHECK',     filter:{type:'text'},         sortable:true,            align:'center', width:80},
 		{header: '생성일자',      name: 'CREATE_DATE',    filter:{type:'text'},          sortable:true,            align:'center', hidden:true},
@@ -204,7 +186,7 @@ var gridView = new tui.Grid({
         			return valueMap.sum.toFixed(1);
              	}
     		},
-    		STOPPING_TIME: {
+        	STOPPING_TIME: {
         		template: function(valueMap) {
         			return valueMap.sum;
              	}
@@ -228,47 +210,7 @@ var gridView = new tui.Grid({
                template: function(valueMap) {
                  return valueMap.avg.toFixed(2) +'%';
                }
-           },
-           POP_CNT: {
-	            template: function(valueMap) {
-                	return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-              	}
-           },
-           BOX_CNT: {
-	            template: function(valueMap) {
-                	return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-              	}
-           }/* ,
-           MAN_CMPLT_PER: {
-               template: function(valueMap) {
-                 return valueMap.avg.toFixed(2) +'%';
-               }
-           },
-           THICKNESS_1: {
-           	template: function(valueMap) {
-           		return valueMap.sum;
-           	}
-           },
-           THICKNESS_2: {
-           	template: function(valueMap) {
-           		return valueMap.sum;
-           	}
-           },
-           THICKNESS_3: {
-           	template: function(valueMap) {
-           		return valueMap.sum;
-           	}
-           },
-           THICKNESS_4: {
-           	template: function(valueMap) {
-           		return valueMap.sum;
-           	}
-           },
-           THICKNESS_5: {
-           	template: function(valueMap) {
-           		return valueMap.sum;
-           	}
-           } */
+           }
        }
     }
 });
@@ -349,7 +291,9 @@ var gridEdit = new tui.Grid({
         		listItems:[{value:'', text:'-선택-'}]
        		}}},
 		{header: '品号 ',    	  name: 'PROD_ID',        filter:{type:'text'},          sortable:true,            align:'center', width:100, className:'clickable',        editor:'text', disabled:true},
-		{header: '标准UPH',    	      name: 'STD_UPH',      	  filter:{type:'text'},          sortable:true,            align:'center', width:100, className:'clickable', editor:'text', disabled:true},
+		{header: 'UPH',    	      name: 'UPH',      	  filter:{type:'text'},          sortable:true,            align:'center', className:'clickable', validation:{required:true}, editor:'text', formatter:function(v) { // 추가
+			return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : v.value;
+	    }},
 		{header: '开始时间',      name: 'ST_TIME',        filter:{type:'text'},          sortable:true,            align:'center', width:110, className:'clickable', validation:{required:true}, editor:{
             type: 'datePicker',
             options: {
@@ -381,37 +325,19 @@ var gridEdit = new tui.Grid({
 		{header: '生产数量',      name: 'PRDT_CNT',       filter:{type:'text'},          sortable:true,            align:'center', width:100, validation:{required:true}, editor:'text', formatter:function(v) { // 추가
 		      return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
-		{header: '不良数量',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text', formatter:function(v) { // 추가
+		{header: '不良数量',      name: 'FAULTY_CNT',     filter:{type:'text'},          sortable:true,            align:'center', width:100, validation:{required:true}, editor:'text', formatter:function(v) { // 추가
 		      return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
 		{header: '良品数量',      name: 'FINISHED_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text', disabled:true, formatter:function(v) { // 추가
-		      return v.value !== null && v.value !== '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+		      return v.value != null && v.value != '' ? Number(v.value).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
 	    }},
-		{header: 'UPH',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
-		      return v.value !== null && v.value !== '' ? v.value+'%' : null;
-	    }},
-	    {header: 'POP产品',       	  name: 'POP_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
-	    {header: 'POP사용량',      name: 'POP_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
-	    }},
-	    {header: 'BOX产品',       	  name: 'BOX_NM',        filter:{type:'text'},          sortable:true,            align:'center', width:120},
-	    {header: 'BOX사용량',      name: 'BOX_CNT',   filter:{type:'text'},          sortable:true,            align:'center', width:100, formatter:function(v) { // 추가
-			return v.value !== null && v.value !== '' ? v.value.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
-	    }},
-	    /*
-	    {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
+		{header: '达成率',    	  name: 'CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
 		      return v.value != null && v.value != '' ? v.value+'%' : null;
 	    }},
-		{header: '工人1',    	  name: 'MAN1',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '工人2',    	  name: 'MAN2',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '工人3',    	  name: 'MAN3',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '工人4',    	  name: 'MAN4',      filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80},
-		{header: '1.45',    	  name: 'THICKNESS_1',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '2.0',    		  name: 'THICKNESS_2',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '2.5',    		  name: 'THICKNESS_3',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '2.9',    		  name: 'THICKNESS_4',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '3.8',    		  name: 'THICKNESS_5',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', width:80, disabled:true},
-		{header: '추가두께',      name: 'THICKNESS_6',    filter:{type:'text'},          sortable:true,            align:'center', editor:'text', disabled:true, hidden:true}, */
+	    {header: '담당자',    	  name: 'MAN',      	  filter:{type:'text'},          sortable:true,            align:'center', width:100, editor:'text'},
+	    /* {header: '工人达成率',    	  name: 'MAN_CMPLT_PER',      filter:{type:'text'},          sortable:true,            align:'center', width:100, disabled:true, formatter:function(v) { // 추가
+		      return v.value != null && v.value != '' ? v.value+'%' : null;
+	    }}, */
 		{header: '备注',    	  name: 'BIGO',      	  filter:{type:'text'},          sortable:true,            align:'center', width:250, editor:'text'},
 		{header: '完了',    name: 'IS_CHECK',	filter:{type:'text'},		sortable:true,		align:'center',		className:'clickable', 	width:100, formatter:'listItemText',        
 			editor:{type:'select',
@@ -440,7 +366,7 @@ var gridEdit = new tui.Grid({
         			return valueMap.sum.toFixed(1);
              	}
     		},
-    		STOPPING_TIME: {
+        	STOPPING_TIME: {
         		template: function(valueMap) {
         			return valueMap.sum;
              	}
@@ -464,47 +390,7 @@ var gridEdit = new tui.Grid({
                 template: function(valueMap) {
                   return valueMap.avg.toFixed(2) + '%';
                 }
-            },
-            POP_CNT: {
-	            template: function(valueMap) {
-                	return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-              	}
-            },
-            BOX_CNT: {
-	            template: function(valueMap) {
-                	return valueMap.sum.toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-              	}
-            }/* ,
-            MAN_CMPLT_PER: {
-                template: function(valueMap) {
-                  return valueMap.avg.toFixed(2) +'%';
-                }
-            },
-            THICKNESS_1: {
-            	template: function(valueMap) {
-            		return valueMap.sum;
-            	}
-            },
-            THICKNESS_2: {
-            	template: function(valueMap) {
-            		return valueMap.sum;
-            	}
-            },
-            THICKNESS_3: {
-            	template: function(valueMap) {
-            		return valueMap.sum;
-            	}
-            },
-            THICKNESS_4: {
-            	template: function(valueMap) {
-            		return valueMap.sum;
-            	}
-            },
-            THICKNESS_5: {
-            	template: function(valueMap) {
-            		return valueMap.sum;
-            	}
-            } */
+            }
        }
     }
 });
@@ -551,7 +437,7 @@ var prdtProd = {
 	kindSets:function(){
 		var params = {"code_group":"product_kind"};
 		$.ajax({
-		    url : "/production/prod/kindSets",
+		    url : "/production/prdtRepair/kindSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -566,7 +452,7 @@ var prdtProd = {
 	eqpIdSets:function(){
 		var params = {"code_group":"eqp_id"};
 		$.ajax({
-		    url : "/production/packing/eqpIdSets",
+		    url : "/production/prdtRepair/eqpIdSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -581,7 +467,7 @@ var prdtProd = {
 	areaTypeSets:function(){
 		var params = {"code_group":"area_type"};
 		$.ajax({
-		    url : "/production/packing/areaTypeSets",
+		    url : "/production/prdtRepair/areaTypeSets",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -621,7 +507,7 @@ var prdtProd = {
 			'dateEnd':$('#dateEnd').val()
 		};
 		$.ajax({
-		    url : "/production/packing/list",
+		    url : "/production/prdtRepair/list",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -678,35 +564,12 @@ var prdtProd = {
 		
 		let saveData = gridEdit.getModifiedRows();
 		
-		let allData = gridEdit.getData();
-		let dup = [];
-		let stopFlag = false;
-		
-		try{
-			allData.forEach(function(f_item, index){
-				let org = f_item.PRDT_DATE + f_item.WORK_TYPE + f_item.EQP_ID+ f_item.AREA +f_item.PROD_ID;
-				dup = allData.filter(function(s_item){
-					let com = s_item.PRDT_DATE + s_item.WORK_TYPE + s_item.EQP_ID+ s_item.AREA +s_item.PROD_ID;
-					return org === com;
-				});
-				
-				let chk = false ;
-				if(dup.length > 1) {
-					let rowKey = dup.length;
-					alert("No. "+(dup[rowKey-1]["rowKey"]+1) + " 중복된 데이터가 있습니다.");
-					stopFlag = true;
-					throw new Error();
-				}
-			});
-		}catch(e){
-			console.log("루프문을 빠지긴 위한 강제 에러 처리");
-		}
-		
 		// 빈값 제거..
 		/* saveData.createdRows = saveData.createdRows.filter(function(v){
 	        return v['PROD_ID'] != null && v['PROD_ID'] != '';
 	    }); */
 		
+	    var stopFlag = false;
 		if(saveData.updatedRows.length > 0){
 			$.each(saveData.updatedRows, function(i, v){
 				var orgRowKey = saveData.updatedRows[i]["rowKey"];
@@ -727,7 +590,7 @@ var prdtProd = {
 		
 		if(chkLen > 0){
 			$.ajax({
-			    url : "/production/packing/save", 
+			    url : "/production/prdtRepair/save", 
 			    contentType : "application/json",
 			    method :"POST",
 			    data:JSON.stringify(saveData)
@@ -752,7 +615,7 @@ var prdtProd = {
 		}
 	},
 	add:function(){
-		gridEdit.prependRow({IS_CHECK:'NO'});
+		gridEdit.prependRow({POWDER_COLOR:'白色', IS_CHECK:'NO'});
 	}
 }
 
@@ -760,7 +623,7 @@ var searchCombo = {
 	getProdNm:function(e){
 		var params = {"kind":$(this).val()};
 		$.ajax({
-		    url : "/production/packing/prodNmList",
+		    url : "/production/prdtRepair/prodNmList",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -777,7 +640,7 @@ var searchCombo = {
 	getProdDtlNm:function(){
 		var params = {"kind":$('#KIND').val(), "prodNm":$(this).val()};
 		$.ajax({
-		    url : "/production/packing/prodDtlNmList",
+		    url : "/production/prdtRepair/prodDtlNmList",
 		    method :"POST",
 		    data:params
 		}).success(function(result) {
@@ -813,7 +676,7 @@ var searchCombo = {
 		}else{
 			params = {"kind":kind, "prodNm":prodNm, "prodDtlNm":prodDtlNm};
 			$.ajax({
-			    url : "/production/packing/prodIdList",
+			    url : "/production/prdtRepair/prodIdList",
 			    method :"POST",
 			    data:params
 			}).success(function(result) {
@@ -877,7 +740,7 @@ var searchCombo = {
 		params = {"kind":kind, "prodNm":prodNm, "prodDtlNm":prodDtlNm};
 
 		$.ajax({
-		    url : "/production/packing/getPrice",
+		    url : "/production/prdtRepair/getPrice",
 		    method :"POST",
 		    async: false,
 		    data:params

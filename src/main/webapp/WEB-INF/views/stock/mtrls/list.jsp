@@ -6,7 +6,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">원부자재 재고</div>
+            <div class="muted pull-left">재고관리 > 원자재/부자재</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">

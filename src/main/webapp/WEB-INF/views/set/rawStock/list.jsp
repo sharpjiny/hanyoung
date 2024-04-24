@@ -5,7 +5,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">원재료 리스트</div>
+            <div class="muted pull-left">설정 > 원부자재 info.</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">

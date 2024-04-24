@@ -11,7 +11,7 @@
     <!-- block -->
     <div class="block">
         <div class="navbar navbar-inner block-header">
-            <div class="muted pull-left">수리 일보</div>
+            <div class="muted pull-left">생산관리 > 설비수리일보</div>
         </div>
         <div class="block-content collapse in">
             <div class="span12">

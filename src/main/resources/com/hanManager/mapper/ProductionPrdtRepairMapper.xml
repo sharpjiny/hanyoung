@@ -2,10 +2,10 @@
 <!DOCTYPE mapper
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hanManager.mapper.ProductionCoatingMapper">
+<mapper namespace="com.hanManager.mapper.ProductionPrdtRepairMapper">
 	
-	<select id="selectPrdtCoatingNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-	/* ProductionCoatingMapper.selectPrdtCoatingNm */
+	<select id="selectPrdtPrdtRepairNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionPrdtRepairMapper.selectPrdtPrdtRepairNm */
 		SELECT DISTINCT info.PROD_NM CODE, info.PROD_NM NAME
 		  FROM hanadmin.prdt_info info
 	     WHERE 1=1
@@ -15,8 +15,8 @@
 	     ORDER BY CODE
 	</select>
 	
-	<select id="selectPrdtCoatingDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-	/* ProductionCoatingMapper.selectPrdtCoatingDtlNm */
+	<select id="selectPrdtPrdtRepairDtlNm" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionPrdtRepairMapper.selectPrdtPrdtRepairDtlNm */
 		SELECT DISTINCT info.PROD_DTL_NM CODE, info.PROD_DTL_NM NAME
 		  FROM hanadmin.prdt_info info
 	     WHERE 1=1
@@ -29,8 +29,8 @@
 	     ORDER BY CODE
 	</select>
 	
-	<select id="selectPrdtCoatingId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-	/* ProductionCoatingMapper.selectPrdtCoatingId */
+	<select id="selectPrdtPrdtRepairId" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionPrdtRepairMapper.selectPrdtPrdtRepairId */
 		SELECT info.PROD_ID CODE, info.PROD_ID NAME
 		  FROM hanadmin.prdt_info info
 	     WHERE 1=1
@@ -45,8 +45,8 @@
 	     </if>
 	</select>
 	
-	<select id="getCoatingDtlList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-	/* ProductionCoatingMapper.getCoatingDtlList */
+	<select id="getPrdtRepairDtlList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionPrdtRepairMapper.getPrdtRepairDtlList */
 	SELECT kind
 		 , prod_nm
 		 , LISTAGG(prod_dtl_nm,',') WITHIN GROUP(ORDER BY  kind, prod_nm) AS prod_dtl_nm
@@ -55,7 +55,7 @@
 	</select>
 	
 	<select id="getPrice" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-	/* ProductionCoatingMapper.getPrice */
+	/* ProductionPrdtRepairMapper.getPrice */
 	SELECT info.OUT_PRICE CODE, info.OUT_PRICE NAME 
 	  FROM hanadmin.prdt_info info
 	 WHERE 1=1
@@ -70,8 +70,8 @@
      </if>
 	</select>
 	
-	<select id="selectPrdtCoatingList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
-	/* ProductionCoatingMapper.selectPrdtCoatingList */
+	<select id="selectPrdtPrdtRepairList" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+	/* ProductionPrdtRepairMapper.selectPrdtPrdtRepairList */
 	SELECT to_char(to_date(s.PRDT_DATE), 'YY-MM-DD') PRDT_DATE
 	     , s.WORK_TYPE
 		 , s.EQP_ID
@@ -95,16 +95,11 @@
 		 <!-- , ROUND((s.FINISHED_CNT / s.PRDT_CNT) * 100, 2) || '%' CMPLT_PER -->
 		 , TRUNC(NVL((s.PRDT_CNT - s.FAULTY_CNT)/(DECODE(UPH, 0, 1, UPH)*(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME))*100, 0), 2) CMPLT_PER
 		 , TRUNC(NVL((s.PRDT_CNT - s.FAULTY_CNT)/(DECODE(UPH, 0, 1, UPH)*(DECODE(TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'), 0, NULL, (TO_DATE(s.ED_TIME, 'YY-MM-DD HH24:MI') - TO_DATE(s.ST_TIME, 'YY-MM-DD HH24:MI'))*24)- s.REST_TIME - STOPPING_TIME))*100, 0), 2) MAN_CMPLT_PER
-		 , POWDER_COLOR
-		 , POWDER_CNT
-		 , SUM_WEIGHT
-		 , PWD_WEIGHT
-		 , POWDER_CNT - SUM_WEIGHT POWDER_USAGE
-		 , POWDER_CNT - SUM_WEIGHT - PWD_WEIGHT DIFF
-		 , s.PRDT_CNT * (POWDER_CNT - SUM_WEIGHT) / 1000 TOTAL_POWDER_USAGE
+		 , MAN
+		 , s.BIGO
 	 	 , s.IS_CHECK
 		 <!-- , u.BOM_ID -->
-      FROM HANADMIN.PRDT_STATUS_COAT s, HANADMIN.PRDT_INFO info<!-- , HANADMIN.MTRLS_USAGE u --> 
+      FROM HANADMIN.PRDT_REPAIR_NOTES s, HANADMIN.PRDT_INFO info<!-- , HANADMIN.MTRLS_USAGE u --> 
      WHERE s.PROD_ID = info.PROD_ID
      <if test='WORK_TYPE != null and !WORK_TYPE.equals("")'>
 	   AND WORK_TYPE = #{WORK_TYPE}
@@ -143,9 +138,9 @@
        AND s.PROD_ID = u.PROD_ID(+) -->
 	</select>
 	
-	<insert id="insertPrdtStatusCoating" parameterType="java.util.HashMap" >
-	/* ProductionCoatingMapper.insertPrdtStatusCoating */
-		INSERT INTO hanadmin.prdt_status_coat
+	<insert id="insertPrdtStatusPrdtRepair" parameterType="java.util.HashMap" >
+	/* ProductionPrdtRepairMapper.insertPrdtStatusPrdtRepair */
+		INSERT INTO hanadmin.prdt_repair_notes
 		(	
 			PRDT_DATE 
 			, WORK_TYPE
@@ -159,10 +154,7 @@
 			, REST_TIME
 			, PRDT_CNT
 			, FAULTY_CNT
-			, POWDER_COLOR
-		    , POWDER_CNT
-		    , SUM_WEIGHT
-		    , PWD_WEIGHT
+			, MAN
 			, BIGO
 			, IS_CHECK
 			, CREATE_DATE 
@@ -184,10 +176,7 @@
 			, #{REST_TIME} 
 			, #{PRDT_CNT} 
 			, #{FAULTY_CNT}
-			, #{POWDER_COLOR}
-		    , #{POWDER_CNT}
-		    , (SELECT SUM_WEIGHT FROM hanadmin.bom_info_coating WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM})
-		    , (SELECT PWD_WEIGHT FROM hanadmin.bom_info_coating WHERE prod_nm = #{PROD_NM} and prod_dtl_nm = #{PROD_DTL_NM}) 
+			, #{MAN}
 			, #{BIGO}
 			, #{IS_CHECK}
 			, SYSDATE
@@ -199,7 +188,7 @@
 	</insert>
 	
 	<insert id="insertPrdtMtrlsUsage" parameterType="java.util.HashMap" >
-	/* ProductionCoatingMapper.insertPrdtMtrlsUsage */
+	/* ProductionPrdtRepairMapper.insertPrdtMtrlsUsage */
 		<!-- INSERT INTO hanadmin.mtrls_usage
 		(	
 			PRDT_DATE 
@@ -229,9 +218,9 @@
 		
 	</insert>
 	
-	<update id="updatePrdtStatusCoating" parameterType="java.util.HashMap">
-	/* ProductionCoatingMapper.updatePrdtStatusCoating */
-		UPDATE hanadmin.prdt_status_coat
+	<update id="updatePrdtStatusPrdtRepair" parameterType="java.util.HashMap">
+	/* ProductionPrdtRepairMapper.updatePrdtStatusPrdtRepair */
+		UPDATE hanadmin.prdt_repair_notes
 		   SET PRDT_DATE = #{PRDT_DATE}
 			, WORK_TYPE = #{WORK_TYPE}
 			, EQP_ID = #{EQP_ID}
@@ -244,10 +233,7 @@
 			, REST_TIME = #{REST_TIME}
 			, PRDT_CNT = #{PRDT_CNT}
 			, FAULTY_CNT = #{FAULTY_CNT}
-			, POWDER_COLOR = #{POWDER_COLOR}
-			, POWDER_CNT = #{POWDER_CNT}
-			, SUM_WEIGHT = #{SUM_WEIGHT}
-			, PWD_WEIGHT = #{PWD_WEIGHT}
+			, MAN = #{MAN}
 			, BIGO = #{BIGO}
 			, IS_CHECK = #{IS_CHECK}
 			, CREATE_DATE = SYSDATE
@@ -273,7 +259,7 @@
 	</update>
 	
 	<update id="updatePrdtMtrlsUsage" parameterType="java.util.HashMap">
-	/* ProductionCoatingMapper.updatePrdtMtrlsUsage */
+	/* ProductionPrdtRepairMapper.updatePrdtMtrlsUsage */
 		<!-- UPDATE hanadmin.mtrls_usage
 		   SET PRODUCT_GUBUN = #{PRODUCT_GUBUN} 
 			   , KIND = #{KIND} 
@@ -314,9 +300,9 @@
 	     </if> -->
 	</update>
 	
-	<delete id="deletePrdtStatusCoating" parameterType="java.util.HashMap">
-	/* ProductionCoatingMapper.deletePrdtStatusCoating */
-		DELETE FROM hanadmin.prdt_status_coat
+	<delete id="deletePrdtStatusPrdtRepair" parameterType="java.util.HashMap">
+	/* ProductionPrdtRepairMapper.deletePrdtStatusPrdtRepair */
+		DELETE FROM hanadmin.prdt_repair_notes
 		 WHERE 1=1 
 		 <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
 	    	 AND PRDT_DATE = #{PRDT_DATE}
@@ -336,7 +322,7 @@
 	</delete>
 	
 	<delete id="deletePrdtMtrlsUsage" parameterType="java.util.HashMap">
-	/* ProductionCoatingMapper.deletePrdtMtrlsUsage */
+	/* ProductionPrdtRepairMapper.deletePrdtMtrlsUsage */
 		<!-- DELETE FROM hanadmin.mtrls_usage
 		 WHERE 1=1
 		 <if test='PRDT_DATE != null and !PRDT_DATE.equals("")'>
@@ -360,7 +346,7 @@
 	</delete>
 	
 	<!-- <update id="mergePrdtStock" parameterType="java.util.HashMap">
-	/* ProductionCoatingMapper.mergePrdtStock */
+	/* ProductionPrdtRepairMapper.mergePrdtStock */
 		MERGE INTO hanadmin.prdt_stock S
 	    USING DUAL
 	       ON (S.PROD_ID = #{PROD_ID})
@@ -375,7 +361,7 @@
 	</update>
 	
 	<update id="deletePrdtStock" parameterType="java.util.HashMap">
-	/* ProductionCoatingMapper.deletePrdtStock */
+	/* ProductionPrdtRepairMapper.deletePrdtStock */
 		UPDATE hanadmin.prdt_stock  
 		   SET COUNT = COUNT - (#{BOX_PER_COUNT})
 			   , BOX_COUNT = BOX_COUNT - (#{BOX_COUNT})
