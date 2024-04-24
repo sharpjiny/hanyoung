@@ -55,6 +55,7 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
     	LoginUsers loginUser = LoginManager.getInstance().getSession(request);
     	List<String> list = new ArrayList<String>();
         list.add("49.69.204.243");
+        list.add("49.69.206.199");
         logger.info("ip ==============> "+request.getRemoteAddr());
         logger.info("loginUser ==============> "+loginUser);
         
